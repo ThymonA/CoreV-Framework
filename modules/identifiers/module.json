@@ -1,7 +1,7 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "FXCore identifier module",
+    "description": "CoreV identifier module",
     "server_scripts": [
         "server/main.lua"
     ],

@@ -1,7 +1,7 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "FXCore logging module",
+    "description": "CoreV logging module",
     "server_scripts": [
         "server/main.lua"
     ],

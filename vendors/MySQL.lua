@@ -1,4 +1,4 @@
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 -- GitHub: https://github.com/brouznouf/fivem-mysql-async
 -- License: MIT License
 --          https://choosealicense.com/licenses/mit/
@@ -6,7 +6,7 @@
 -- Name: fivem-mysql-async
 -- Version: 3.3.2
 -- Description: MySql Async Library for FiveM
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 mysql = {
     async = {},
     sync = {},

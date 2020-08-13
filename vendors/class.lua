@@ -1,11 +1,11 @@
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 -- ɢɪᴛʜᴜʙ: https://github.com/Yonaba/30log
 -- ʟɪᴄᴇɴꜱᴇ: MIT License
 -- ᴅᴇᴠᴇʟᴏᴘᴇʀ: Yonaba
 -- ᴘʀᴏᴊᴇᴄᴛ: 30log
 -- ᴠᴇʀꜱɪᴏɴ: 1.3.0
 -- ᴅᴇꜱᴄʀɪᴘᴛɪᴏɴ: library for object orientation in Lua
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 
 local assert       = assert
 local pairs        = pairs

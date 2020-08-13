@@ -1,11 +1,11 @@
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 -- GitHub: https://gist.github.com/luiseduardohd/10668729
 -- License: None
 -- Author: luiseduardohd
 -- Name: luaregex.lua
 -- Version: 130911
 -- Description: LuaRegex A True Regular Expression for Lua
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 
 local unpack = table.unpack or unpack
 

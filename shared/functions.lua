@@ -1,13 +1,13 @@
------------------------ [ FXCore ] -----------------------
--- GitLab: https://git.thymonarens.nl/ThymonA/fx_core/
--- GitHub: https://github.com/ThymonA/FXCore/
+----------------------- [ CoreV ] -----------------------
+-- GitLab: https://git.thymonarens.nl/ThymonA/corev-framework/
+-- GitHub: https://github.com/ThymonA/CoreV-Framework/
 -- License: GNU General Public License v3.0
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: ThymonA
--- Name: FXCore
+-- Name: CoreV
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 
 --
 -- Custom function for try catch
@@ -39,7 +39,7 @@ end
 ---@param module Module Name
 ---@param key Translation Key
 local function _(resource, module, key, ...)
-    return ((((FXCore.Translations or {})[resource] or {})[module] or {})[key] or ('MISSING TRANSLATION [%s][%s][%s]'):format(resource, module, key)):format(...)
+    return ((((CoreV.Translations or {})[resource] or {})[module] or {})[key] or ('MISSING TRANSLATION [%s][%s][%s]'):format(resource, module, key)):format(...)
 end
 
 --- Returns a current time as string

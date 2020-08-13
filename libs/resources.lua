@@ -1,13 +1,13 @@
------------------------ [ FXCore ] -----------------------
--- GitLab: https://git.thymonarens.nl/ThymonA/fx_core/
--- GitHub: https://github.com/ThymonA/FXCore/
+----------------------- [ CoreV ] -----------------------
+-- GitLab: https://git.thymonarens.nl/ThymonA/corev-framework/
+-- GitHub: https://github.com/ThymonA/CoreV-Framework/
 -- License: GNU General Public License v3.0
 --          https://choosealicense.com/licenses/gpl-3.0/
 -- Author: ThymonA
--- Name: FXCore
+-- Name: CoreV
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
------------------------ [ FXCore ] -----------------------
+----------------------- [ CoreV ] -----------------------
 Resources = class('Resources')
 
 -- Set default values
@@ -455,16 +455,16 @@ function Resources:LoadTranslations(manifest)
                         local data = json.decode(content)
 
                         if (data) then
-                            if (FXCore.Translations[GetCurrentResourceName()] == nil) then
-                                FXCore.Translations[GetCurrentResourceName()] = {}
+                            if (CoreV.Translations[GetCurrentResourceName()] == nil) then
+                                CoreV.Translations[GetCurrentResourceName()] = {}
                             end
 
-                            if (FXCore.Translations[GetCurrentResourceName()][manifest.module] == nil) then
-                                FXCore.Translations[GetCurrentResourceName()][manifest.module] = {}
+                            if (CoreV.Translations[GetCurrentResourceName()][manifest.module] == nil) then
+                                CoreV.Translations[GetCurrentResourceName()][manifest.module] = {}
                             end
 
                             for _key, _value in pairs(data or {}) do
-                                FXCore.Translations[GetCurrentResourceName()][manifest.module][_key] = _value
+                                CoreV.Translations[GetCurrentResourceName()][manifest.module][_key] = _value
                             end
                         end
                     end
@@ -475,16 +475,16 @@ function Resources:LoadTranslations(manifest)
                         local data = json.decode(content)
 
                         if (data) then
-                            if (FXCore.Translations[manifest.name] == nil) then
-                                FXCore.Translations[manifest.name] = {}
+                            if (CoreV.Translations[manifest.name] == nil) then
+                                CoreV.Translations[manifest.name] = {}
                             end
 
-                            if (FXCore.Translations[manifest.name][manifest.module] == nil) then
-                                FXCore.Translations[manifest.name][manifest.module] = {}
+                            if (CoreV.Translations[manifest.name][manifest.module] == nil) then
+                                CoreV.Translations[manifest.name][manifest.module] = {}
                             end
 
                             for _key, _value in pairs(data or {}) do
-                                FXCore.Translations[manifest.name][manifest.module][_key] = _value
+                                CoreV.Translations[manifest.name][manifest.module][_key] = _value
                             end
                         end
                     end
