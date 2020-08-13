@@ -1,0 +1,10 @@
+CREATE TABLE `migrations` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+   	`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`resource` VARCHAR(100) NOT NULL,
+   	`module` VARCHAR(100) NOT NULL,
+	`version` VARCHAR(100) NOT NULL,
+
+	PRIMARY KEY (`id`),
+	INDEX `logs_date` (`date`)
+);

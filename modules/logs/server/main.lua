@@ -105,8 +105,6 @@ function logs:Create(source)
         local username = '[Logs] ' .. self.name
         local webhook = getWebhooks(action, fallback)
 
-        print(self:GetAvatar())
-
         if (webhook ~= nil) then
             self:LogToDiscord(username, title, message, footer, webhook, color, args)
         end
@@ -172,10 +170,10 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     logs.players[tostring(playerLog:GetSource())] = playerLog
 
     playerLog:Log({
-        title = _(GetCurrentResourceName(), 'logs', 'player_connecting_title', playerLog:GetName()),
+        title = _(CR(), 'logs', 'player_connecting_title', playerLog:GetName()),
         action = 'connecting',
         color = Colors.Orange,
-        message = _(GetCurrentResourceName(), 'logs', 'player_connecting', playerLog:GetName())
+        message = _(CR(), 'logs', 'player_connecting', playerLog:GetName())
     })
 
     returnSuccess()

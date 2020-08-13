@@ -22,7 +22,6 @@ version '1.0.0'
 server_scripts {
     'shared/functions.lua',
 
-    'vendors/MySQL.lua',
     'vendors/regex.lua',
     'vendors/class.lua',
 
@@ -41,6 +40,7 @@ server_scripts {
 }
 
 modules {
+    'database',
     'identifiers',
     'logs'
 }

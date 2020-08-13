@@ -29,7 +29,7 @@ end
 -- Trigger when player is connecting
 onPlayerConnecting(function(source, returnSuccess, returnError)
     if (source == nil or type(source) ~= 'number') then
-        returnError(_(GetCurrentResourceName(), 'identifiers', 'source_error'))
+        returnError(_(CR(), 'identifiers', 'source_error'))
         return
     end
 
@@ -55,7 +55,7 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     end
 
     if (playerIdentifier == 'none') then
-        returnError(_(GetCurrentResourceName(), 'identifiers', string.lower(IDTYPE) .. '_error'))
+        returnError(_(CR(), 'identifiers', string.lower(IDTYPE) .. '_error'))
         return
     end
 

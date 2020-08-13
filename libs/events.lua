@@ -39,7 +39,7 @@ if (SERVER) then
                     continue = true
                     error = true
                     error_message = err_message or 'Unknown Error'
-                end)
+                end, deferrals)
 
                 while not continue do
                     Citizen.Wait(0)

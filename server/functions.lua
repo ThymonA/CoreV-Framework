@@ -10,8 +10,8 @@
 ----------------------- [ CoreV ] -----------------------
 
 --- Returns a webhook by action
----@param action string Action
----@param fallback string fallback webhook
+--- @param action string Action
+--- @param fallback string fallback webhook
 local function getWebhooks(action, fallback)
     action = string.lower(action or 'none')
 
@@ -44,6 +44,36 @@ local function getWebhooks(action, fallback)
     return nil
 end
 
+--- Reutnrs a module file
+--- @param module string Module name
+--- @param file string Path to module file
+local function getModuleFile(module, file)
+    local content = LoadResourceFile(CR(), 'modules/' .. module .. '/' .. file)
+
+    if (content) then
+        return content
+    end
+
+    return nil
+end
+
+--- Reutnrs a resource file
+--- @param resource string Resource name
+--- @param file string Path to module file
+local function getResourceFile(resource, file)
+    local content = LoadResourceFile(resource, file)
+
+    if (content) then
+        return content
+    end
+
+    return nil
+end
+
 -- FiveM maniplulation
 _ENV.getWebhooks = getWebhooks
 _G.getWebhooks = getWebhooks
+_ENV.getModuleFile = getModuleFile
+_G.getModuleFile = getModuleFile
+_ENV.getResourceFile = getResourceFile
+_G.getResourceFile = getResourceFile

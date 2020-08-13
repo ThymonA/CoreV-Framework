@@ -9,9 +9,10 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 Config.OS               = 'windows'
+Config.DatabaseName     = 'corev'
 Config.Webhooks = {
     ['connecting'] = {
-        'https://discordapp.com/api/webhooks/.......'
+        'https://discordapp.com/api/webhooks/742865380451680418/W9m8w_Aa0_pLax6ZRT0uVmdqJFhLTgnGSgWflyoOm3sAVnKbYwfEOu_RG4fz9_xSzuUo'
     }
 }
 

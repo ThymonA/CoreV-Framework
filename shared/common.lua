@@ -22,3 +22,8 @@ _G.CLIENT               = not _G.SERVER
 _G.OperatingSystem      = Config.OS
 _G.IDTYPE               = string.lower(Config.IdentifierType or 'license')
 _G.LANGUAGE             = string.lower(Config.Langauge or 'en')
+
+if (SERVER) then
+    _ENV.DBNAME = Config.DatabaseName or 'Unknown'
+    _G.DBNAME = Config.DatabaseName or 'Unknown'
+end

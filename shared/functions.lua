@@ -88,3 +88,5 @@ _ENV._ = _
 _G._ = _
 _ENV.currentTimeString = currentTimeString
 _G.currentTimeString = currentTimeString
+_ENV.CR = GetCurrentResourceName
+_G.CR = GetCurrentResourceName

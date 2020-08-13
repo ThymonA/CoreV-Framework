@@ -1,0 +1,12 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV database module",
+    "server_scripts": [
+        "server/main.lua"
+    ],
+    "languages": {
+        "nl": "langs/nl.json"
+    },
+    "module": "database"
+}
