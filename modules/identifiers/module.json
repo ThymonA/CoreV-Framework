@@ -1,0 +1,15 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "FXCore identifier module",
+    "server_scripts": [
+        "server/main.lua"
+    ],
+    "client_scripts": [
+
+    ],
+    "languages": {
+        "nl": "langs/nl.json"
+    },
+    "module": "identifiers"
+}

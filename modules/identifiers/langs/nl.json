@@ -1,0 +1,13 @@
+
+{
+    "source_error": "[LOGS][🛑] Wij konden uw id niet vaststellen, probeer opnieuw te joinen of via `F8` en dan `connect play.dobberdamrp.nl`",
+    "identifier_error": "[LOGS][🛑] Wij konden uw identifier niet vaststellen, neem contact op met de server owners",
+    "steam_error": "U moet Steam open hebben staan om op deze FiveM server te kunnen spelen.",
+    "license_error": "Uw FiveM moet voorzien zijn van een geldige GTA5 licentie om op deze server te kunnen spelen.",
+    "xbl_error": "Uw account moet voorzien zijn van een geldige XBOX Live ID om op deze server te kunnen spelen.",
+    "live_error": "Uw account moet voorzien zijn van een geldige Microsoft account om op deze server te kunnen spelen.",
+    "discord_error": "Uw FiveM moet voorzien zijn van een Discord account, geef FiveM toegang tot Discord om op deze server te kunnen spelen.",
+    "fivem_error": "Uw FiveM moet verbonden zijn met uw FiveM Forum account om op deze server te kunnen spelen.",
+    "ip_error": "U kunt niet joinen aangezien wij uw IP niet hebben kunnen vaststellen, herstart FiveM en probeer het opnieuw.",
+    "none_error": "U kunt niet joinen aangezien een onbekende identifier ontbreekt, neem contact op met de server eigenaren."
+}
