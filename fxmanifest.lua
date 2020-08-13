@@ -42,6 +42,7 @@ server_scripts {
 modules {
     'database',
     'identifiers',
-    'jobs',
     'logs',
+    'jobs',
+    'players'
 }

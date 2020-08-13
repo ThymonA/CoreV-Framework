@@ -399,6 +399,8 @@ function Resources:Execute()
         local script = ''
         local _type = 'client'
 
+        Resources:LoadTranslations(manifest)
+
         if (module.hasMigrations or false) then                
             local database = m('database')
             local moduleMigrations = module.migrations or {}

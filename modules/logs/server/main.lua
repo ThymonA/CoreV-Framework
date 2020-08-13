@@ -109,7 +109,7 @@ function logs:Create(source)
             self:LogToDiscord(username, title, message, footer, webhook, color, args)
         end
 
-        self:LogToDatabase(action, object)
+        self:LogToDatabase(action, args)
     end
 
     --- Log to discord
@@ -155,6 +155,20 @@ function logs:Create(source)
     --- @param action string Action
     --- @param args array Arguments
     function playerLog:LogToDatabase(action, args)
+        args = args or {}
+
+        if (type(args) ~= 'table') then
+            args = {}
+        end
+
+        local database = m('database')
+
+        database:executeAsync('INSERT INTO `logs` (`identifier`, `name`, `action`, `args`) VALUES (@identifier, @name, @action, @args)', {
+            ['@identifier'] = self.identifier,
+            ['@name'] = self.name,
+            ['@action'] = tostring(action),
+            ['@args'] = json.encode(args)
+        }, function() end)
     end
 
     --- Intialize player avatar

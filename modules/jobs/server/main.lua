@@ -22,7 +22,7 @@ function jobs:loadJobs()
 
     if (jobInfos ~= nil and #jobInfos > 0) then
         for _, jobInfo in pairs(jobInfos or {}) do
-            if (jobs.jobs ~= nil and jobs.jobs[jobInfo.job_name] == nil) then
+            if (jobs.jobs ~= nil and jobs.jobs[string.lower(jobInfo.job_name)] == nil) then
                 local job = class('job')
 
                 --- Set default values
@@ -34,7 +34,29 @@ function jobs:loadJobs()
                     grades = {}
                 }
 
-                jobs.jobs[jobInfo.job_name] = job
+                --- Get grade by number
+                --- @param grade int Grade
+                function job:getGrade(grade)
+                    if (self.grades[tostring(grade)] ~= nil) then
+                        return self.grades[tostring(grade)]
+                    end
+
+                    return nil
+                end
+
+                --- Get grade by name
+                --- @param gradeName string Grade Name
+                function job:getGradeByName(gradeName)
+                    for _, grade in pairs(self.grades or {}) do
+                        if (string.lower(grade.name) == string.lower(gradeName)) then
+                            return grade
+                        end
+                    end
+
+                    return nil
+                end
+
+                jobs.jobs[string.lower(jobInfo.job_name)] = job
             end
 
             local jobGrade = class('job-grade')
@@ -47,9 +69,31 @@ function jobs:loadJobs()
                 salary = jobInfo.grade_salary
             }
 
-            jobs.jobs[jobInfo.job_name].grades[tostring(jobGrade.grade)] = jobGrade
+            jobs.jobs[string.lower(jobInfo.job_name)].grades[tostring(jobGrade.grade)] = jobGrade
         end
     end
+end
+
+--- Get job by name
+--- @param jobName string Job Name
+function jobs:getJob(id)
+    for _, job in pairs(self.jobs or {}) do
+        if (job.id == id) then
+            return job
+        end
+    end
+
+    return nil
+end
+
+--- Get job by name
+--- @param jobName string Job Name
+function jobs:getJobByName(jobName)
+    if (self.jobs[string.lower(jobName)] ~= nil) then
+        return self.jobs[string.lower(jobName)]
+    end
+
+    return nil
 end
 
 --- Trigger event when database is ready

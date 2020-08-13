@@ -1,0 +1,16 @@
+{
+    "sqltools.connections": [
+        {
+            "askForPassword": true,
+            "connectString": "server=127.0.0.1;userid=root;password=F_C^NXv7&c5J#RhEVEC7QtOm;database=corev",
+            "driver": "MySQL",
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "name": "CoreV",
+            "port": 3306,
+            "previewLimit": 50,
+            "server": "localhost"
+        }
+    ]
+}
