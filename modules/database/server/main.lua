@@ -213,9 +213,7 @@ end
 --- @param func function Callback function
 function database:ready(func)
     Citizen.CreateThread(function()
-        while not database.isReady do
-            Citizen.Wait(0)
-        end
+        repeat Citizen.Wait(0) until database.isReady == true
     
         func()
     end)
@@ -226,6 +224,8 @@ end
 --- @param module string Module Name
 --- @param name string Migration Name
 function database:applyMigration(resource, module, name)
+    local queryDone = false
+    
     self:ready(function()
         local content = nil
 
@@ -236,14 +236,16 @@ function database:applyMigration(resource, module, name)
         end
 
         if (content == nil) then
-            return true
+            queryDone = true
+            return
         end
 
         local moduleMigrations = (database.migrations[resource] or {})[module] or {}
 
         for _, migration in pairs(moduleMigrations or {}) do
             if (string.lower(migration.version) == string.lower(name)) then
-                return true
+                queryDone = true
+                return
             end
         end
 
@@ -254,8 +256,12 @@ function database:applyMigration(resource, module, name)
             ['@version'] = name
         })
 
-        return true
+        queryDone = true
     end)
+
+    repeat Citizen.Wait(0) until queryDone == true
+
+    return queryDone
 end
 
 --- Change ready state when database is ready
@@ -312,4 +318,4 @@ onPlayerConnecting(function(source, returnSuccess, returnError, deferrals)
     returnSuccess()
 end)
 
-module('database', database)
+addModule('database', database)

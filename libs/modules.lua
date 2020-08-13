@@ -240,7 +240,7 @@ function Modules:Get(moduleName)
 end
 
 -- FiveM manipulation
-_ENV.module = function(name, arguments, override) Modules:Load(name, arguments, override) end
-_G.module = function(name, arguments, override) Modules:Load(name, arguments, override) end
+_ENV.addModule = function(name, arguments, override) Modules:Load(name, arguments, override) end
+_G.addModule = function(name, arguments, override) Modules:Load(name, arguments, override) end
 _ENV.m = function(moduleName) return Modules:Get(moduleName) end
 _G.m = function(moduleName) return Modules:Get(moduleName) end

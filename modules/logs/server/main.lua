@@ -179,4 +179,4 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     returnSuccess()
 end)
 
-module('logs', logs)
+addModule('logs', logs)

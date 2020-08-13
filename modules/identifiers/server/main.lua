@@ -107,4 +107,4 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     return returnSuccess()
 end)
 
-module('identifiers', identifiers)
+addModule('identifiers', identifiers)

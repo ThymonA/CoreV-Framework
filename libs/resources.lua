@@ -227,21 +227,6 @@ function Resources:ModuleHasMigrations(moduleName)
 end
 
 --
--- Returns `true` if given module is a framework module
--- @moduleName string Name of the module
--- @return boolean `true` if module is framework module
---
-function Resources:HasMigrations(files)
-    for _, file in pairs(files or {}) do
-        if (string.lower(file) == 'migrations') then
-            return true
-        end
-    end
-
-    return false
-end
-
---
 -- Returns a list of framework resources
 -- @return array List of framework resources
 --
@@ -303,32 +288,17 @@ function Resources:GetModules()
         table.insert(metadataModules, GetResourceMetadata(CR(), 'module', i))
     end
 
-    if (#metadataModules > 0) then
-        local sortedModules = {}
+    local finalModules = {}
 
-        while #metadataModules > 0 do
-            for _, module in pairs(results or {}) do
-                if (module ~= nil and string.lower(module.name) == string.lower(metadataModules[1])) then
-                    table.insert(sortedModules, module)
-
-                    table.remove(results, _)
-                    table.remove(metadataModules, 1)
-                end
-            end
-
-            table.remove(metadataModules, 1)
-        end
-
-        for _, module in pairs(results or {}) do
-            if (module ~= nil) then
-                table.insert(sortedModules, module)
+    for _, metadataModule in pairs(metadataModules or {}) do
+        for _, _module in pairs(results) do
+            if (string.lower(_module.name) == string.lower(metadataModule)) then
+                table.insert(finalModules, _module)
             end
         end
-
-        return sortedModules
     end
 
-    return results
+    return finalModules
 end
 
 --
@@ -420,63 +390,60 @@ end
 -- Execute all framework resources and modules
 --
 function Resources:Execute()
-    local modules = Resources:GetModules()
+    local frameworkModules = Resources:GetModules()
     local resources = Resources:GetResources()
+    local count = #frameworkModules
 
-    for _, module in pairs(modules or {}) do
-        if (not Resources:IsModuleLoaded(module.name)) then
-            local manifest = Resources:GetModuleManifestInfo(module.name, module)
-            local script = ''
-            local _type = 'client'
+    for _, module in pairs(frameworkModules or {}) do
+        local manifest = Resources:GetModuleManifestInfo(module.name, module)
+        local script = ''
+        local _type = 'client'
 
-            Resources:LoadTranslations(manifest)
-
-            if (manifest.hasMigrations or false) then
-                local database = m('database')
-                local moduleMigrations = manifest.migrations or {}
-
-                for _, migration in pairs(moduleMigrations) do
-                    local migrationDone = database:applyMigration(CR(), module.name, migration)
-
-                    repeat Citizen.Wait(0) until migrationDone == true
-                end
-            end
-
-            if (SERVER) then
-                _type = 'server'
-            end
-
-            for _, _file in pairs(manifest:GetValue(('%s_scripts'):format(_type)) or {}) do
-                local code = LoadResourceFile(CR(), 'modules/' .. module.name .. '/' .. _file)
-
-                if (code) then
-                    script = script .. code .. '\n'
-                end
-            end
-
-            _ENV.CurrentFrameworkResource = CR()
-            _ENV.CurrentFrameworkModule = module.name
-
-            local fn = load(script, ('@%s:%s:%s'):format(CR(), module.name, _type), 't', _ENV)
-
-            xpcall(fn, function(err)
-                print(err)
-            end)
-
-            if (not Resources:ModuleExists(module.name)) then
-                local _object = Resources:extend('resource-module')
-
-                _object:set {
-                    name = module.name,
-                    manifest = manifest,
-                    loaded = true
-                }
-
-                local moduleName = string.lower(tostring(module.name))
-
-                Resources.FrameworkModules[moduleName] = _object
+        if (module.hasMigrations or false) then                
+            local database = m('database')
+            local moduleMigrations = module.migrations or {}
+    
+            for _, migration in pairs(moduleMigrations) do
+                local migrationDone = database:applyMigration(CR(), module.name, migration)
+    
+                repeat Citizen.Wait(0) until migrationDone == true
             end
         end
+
+        if (SERVER) then
+            _type = 'server'
+        end
+    
+        for _, _file in pairs(manifest:GetValue(('%s_scripts'):format(_type)) or {}) do
+            local code = LoadResourceFile(CR(), 'modules/' .. module.name .. '/' .. _file)
+    
+            if (code) then
+                script = script .. code .. '\n'
+            end
+        end
+
+        _ENV.CurrentFrameworkResource = CR()
+        _ENV.CurrentFrameworkModule = module.name
+
+        local fn = load(script, ('@%s:%s:%s'):format(CR(), module.name, _type), 't', _ENV)
+
+        xpcall(fn, function(err)
+            print(err)
+        end)
+
+        local _object = Resources:extend('resource-module')
+
+        _object:set {
+            name = module.name,
+            manifest = manifest,
+            loaded = true
+        }
+
+        local moduleName = string.lower(tostring(module.name))
+
+        Resources.FrameworkModules[moduleName] = _object
+
+        print(module.name)
     end
 
     for _, resource in pairs(resources or {}) do
