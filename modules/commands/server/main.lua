@@ -112,7 +112,10 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
         local logger = logs:get(source)
 
         logger:log({
-            args = args,
+            args = {
+                command = name,
+                arguments = args
+            },
             action = 'execute.command',
             color = Colors.Blue,
             footer = ('command "%s" | %s | %s'):format(name, logger.identifier, currentTimeString()),
