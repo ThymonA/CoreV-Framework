@@ -69,7 +69,9 @@ server_scripts {
     'server/libs/resources.lua',
 
     'server/functions.lua',
-    'server/main.lua'
+    'server/main.lua',
+
+    'modules/discord/main.js'
 }
 
 modules {
