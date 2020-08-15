@@ -18,7 +18,7 @@ identifiers:set {
 --- Returns a player identifier by type
 --- @param source int Player ID
 --- @param type string Identifier Type
-function identifiers:GetPlayer(source)
+function identifiers:getPlayer(source)
     if (identifiers.players ~= nil and identifiers.players[tostring(source)] ~= nil) then
         return identifiers.players[tostring(source)]
     end
@@ -70,7 +70,7 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
 
     --- Get identifier by Type
     --- @param type string Identifier Type
-    function _playerIdentifier:GetByType(type)
+    function _playerIdentifier:getByType(type)
         for _, identifier in pairs(self.identifiers or {}) do
             if (type == 'steam' and string.match(string.lower(identifier), 'steam:')) then
                 return string.sub(identifier, 7)
@@ -93,12 +93,12 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     end
 
     --- Get identifier
-    function _playerIdentifier:GetIdentifier()
+    function _playerIdentifier:getIdentifier()
         return self.identifier or 'unknown'
     end
 
     --- Get identifiers
-    function _playerIdentifier:GetIdentifiers()
+    function _playerIdentifier:getIdentifiers()
         return self.identifiers or {}
     end
 

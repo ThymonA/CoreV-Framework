@@ -17,10 +17,10 @@ logs:set {
 
 --- Create a log object
 --- @param source int Player ID
-function logs:Create(source)
+function logs:create(source)
     local playerLog = class('playerlog')
     local identifierModule = m('identifiers')
-    local playerIdentifiers = identifierModule:GetPlayer(source)
+    local playerIdentifiers = identifierModule:getPlayer(source)
     local steamIdentifier = playerIdentifiers:GetByType('steam')
 
     --- Set default values
@@ -78,22 +78,22 @@ function logs:Create(source)
     end
 
     --- Returns a player name
-    function playerLog:GetName()
+    function playerLog:getName()
         return self.name or 'Unknown'
     end
 
     --- Returns a player id
-    function playerLog:GetSource()
+    function playerLog:getSource()
         return self.source or 0
     end
 
     --- Returns a player avatar
-    function playerLog:GetAvatar()
+    function playerLog:getAvatar()
         return self.avatar or Config.DefaultAvatar or 'none'
     end
 
     --- Log a player action
-    function playerLog:Log(object, fallback)
+    function playerLog:log(object, fallback)
         fallback = fallback or false
 
         local args = object.args or {}
@@ -106,10 +106,10 @@ function logs:Create(source)
         local webhook = getWebhooks(action, fallback)
 
         if (webhook ~= nil) then
-            self:LogToDiscord(username, title, message, footer, webhook, color, args)
+            self:logToDiscord(username, title, message, footer, webhook, color, args)
         end
 
-        self:LogToDatabase(action, args)
+        self:logToDatabase(action, args)
     end
 
     --- Log to discord
@@ -120,10 +120,10 @@ function logs:Create(source)
     --- @param webhooks string|array Webhook(s)
     --- @param color int Color
     --- @param args array Arguments
-    function playerLog:LogToDiscord(username, title, message, footer, webhooks, color, args)
+    function playerLog:logToDiscord(username, title, message, footer, webhooks, color, args)
         if (webhooks ~= nil and type(webhooks) == 'table') then
             for _, webhook in pairs(webhooks or {}) do
-                self:LogToDiscord(username, title, message, footer, webhook, color, args)
+                self:logToDiscord(username, title, message, footer, webhook, color, args)
             end
         elseif (webhooks ~= nil and type(webhooks) == 'string') then
             color = color or 98707270
@@ -147,14 +147,14 @@ function logs:Create(source)
                 }
             end
 
-            PerformHttpRequest(webhooks, function(error, text, headers) end, 'POST', json.encode({ username = username, embeds = { requestInfo }, avatar_url = self:GetAvatar() }), { ['Content-Type'] = 'application/json' })
+            PerformHttpRequest(webhooks, function(error, text, headers) end, 'POST', json.encode({ username = username, embeds = { requestInfo }, avatar_url = self:getAvatar() }), { ['Content-Type'] = 'application/json' })
         end
     end
 
     --- Log to database
     --- @param action string Action
     --- @param args array Arguments
-    function playerLog:LogToDatabase(action, args)
+    function playerLog:logToDatabase(action, args)
         args = args or {}
 
         if (type(args) ~= 'table') then
@@ -179,15 +179,15 @@ end
 
 -- Trigger when player is connecting
 onPlayerConnecting(function(source, returnSuccess, returnError)
-    local playerLog = logs:Create(source)
+    local playerLog = logs:create(source)
 
-    logs.players[tostring(playerLog:GetSource())] = playerLog
+    logs.players[tostring(playerLog:getSource())] = playerLog
 
-    playerLog:Log({
-        title = _(CR(), 'logs', 'player_connecting_title', playerLog:GetName()),
+    playerLog:log({
+        title = _(CR(), 'logs', 'player_connecting_title', playerLog:getName()),
         action = 'connecting',
         color = Colors.Orange,
-        message = _(CR(), 'logs', 'player_connecting', playerLog:GetName())
+        message = _(CR(), 'logs', 'player_connecting', playerLog:getName())
     })
 
     returnSuccess()

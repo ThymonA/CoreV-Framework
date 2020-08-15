@@ -26,10 +26,10 @@ function players:loadPlayerData(source)
     local database = m('database')
     local identifiers = m('identifiers')
     local jobs = m('jobs')
-    local playerIdentifier = identifiers:GetPlayer(source)
+    local playerIdentifier = identifiers:getPlayer(source)
     
     local playerExists = database:fetchScalar("SELECT COUNT(*) AS `count` FROM `players` WHERE `identifier` = @identifier", {
-        ['@identifier'] = playerIdentifier:GetIdentifier()
+        ['@identifier'] = playerIdentifier:getIdentifier()
     })
 
     if (playerExists <= 0) then
@@ -37,7 +37,7 @@ function players:loadPlayerData(source)
         local unemployedGrade = unemployedJobs:getGradeByName('unemployed')
         
         database:execute('INSERT INTO `players` (`identifier`, `accounts`, `job`, `grade`, `job2`, `grade2`) VALUES (@identifier, @accounts, @job, @grade, @job2, @grade2)', {
-            ['@identifier'] = playerIdentifier:GetIdentifier(),
+            ['@identifier'] = playerIdentifier:getIdentifier(),
             ['@accounts'] = json.encode({}),
             ['@job'] = unemployedJobs.id,
             ['@grade'] = unemployedGrade.grade,
@@ -51,7 +51,7 @@ function players:loadPlayerData(source)
     end
 
     local playerData = database:fetchAll('SELECT * FROM `players` WHERE `identifier` = @identifier', {
-        ['@identifier'] = playerIdentifier:GetIdentifier()
+        ['@identifier'] = playerIdentifier:getIdentifier()
     })[1]
 
     local job = jobs:getJob(playerData.job)
@@ -62,7 +62,7 @@ function players:loadPlayerData(source)
 
     --- Set default values
     player:set {
-        identifier = playerIdentifier:GetIdentifier(),
+        identifier = playerIdentifier:getIdentifier(),
         name = GetPlayerName(source),
         job = job,
         grade = grade,
