@@ -1,0 +1,9 @@
+{
+    "command_already_registered": "Command '%s' is al toegevoegd en zullen hem overschrijden",
+    "command_console_not_allowed": "U mag command '%s' niet uitvoeren vanuit de console",
+    "command_mismatch_arguemnts": "Uw aantal argumenten komen niet overeen, command verwacht %s en kreeg %s",
+    "command_argument_number_error": "U moet een getal opgeven bij argument %s",
+    "command_not_allowed": "U heeft geen toestemming om deze command uit te voeren.",
+    "command_message": "Naam: %s\nCommand: %s\nArgumenten:\n```%s```",
+    "command_title": "%s heeft een commando uitgevoerd"
+}

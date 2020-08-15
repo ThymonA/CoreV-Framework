@@ -1,6 +1,10 @@
 Citizen.CreateThread(function()
     while true do
         if (NetworkIsPlayerActive(PlayerId())) then
+            if (GetEntityModel(PlayerPedId()) == GetHashKey('a_f_m_beach_01')) then
+                break;
+            end
+
             if (GetEntityModel(PlayerPedId()) == GetHashKey('PLAYER_ZERO')) then
                 local defaultModel = GetHashKey('a_f_m_beach_01')
 

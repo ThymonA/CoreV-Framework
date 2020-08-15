@@ -112,7 +112,7 @@ function Modules:Create(name, argument)
                 if (not _module:IsLoaded() and _module:HasError()) then
                     self.error = true
 
-                    print(("Dependency '%s' at index #%s failed to load, module can't be started"):format(_module.name, i), self.resource, self.name)
+                    error:print(("Dependency '%s' at index #%s failed to load, module can't be started"):format(_module.name, i), self.resource, self.name)
 
                     return false
                 elseif (not _module:IsLoaded()) then
@@ -121,7 +121,7 @@ function Modules:Create(name, argument)
             elseif (Resource.AllResourcesLoaded) then
                 self.error = true
 
-                print(("Dependency '%s' at index #%s failed to load, module doesn't exists"):format(key, i), self.resource, self.name)
+                error:print(("Dependency '%s' at index #%s failed to load, module doesn't exists"):format(key, i), self.resource, self.name)
 
                 return false
             else
@@ -201,7 +201,7 @@ function Modules:Load(name, argument, override)
             module:Execute()
         end
     end, function(e)
-        print(e)
+        error:print(e)
 
         if (Modules.Modules[key] ~= nil) then
             Modules.Modules[key].error = true

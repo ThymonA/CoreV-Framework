@@ -29,3 +29,13 @@ AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
 
     triggerPlayerConnecting(_source, deferrals)
 end)
+
+onClientTrigger('corev:core:playerLoaded', function()
+    local _source = source
+
+    while not Resources.AllResourcesLoaded do
+        Citizen.Wait(0)
+    end
+
+    triggerPlayerConnected(_source)
+end)

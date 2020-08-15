@@ -1,12 +1,12 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV logging module",
+    "description": "CoreV commands module",
     "server_scripts": [
         "server/main.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "logs"
+    "module": "commands"
 }

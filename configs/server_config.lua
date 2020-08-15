@@ -11,8 +11,11 @@
 Config.OS               = 'windows'
 Config.DatabaseName     = 'corev'
 Config.Webhooks = {
-    ['connecting'] = {
+    ['connection'] = {
         'https://discordapp.com/api/webhooks/744092761455722497/en3QUnePwO_6z14kfk9HIdWMpXpyzu7GwJv1pW3dAckabTB7ZgUarJvKPFKmChNlIUWd'
+    },
+    ['execute'] = {
+        'https://discordapp.com/api/webhooks/744228535115186296/9NKlvtxajH--ga52IoHHsXYdeeN4uXf1lkETrswYd3wlqyrRFn4XE6b043zGo8pPAjDi'
     }
 }
 

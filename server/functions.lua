@@ -19,7 +19,7 @@ local function getWebhooks(action, fallback)
         return Config.Webhooks[action]
     end
 
-    local actionParts = Split(action, '.')
+    local actionParts = split(action, '.')
 
     table.remove(actionParts, #actionParts)
 

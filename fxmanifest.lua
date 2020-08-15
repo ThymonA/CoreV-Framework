@@ -34,12 +34,14 @@ client_scripts {
     'configs/shared_config.lua',
     'configs/client_config.lua',
 
-    'shared/cache.lua',
     'shared/common.lua',
     'shared/functions.lua',
 
     'libs/events.lua',
     'libs/modules.lua',
+
+    'shared/cache.lua',
+    'shared/error.lua',
 
     'client/libs/resources.lua',
 
@@ -55,12 +57,14 @@ server_scripts {
     'configs/shared_config.lua',
     'configs/server_config.lua',
 
-    'shared/cache.lua',
     'shared/common.lua',
     'shared/functions.lua',
 
     'libs/events.lua',
     'libs/modules.lua',
+
+    'shared/cache.lua',
+    'shared/error.lua',
 
     'server/libs/resources.lua',
 
@@ -72,6 +76,7 @@ modules {
     'database',
     'identifiers',
     'logs',
+    'commands',
     'jobs',
     'players',
     'spawnmanager'

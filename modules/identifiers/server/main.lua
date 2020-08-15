@@ -26,45 +26,72 @@ function identifiers:getPlayer(source)
     return nil
 end
 
--- Trigger when player is connecting
-onPlayerConnecting(function(source, returnSuccess, returnError)
-    if (source == nil or type(source) ~= 'number') then
-        returnError(_(CR(), 'identifiers', 'source_error'))
-        return
+--- Returns a player identifier
+--- @param source int Player ID
+function identifiers:getIdentifier(source)
+    if (source <= 0) then
+        return 'console'
     end
 
-    local playerIdentifier = 'none'
-    local _identifiers = GetPlayerIdentifiers(source)
+    local player = self:getPlayer(source)
 
-    for _, identifier in pairs(_identifiers) do
-        if (IDTYPE == 'steam' and string.match(string.lower(identifier), 'steam:')) then
-            playerIdentifier = string.sub(identifier, 7)
-        elseif (IDTYPE == 'license' and string.match(string.lower(identifier), 'license:')) then
-            playerIdentifier = string.sub(identifier, 9)
-        elseif (IDTYPE == 'xbl' and string.match(string.lower(identifier), 'xbl:')) then
-            playerIdentifier = string.sub(identifier, 5)
-        elseif (IDTYPE == 'live' and string.match(string.lower(identifier), 'live:')) then
-            playerIdentifier = string.sub(identifier, 6)
-        elseif (IDTYPE == 'discord' and string.match(string.lower(identifier), 'discord:')) then
-            playerIdentifier = string.sub(identifier, 9)
-        elseif (IDTYPE == 'fivem' and string.match(string.lower(identifier), 'fivem:')) then
-            playerIdentifier = string.sub(identifier, 7)
-        elseif (IDTYPE == 'ip' and string.match(string.lower(identifier), 'ip:')) then
-            playerIdentifier = string.sub(identifier, 4)
+    if (player == nil) then
+        local playerIdentifier = 'none'
+        local _identifiers = GetPlayerIdentifiers(source)
+
+        for _, identifier in pairs(_identifiers) do
+            if (IDTYPE == 'steam' and string.match(string.lower(identifier), 'steam:')) then
+                playerIdentifier = string.sub(identifier, 7)
+            elseif (IDTYPE == 'license' and string.match(string.lower(identifier), 'license:')) then
+                playerIdentifier = string.sub(identifier, 9)
+            elseif (IDTYPE == 'xbl' and string.match(string.lower(identifier), 'xbl:')) then
+                playerIdentifier = string.sub(identifier, 5)
+            elseif (IDTYPE == 'live' and string.match(string.lower(identifier), 'live:')) then
+                playerIdentifier = string.sub(identifier, 6)
+            elseif (IDTYPE == 'discord' and string.match(string.lower(identifier), 'discord:')) then
+                playerIdentifier = string.sub(identifier, 9)
+            elseif (IDTYPE == 'fivem' and string.match(string.lower(identifier), 'fivem:')) then
+                playerIdentifier = string.sub(identifier, 7)
+            elseif (IDTYPE == 'ip' and string.match(string.lower(identifier), 'ip:')) then
+                playerIdentifier = string.sub(identifier, 4)
+            end
         end
+
+        if (playerIdentifier == 'none') then
+            return 'none'
+        end
+
+        return playerIdentifier
     end
 
-    if (playerIdentifier == 'none') then
-        returnError(_(CR(), 'identifiers', string.lower(IDTYPE) .. '_error'))
-        return
-    end
+    return player:getIdentifier()
+end
 
+--- Create a player identifier object
+--- @param source int Player ID
+--- @param primaryIdentifier string primary identifier
+function identifiers:createPlayerIdentifier(source, primaryIdentifier)
     local _playerIdentifier = class('player-identifier')
+    local _identifier = {}
+
+    if (source == 0) then
+        _identifier = {
+            'steam:console',
+            'license:console',
+            'xbl:console',
+            'live:console',
+            'discord:console',
+            'fivem:console',
+            'ip:console'
+        }
+    else
+        _identifier = GetPlayerIdentifiers(source)
+    end
 
     --- Set default values
     _playerIdentifier:set {
-        identifier = playerIdentifier,
-        identifiers = _identifiers,
+        identifier = primaryIdentifier,
+        identifiers = _identifier,
         id = source
     }
 
@@ -102,9 +129,58 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
         return self.identifiers or {}
     end
 
-    identifiers.players[tostring(source)] = _playerIdentifier
+    return _playerIdentifier
+end
+
+--- Create a default console identifier
+identifiers.players[tostring(0)] = identifiers:createPlayerIdentifier(0, 'console')
+
+-- Trigger when player is connecting
+onPlayerConnecting(function(source, returnSuccess, returnError)
+    if (source == nil or type(source) ~= 'number') then
+        returnError(_(CR(), 'identifiers', 'source_error'))
+        return
+    end
+
+    local playerIdentifier = identifiers:getIdentifier(source)
+
+    if (playerIdentifier == 'none') then
+        returnError(_(CR(), 'identifiers', string.lower(IDTYPE) .. '_error'))
+        return
+    end
+
+    identifiers.players[tostring(source)] = identifiers:createPlayerIdentifier(source, playerIdentifier)
 
     return returnSuccess()
+end)
+
+-- Trigger when player is fully connected
+onPlayerConnected(function(source, returnSuccess, returnError)
+    if (source == nil or type(source) ~= 'number') then
+        returnError(_(CR(), 'identifiers', 'source_error'))
+        return
+    end
+
+    local found, identifier = false, identifiers:getIdentifier(source)
+
+    for playerSource, playerIdentifier in pairs(identifiers.players or {}) do
+        if (playerIdentifier.identifier == identifier) then
+            found = true
+
+            local _object = playerIdentifier:extend()
+
+            _object.id = source
+
+            identifiers.players[tostring(source)] = _object
+            identifiers.players[playerSource] = nil
+        end
+    end
+
+    if (not found) then
+        identifiers.players[tostring(source)] = identifiers:createPlayerIdentifier(source, identifier)
+    end
+
+    returnSuccess()
 end)
 
 addModule('identifiers', identifiers)

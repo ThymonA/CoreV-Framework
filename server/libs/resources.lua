@@ -438,7 +438,7 @@ function Resources:Execute()
         local fn = load(script, ('@%s:%s:%s'):format(CR(), module.name, _type), 't', _ENV)
 
         xpcall(fn, function(err)
-            print(err)
+            error:print(err)
         end)
 
         local _object = Resources:extend('resource-module')
@@ -452,8 +452,6 @@ function Resources:Execute()
         local moduleName = string.lower(tostring(module.name))
 
         Resources.FrameworkModules[moduleName] = _object
-
-        print(module.name)
     end
 
     for _, resource in pairs(resources or {}) do
@@ -492,7 +490,7 @@ function Resources:Execute()
             local fn = load(script, ('@%s:%s'):format(resource.name, _type), 't', _ENV)
 
             xpcall(fn, function(err)
-                print(err)
+                error:print(err)
             end)
 
             if (not Resources:Exists(resource.name)) then

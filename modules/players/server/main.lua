@@ -83,4 +83,25 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     returnSuccess()
 end)
 
+--- Trigger when player is connecting
+onPlayerConnected(function(source, returnSuccess, returnError)
+    local found, identifiers = false, m('identifiers')
+    local identifier = identifiers:getIdentifier(source)
+
+    for playerSource, playerObject in pairs(players.players or {}) do
+        if (playerObject.identifier == identifier) then
+            found = true
+
+            players.players[tostring(source)] = playerObject:extend()
+            players.players[playerSource] = nil
+        end
+    end
+
+    if (not found) then
+        local loadPlayer = players:loadPlayerData(source)
+    end
+
+    returnSuccess()
+end)
+
 addModule('players', players)

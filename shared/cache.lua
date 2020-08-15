@@ -64,3 +64,5 @@ function cache:exists(key)
 
     return false
 end
+
+addModule('cache', cache)

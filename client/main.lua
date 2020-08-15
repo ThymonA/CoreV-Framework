@@ -9,6 +9,18 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 Citizen.CreateThread(function()
+	while true do
+		if (NetworkIsSessionStarted() or NetworkIsPlayerActive(PlayerId())) then
+			TSE('corev:core:playerLoaded')
+			break;
+        end
+        
+        Citizen.Wait(0)
+	end
+end)
+
+
+Citizen.CreateThread(function()
     Resources:Execute()
 
     while not Resources.AllResourcesLoaded do

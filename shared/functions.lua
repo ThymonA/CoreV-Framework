@@ -78,6 +78,29 @@ local function currentTimeString()
     return timestring
 end
 
+local function split(str, delim)
+    local t = {}
+
+    for substr in string.gmatch(str, "[^".. delim.. "]*") do
+        if substr ~= nil and string.len(substr) > 0 then
+            table.insert(t,substr)
+        end
+    end
+
+    return t
+end
+
+local function triggerClientEvent(name, source, ...)
+    if (type(source) == 'string') then source = tonumber(source) end
+    if (type(source) ~= 'number') then source = 0 end
+
+    if (SERVER and source == 0) then
+        TriggerEvent(name, ...)
+    elseif(SERVER) then
+        TriggerClientEvent(name, source, ...)
+    end
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
@@ -87,5 +110,17 @@ _ENV._ = _
 _G._ = _
 _ENV.currentTimeString = currentTimeString
 _G.currentTimeString = currentTimeString
+_ENV.split = split
+_G.split = split
 _ENV.CR = GetCurrentResourceName
 _G.CR = GetCurrentResourceName
+
+if (CLIENT) then
+    _ENV.TSE = TriggerServerEvent
+    _G.TSE = TriggerServerEvent
+end
+
+if (SERVER) then
+    _ENV.TCE = triggerClientEvent
+    _G.TCE = triggerClientEvent
+end

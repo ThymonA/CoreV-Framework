@@ -11,6 +11,9 @@
 events = {
     onPlayerConnecting = {
         server = {}
+    },
+    onPlayerConnected = {
+        server = {}
     }
 }
 
@@ -24,6 +27,25 @@ if (SERVER) then
             module = module,
             func = func
         })
+    end
+
+    --- Trigger func when player is fully connected
+    --- @param func function Function to execute
+    onPlayerConnected = function(func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        table.insert(events.onPlayerConnected.server, {
+            module = module,
+            func = func
+        })
+    end
+
+    --- Trigger func by client
+    ---@param name string Trigger name
+    ---@param func function Function to trigger
+    onClientTrigger = function(name, func)
+        RegisterServerEvent(name)
+        AddEventHandler(name, func)
     end
 
     --- Trigger all player connecting events
@@ -55,6 +77,33 @@ if (SERVER) then
         end
 
         deferrals.done()
+    end
+
+    --- Trigger all player connected events
+    --- @param source int PlayerId
+    triggerPlayerConnected = function(source)
+        for _, playerConnectedEvent in pairs(events.onPlayerConnected.server or {}) do
+            try(function()
+                local continue, error, error_message = false, false, ''
+            
+                playerConnectedEvent.func(source, function()
+                    continue = true
+                end, function(err_message)
+                    continue = true
+                    error = true
+                    error_message = err_message or 'Unknown Error'
+                end)
+
+                while not continue do
+                    Citizen.Wait(0)
+                end
+
+                if (error) then
+                    error:print(error)
+                    return
+                end
+            end, function(err) end)
+        end
     end
 
     -- FiveM maniplulation
