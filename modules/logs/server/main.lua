@@ -21,14 +21,14 @@ function logs:create(source)
     local playerLog = class('playerlog')
     local identifierModule = m('identifiers')
     local playerIdentifiers = identifierModule:getPlayer(source)
-    local steamIdentifier = playerIdentifiers:GetByType('steam')
+    local steamIdentifier = playerIdentifiers:getByType('steam')
 
     --- Set default values
     playerLog:set {
         source = source,
         name = GetPlayerName(source),
-        identifier = playerIdentifiers:GetIdentifier(),
-        identifiers = playerIdentifiers:GetIdentifiers(),
+        identifier = playerIdentifiers:getIdentifier(),
+        identifiers = playerIdentifiers:getIdentifiers(),
         avatar = Config.DefaultAvatar or 'none'
     }
 

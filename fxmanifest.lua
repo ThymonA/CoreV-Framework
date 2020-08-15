@@ -19,6 +19,33 @@ url 'https://git.thymonarens.nl/ThymonA/corev-framework/'
 
 version '1.0.0'
 
+files {
+    'modules/**/module.json',
+    'modules/**/client/**/*.lua',
+    'modules/**/langs/**/*.json'
+}
+
+client_scripts {
+    'shared/functions.lua',
+
+    'vendors/regex.lua',
+    'vendors/class.lua',
+
+    'configs/shared_config.lua',
+    'configs/client_config.lua',
+
+    'shared/cache.lua',
+    'shared/common.lua',
+    'shared/functions.lua',
+
+    'libs/events.lua',
+    'libs/modules.lua',
+
+    'client/libs/resources.lua',
+
+    'client/main.lua'
+}
+
 server_scripts {
     'shared/functions.lua',
 
@@ -28,12 +55,14 @@ server_scripts {
     'configs/shared_config.lua',
     'configs/server_config.lua',
 
+    'shared/cache.lua',
     'shared/common.lua',
     'shared/functions.lua',
 
     'libs/events.lua',
     'libs/modules.lua',
-    'libs/resources.lua',
+
+    'server/libs/resources.lua',
 
     'server/functions.lua',
     'server/main.lua'
@@ -44,5 +73,6 @@ modules {
     'identifiers',
     'logs',
     'jobs',
-    'players'
+    'players',
+    'spawnmanager'
 }

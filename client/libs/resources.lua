@@ -78,36 +78,6 @@ function Resources:IsModuleLoaded(moduleName)
     end
 end
 
---
--- Returns a list of files in root directory of given resource
--- @resourceName string Name of the resource
--- @return array List of files in root directory
---
-function Resources:GetResourceFiles(resourceName)
-    if (resourceName == nil or type(resourceName) ~= 'string') then
-        return false
-    end
-
-    local resourcePath = GetResourcePath(resourceName)
-
-    return Resources:GetPathFiles(resourcePath)
-end
-
---
--- Returns a list of files in root directory of given module
--- @moduleName string Name of the module
--- @return array List of files in root directory
---
-function Resources:GetModuleFiles(moduleName)
-    if (moduleName == nil or type(moduleName) ~= 'string') then
-        return false
-    end
-
-    local resourcePath = GetResourcePath(CR()) .. '/modules/' .. moduleName .. '/'
-
-    return Resources:GetPathFiles(resourcePath)
-end
-
 --- Returns a list of files in given path
 --- @param path string path
 function Resources:GetPathFiles(path)
@@ -144,86 +114,17 @@ end
 -- @return boolean `true` if resource is framework resource
 --
 function Resources:IsFrameworkResource(resourceName)
-    local resourceFiles = Resources:GetResourceFiles(resourceName)
+    local metadataInfo = {}
 
-    for _, file in pairs(resourceFiles or {}) do
-        if (string.lower(file) == 'module.json') then
-            return true, resourceFiles
-        end
+    for i = 0, GetNumResourceMetadata(CR(), 'isModule'), 1 do
+        table.insert(metadataInfo, GetResourceMetadata(CR(), 'isModule', i))
     end
 
-    return false, '/'
-end
-
---
--- Returns `true` if given module is a framework module
--- @moduleName string Name of the module
--- @return boolean `true` if module is framework module
---
-function Resources:IsFrameworkModule(moduleName)
-    local moduleFiles = Resources:GetModuleFiles(moduleName)
-
-    for _, file in pairs(moduleFiles or {}) do
-        if (string.lower(file) == 'module.json') then
-            return true, GetResourcePath(CR()) .. '/modules/' .. moduleName .. '/'
-        end
+    if (#metadataInfo <= 0) then
+        return false
     end
 
-    return false, '/'
-end
-
---
--- Returns `true` if resource has any migration
--- @resourceName string Name of the resource
--- @return boolean `true` if resource has any migration
---
-function Resources:ResourceHasMigrations(resourceName)
-    local resourceFiles = Resources:GetResourceFiles(resourceName)
-
-    for _, file in pairs(resourceFiles or {}) do
-        if (string.lower(file) == 'migrations') then
-            local newPath = GetResourcePath(resourceName) .. '/migrations/'
-            local migrationFiles = Resources:GetPathFiles(newPath)
-            local migrations = {}
-
-            for _, migrationFile in pairs(migrationFiles or {}) do
-                if (string.match(migrationFile, '.sql')) then
-                    table.insert(migrations, migrationFile)
-                end
-            end
-
-            return #migrations > 0, migrations
-        end
-    end
-
-    return false
-end
-
---
--- Returns `true` if module has any migration
--- @moduleName string Name of the module
--- @return boolean `true` if module has any migration
---
-function Resources:ModuleHasMigrations(moduleName)
-    local moduleFiles = Resources:GetModuleFiles(moduleName)
-
-    for _, file in pairs(moduleFiles or {}) do
-        if (string.lower(file) == 'migrations') then
-            local newPath = GetResourcePath(CR()) .. '/modules/' .. moduleName .. '/migrations/'
-            local migrationFiles = Resources:GetPathFiles(newPath)
-            local migrations = {}
-
-            for _, migrationFile in pairs(migrationFiles or {}) do
-                if (string.match(migrationFile, '.sql')) then
-                    table.insert(migrations, migrationFile)
-                end
-            end
-
-            return #migrations > 0, migrations
-        end
-    end
-
-    return false, {}
+    return (metadataInfo[1] == '1' or metadataInfo[1] == 'true' or metadataInfo[1] == 1 or metadataInfo[1] == true or metadataInfo[1] == 'yes')
 end
 
 --
@@ -256,49 +157,34 @@ function Resources:GetResources()
     return results
 end
 
---
 -- Returns a list of framework modules
 -- @return array List of framework modules
 --
 function Resources:GetModules()
-    local results = {}
-    local moduleDirectoryFiles = Resources:GetPathFiles(GetResourcePath(CR()) .. '/modules/')
+    local results, metadataModules = {}, {}
 
-    for _, moduleDir in pairs (moduleDirectoryFiles or {}) do
-        local isFrameworkModule, resourcePath = Resources:IsFrameworkModule(moduleDir)
+    for i = 0, GetNumResourceMetadata(CR(), 'module'), 1 do
+        table.insert(metadataModules, GetResourceMetadata(CR(), 'module', i))
+    end
 
-        if (isFrameworkModule) then
+    for _, metadata in pairs (metadataModules or {}) do
+        local moduleInfo = LoadResourceFile(CR(), 'modules/' .. metadata .. '/module.json')
+
+        if (moduleInfo) then
             local _object = class('resource-module')
-            local hasMigrations, migrations = Resources:ModuleHasMigrations(moduleDir)
 
             _object:set {
-                name = moduleDir,
-                path = resourcePath,
-                hasMigrations = hasMigrations,
-                migrations = migrations
+                name = metadata,
+                path = 'modules/' .. metadata .. '/',
+                hasMigrations = false,
+                migrations = {}
             }
 
             table.insert(results, _object)
         end
     end
 
-    local metadataModules = {}
-
-    for i = 0, GetNumResourceMetadata(CR(), 'module'), 1 do
-        table.insert(metadataModules, GetResourceMetadata(CR(), 'module', i))
-    end
-
-    local finalModules = {}
-
-    for _, metadataModule in pairs(metadataModules or {}) do
-        for _, _module in pairs(results) do
-            if (string.lower(_module.name) == string.lower(metadataModule)) then
-                table.insert(finalModules, _module)
-            end
-        end
-    end
-
-    return finalModules
+    return results
 end
 
 --
@@ -401,18 +287,18 @@ function Resources:Execute()
 
         Resources:LoadTranslations(manifest)
 
-        if (module.hasMigrations or false) then                
-            local database = m('database')
-            local moduleMigrations = module.migrations or {}
-    
-            for _, migration in pairs(moduleMigrations) do
-                local migrationDone = database:applyMigration(CR(), module.name, migration)
-    
-                repeat Citizen.Wait(0) until migrationDone == true
-            end
-        end
-
         if (SERVER) then
+            if (module.hasMigrations or false) then                
+                local database = m('database')
+                local moduleMigrations = module.migrations or {}
+        
+                for _, migration in pairs(moduleMigrations) do
+                    local migrationDone = database:applyMigration(CR(), module.name, migration)
+        
+                    repeat Citizen.Wait(0) until migrationDone == true
+                end
+            end
+
             _type = 'server'
         end
     
@@ -456,18 +342,18 @@ function Resources:Execute()
 
             Resources:LoadTranslations(manifest)
 
-            if (manifest.hasMigrations or false) then
-                local database = m('database')
-                local resourceMigrations = manifest.migrations or {}
-
-                for _, migration in pairs(resourceMigrations) do
-                    local migrationDone = database:applyMigration(resource.name, resource.name, migration)
-
-                    repeat Citizen.Wait(0) until migrationDone == true
-                end
-            end
-
             if (SERVER) then
+                if (manifest.hasMigrations or false) then
+                    local database = m('database')
+                    local resourceMigrations = manifest.migrations or {}
+    
+                    for _, migration in pairs(resourceMigrations) do
+                        local migrationDone = database:applyMigration(resource.name, resource.name, migration)
+    
+                        repeat Citizen.Wait(0) until migrationDone == true
+                    end
+                end
+
                 _type = 'server'
             end
 

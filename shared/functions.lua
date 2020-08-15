@@ -8,7 +8,6 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-
 --
 -- Custom function for try catch
 -- @func function Function to call

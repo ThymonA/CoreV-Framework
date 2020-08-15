@@ -8,5 +8,12 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-Config.OS   = 'windows'
-Config.DefaultSpawnLocation = vector3(-206.79, -1015.12, 29.14)
+Citizen.CreateThread(function()
+    Resources:Execute()
+
+    while not Resources.AllResourcesLoaded do
+        Citizen.Wait(0)
+    end
+
+    print('Resources loaded!!!!')
+end)
