@@ -1,0 +1,7 @@
+{
+    "playerId": "ID van speler",
+    "wallet_name": "Naam van wallet",
+    "saldo": "Saldo op wallet",
+    "help_setwallet": "Zet een wallet van een speler op een bepaald saldo",
+    "invalid_playerId": "Speler id is niet geldig of speler is offline"
+}

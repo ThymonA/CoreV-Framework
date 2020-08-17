@@ -18,9 +18,27 @@ identifiers:set {
 --- Returns a player identifier by type
 --- @param source int Player ID
 --- @param type string Identifier Type
-function identifiers:getPlayer(source)
-    if (identifiers.players ~= nil and identifiers.players[tostring(source)] ~= nil) then
-        return identifiers.players[tostring(source)]
+function identifiers:getPlayer(player)
+    if (type(player) == 'string') then
+        if (identifiers.players ~= nil and identifiers.players[player] ~= nil) then
+            return identifiers.players[player]
+        end
+        
+        return self:createIdentifier(player)
+    end
+
+    if (type(player) == 'number') then
+        if (identifiers.players ~= nil) then
+            for _identifier, _identifiers in pairs(identifiers.players or {}) do
+                if (_identifiers.source == player) then
+                    identifiers.players[_identifier].source = player
+
+                    return identifiers.players[_identifier]
+                end
+            end
+        end
+
+        return self:createIdentifier(player)
     end
 
     return nil
@@ -33,107 +51,28 @@ function identifiers:getIdentifier(source)
         return 'console'
     end
 
-    local player = self:getPlayer(source)
+    local _identifiers = GetPlayerIdentifiers(source)
 
-    if (player == nil) then
-        local playerIdentifier = 'none'
-        local _identifiers = GetPlayerIdentifiers(source)
-
-        for _, identifier in pairs(_identifiers) do
-            if (IDTYPE == 'steam' and string.match(string.lower(identifier), 'steam:')) then
-                playerIdentifier = string.sub(identifier, 7)
-            elseif (IDTYPE == 'license' and string.match(string.lower(identifier), 'license:')) then
-                playerIdentifier = string.sub(identifier, 9)
-            elseif (IDTYPE == 'xbl' and string.match(string.lower(identifier), 'xbl:')) then
-                playerIdentifier = string.sub(identifier, 5)
-            elseif (IDTYPE == 'live' and string.match(string.lower(identifier), 'live:')) then
-                playerIdentifier = string.sub(identifier, 6)
-            elseif (IDTYPE == 'discord' and string.match(string.lower(identifier), 'discord:')) then
-                playerIdentifier = string.sub(identifier, 9)
-            elseif (IDTYPE == 'fivem' and string.match(string.lower(identifier), 'fivem:')) then
-                playerIdentifier = string.sub(identifier, 7)
-            elseif (IDTYPE == 'ip' and string.match(string.lower(identifier), 'ip:')) then
-                playerIdentifier = string.sub(identifier, 4)
-            end
+    for _, identifier in pairs(_identifiers) do
+        if (IDTYPE == 'steam' and string.match(string.lower(identifier), 'steam:')) then
+            return string.sub(identifier, 7)
+        elseif (IDTYPE == 'license' and string.match(string.lower(identifier), 'license:')) then
+            return string.sub(identifier, 9)
+        elseif (IDTYPE == 'xbl' and string.match(string.lower(identifier), 'xbl:')) then
+            return string.sub(identifier, 5)
+        elseif (IDTYPE == 'live' and string.match(string.lower(identifier), 'live:')) then
+            return string.sub(identifier, 6)
+        elseif (IDTYPE == 'discord' and string.match(string.lower(identifier), 'discord:')) then
+            return string.sub(identifier, 9)
+        elseif (IDTYPE == 'fivem' and string.match(string.lower(identifier), 'fivem:')) then
+            return string.sub(identifier, 7)
+        elseif (IDTYPE == 'ip' and string.match(string.lower(identifier), 'ip:')) then
+            return string.sub(identifier, 4)
         end
-
-        if (playerIdentifier == 'none') then
-            return 'none'
-        end
-
-        return playerIdentifier
     end
 
-    return player:getIdentifier()
+    return 'none'
 end
-
---- Create a player identifier object
---- @param source int Player ID
---- @param primaryIdentifier string primary identifier
-function identifiers:createPlayerIdentifier(source, primaryIdentifier)
-    local _playerIdentifier = class('player-identifier')
-    local _identifier = {}
-
-    if (source == 0) then
-        _identifier = {
-            'steam:console',
-            'license:console',
-            'xbl:console',
-            'live:console',
-            'discord:console',
-            'fivem:console',
-            'ip:console'
-        }
-    else
-        _identifier = GetPlayerIdentifiers(source)
-    end
-
-    --- Set default values
-    _playerIdentifier:set {
-        identifier = primaryIdentifier,
-        identifiers = _identifier,
-        id = source
-    }
-
-    --- Get identifier by Type
-    --- @param type string Identifier Type
-    function _playerIdentifier:getByType(type)
-        for _, identifier in pairs(self.identifiers or {}) do
-            if (type == 'steam' and string.match(string.lower(identifier), 'steam:')) then
-                return string.sub(identifier, 7)
-            elseif (type == 'license' and string.match(string.lower(identifier), 'license:')) then
-                return string.sub(identifier, 9)
-            elseif (type == 'xbl' and string.match(string.lower(identifier), 'xbl:')) then
-                return string.sub(identifier, 5)
-            elseif (type == 'live' and string.match(string.lower(identifier), 'live:')) then
-                return string.sub(identifier, 6)
-            elseif (type == 'discord' and string.match(string.lower(identifier), 'discord:')) then
-                return string.sub(identifier, 9)
-            elseif (type == 'fivem' and string.match(string.lower(identifier), 'fivem:')) then
-                return string.sub(identifier, 7)
-            elseif (type == 'ip' and string.match(string.lower(identifier), 'ip:')) then
-                return string.sub(identifier, 4)
-            end
-        end
-
-        return 'unknown'
-    end
-
-    --- Get identifier
-    function _playerIdentifier:getIdentifier()
-        return self.identifier or 'unknown'
-    end
-
-    --- Get identifiers
-    function _playerIdentifier:getIdentifiers()
-        return self.identifiers or {}
-    end
-
-    return _playerIdentifier
-end
-
---- Create a default console identifier
-identifiers.players[tostring(0)] = identifiers:createPlayerIdentifier(0, 'console')
 
 -- Trigger when player is connecting
 onPlayerConnecting(function(source, returnSuccess, returnError)
@@ -142,14 +81,56 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
         return
     end
 
-    local playerIdentifier = identifiers:getIdentifier(source)
+    local primaryIdentifier = 'none'
+    local playerIdentifiers = {
+        ['steam'] = nil,
+        ['license'] = nil,
+        ['xbl'] = nil,
+        ['live'] = nil,
+        ['discord'] = nil,
+        ['fivem'] = nil,
+        ['ip'] = nil
+    }
 
-    if (playerIdentifier == 'none') then
-        returnError(_(CR(), 'identifiers', string.lower(IDTYPE) .. '_error'))
-        return
+    for _, _identifier in pairs(GetPlayerIdentifiers(source)) do
+        if (string.match(string.lower(_identifier), 'steam:')) then
+            playerIdentifiers['steam'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 7)
+        elseif (string.match(string.lower(_identifier), 'license:')) then
+            playerIdentifiers['license'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 9)
+        elseif (string.match(string.lower(_identifier), 'xbl:')) then
+            playerIdentifiers['xbl'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 5)
+        elseif (string.match(string.lower(_identifier), 'live:')) then
+            playerIdentifiers['live'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 6)
+        elseif (string.match(string.lower(_identifier), 'discord:')) then
+            playerIdentifiers['discord'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 9)
+        elseif (string.match(string.lower(_identifier), 'fivem:')) then
+            playerIdentifiers['fivem'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 7)
+        elseif (string.match(string.lower(_identifier), 'ip:')) then
+            playerIdentifiers['ip'] = _identifier
+            primaryIdentifier = string.sub(_identifier, 4)
+        end
     end
 
-    identifiers.players[tostring(source)] = identifiers:createPlayerIdentifier(source, playerIdentifier)
+    local database = m('database')
+
+    database:execute('INSERT INTO `identifiers` (`name`, `steam`, `license`, `xbl`, `live`, `discord`, `fivem`, `ip`) VALUES (@name, @steam, @license, @xbl, @live, @discord, @fivem, @ip)', {
+        ['@name'] = GetPlayerName(source),
+        ['@steam'] = playerIdentifiers['steam'] or nil,
+        ['@license'] = playerIdentifiers['license'] or nil,
+        ['@xbl'] = playerIdentifiers['xbl'] or nil,
+        ['@live'] = playerIdentifiers['live'] or nil,
+        ['@discord'] = playerIdentifiers['discord'] or nil,
+        ['@fivem'] = playerIdentifiers['fivem'] or nil,
+        ['@ip'] = playerIdentifiers['ip'] or nil
+    })
+
+    identifiers:createIdentifier(source)
 
     return returnSuccess()
 end)
@@ -161,26 +142,20 @@ onPlayerConnected(function(source, returnSuccess, returnError)
         return
     end
 
-    local found, identifier = false, identifiers:getIdentifier(source)
-
-    for playerSource, playerIdentifier in pairs(identifiers.players or {}) do
-        if (playerIdentifier.identifier == identifier) then
-            found = true
-
-            local _object = playerIdentifier:extend()
-
-            _object.id = source
-
-            identifiers.players[tostring(source)] = _object
-            identifiers.players[playerSource] = nil
-        end
-    end
-
-    if (not found) then
-        identifiers.players[tostring(source)] = identifiers:createPlayerIdentifier(source, identifier)
-    end
+    identifiers:createPlayerIdentifier(source)
 
     returnSuccess()
+end)
+
+onPlayerDisconnect(function(source, returnSuccess, returnError)
+    if (source == nil or type(source) ~= 'number') then return end
+
+    for _identifier, _identifiers in pairs(identifiers.players or {}) do
+        if (_identifiers.source == source) then
+            identifiers.players[_identifier].source = -1
+            return
+        end
+    end
 end)
 
 addModule('identifiers', identifiers)

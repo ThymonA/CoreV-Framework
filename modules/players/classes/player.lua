@@ -1,3 +1,14 @@
+----------------------- [ CoreV ] -----------------------
+-- GitLab: https://git.thymonarens.nl/ThymonA/corev-framework/
+-- GitHub: https://github.com/ThymonA/CoreV-Framework/
+-- License: GNU General Public License v3.0
+--          https://choosealicense.com/licenses/gpl-3.0/
+-- Author: ThymonA
+-- Name: CoreV
+-- Version: 1.0.0
+-- Description: Custom FiveM Framework
+----------------------- [ CoreV ] -----------------------
+
 --- Create a player object
 --- @param int|string Player
 function players:createPlayer(_player)
@@ -86,6 +97,48 @@ function players:createPlayer(_player)
             ['@grade2'] = self.grade2.grade,
             ['@identifier'] = self.identifier
         })
+    end
+
+    --- Set money for player wallet
+    --- @param name string wallet name
+    --- @param money int balace of wallet
+    function player:setWallet(name, money)
+        if (name == nil or type(name) ~= 'string') then name = 'unknown' end
+        if (money == nil or type(money) ~= 'number') then money = tonumber(money) or 0 end
+    
+        name = string.lower(name)
+
+        if (self.wallets ~= nil and self.wallets[name] ~= nil) then
+            self.wallets[name]:setBalance(money)
+        end
+    end
+
+    --- Remove money from player wallet
+    --- @param name string wallet name
+    --- @param money int amount of money to remove
+    function player:removeMoney(name, money)
+        if (name == nil or type(name) ~= 'string') then name = 'unknown' end
+        if (money == nil or type(money) ~= 'number') then money = tonumber(money) or 0 end
+    
+        name = string.lower(name)
+
+        if (self.wallets ~= nil and self.wallets[name] ~= nil) then
+            self.wallets[name]:removeMoney(money)
+        end
+    end
+
+    --- Add money to player wallet
+    --- @param name string wallet name
+    --- @param money int amount of money to add
+    function player:addMoney(name, money)
+        if (name == nil or type(name) ~= 'string') then name = 'unknown' end
+        if (money == nil or type(money) ~= 'number') then money = tonumber(money) or 0 end
+    
+        name = string.lower(name)
+
+        if (self.wallets ~= nil and self.wallets[name] ~= nil) then
+            self.wallets[name]:addMoney(money)
+        end
     end
 
     player:save()

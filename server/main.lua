@@ -30,6 +30,16 @@ AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
     triggerPlayerConnecting(_source, deferrals)
 end)
 
+AddEventHandler('playerDropped', function(reason)
+    local _source = source
+    
+    while not Resources.AllResourcesLoaded do
+        Citizen.Wait(0)
+    end
+
+    triggerPlayerDisconnect(_source, reason)
+end)
+
 onClientTrigger('corev:core:playerLoaded', function()
     local _source = source
 
@@ -38,6 +48,10 @@ onClientTrigger('corev:core:playerLoaded', function()
     end
 
     triggerPlayerConnected(_source)
+end)
+
+AddEventHandler('core:chat:addError', function(msg)
+    print('[ERROR] ' .. msg)
 end)
 
 AddEventHandler('corev:core:kickPlayer', function(playerId, message, cb)

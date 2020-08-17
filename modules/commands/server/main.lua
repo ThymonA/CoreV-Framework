@@ -63,6 +63,7 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
         if (type(source) == 'string') then source = tonumber(source) end
         if (type(source) ~= 'number') then source = 0 end
 
+        local identifier = identifiers:getIdentifier(source)
         local cmd = commands.commands[name]
 
         if (not cmd.consoleAllowed and source == 0) then
@@ -87,21 +88,21 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
         if (cmd.suggestion and cmd.suggestion.arguments) then
             local newArguments = {}
 
-            for _, argument in pairs(cmd.suggestion.arguments or {}) do
+            for i, argument in pairs(cmd.suggestion.arguments or {}) do
                 if (argument.type) then
                     if (string.lower(argument.type) == 'number') then
-                        local newArgument = tonumber(argument.type)
+                        local newArgument = tonumber(args[i])
 
                         if (newArgument) then
                             newArguments[argument.name] = newArgument
                         else
-                            TCE('core:chat:addError', source, _(CR(), 'commands', 'command_argument_number_error', _))
+                            TCE('core:chat:addError', source, _(CR(), 'commands', 'command_argument_number_error', i))
                             return
                         end
                     elseif (string.lower(argument.type) == 'string') then
-                        newArguments[argument.name] = tostring(argument)
+                        newArguments[argument.name] = tostring(args[i])
                     elseif (string.lower(argument.type) == 'any') then
-                        newArguments[argument.name] = argument
+                        newArguments[argument.name] = args[i]
                     end
                 end
             end
@@ -109,22 +110,28 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
             args = newArguments
         end
 
-        local logger = logs:get(source)
+        local logger = logs:get(identifier)
 
-        logger:log({
-            args = {
-                command = name,
-                arguments = args
-            },
-            action = 'execute.command',
-            color = Colors.Blue,
-            footer = ('command "%s" | %s | %s'):format(name, logger.identifier, currentTimeString()),
-            message = _(CR(), 'commands', 'command_message', logger:getName(), name, json.encode(args)),
-            title = _(CR(), 'commands', 'command_title', logger:getName()),
-            username = ('[COMMAND] /%s LOG'):format(name)
-        })
+        if (logger ~= nil) then
+            logger:log(identifier, {
+                args = {
+                    command = name,
+                    arguments = args
+                },
+                action = 'execute.command',
+                color = Colors.Blue,
+                footer = ('command "%s" | %s | %s'):format(name, identifier, currentTimeString()),
+                message = _(CR(), 'commands', 'command_message', playerName, name, json.encode(args)),
+                title = _(CR(), 'commands', 'command_title', playerName),
+                username = ('[COMMAND] /%s LOG'):format(name)
+            })
+        end
 
-        cmd.callback(source, args)
+        cmd.callback(source, args, function(msg)
+            if (msg ~= nil and type(msg) == 'string') then
+                TCE('core:chat:addError', source, msg)
+            end
+        end)
     end, true)
 
     if (groups and type(groups) == 'string') then

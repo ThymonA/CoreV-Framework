@@ -14,6 +14,9 @@ events = {
     },
     onPlayerConnected = {
         server = {}
+    },
+    onPlayerDisconnect = {
+        server = {}
     }
 }
 
@@ -35,6 +38,17 @@ if (SERVER) then
         local module = CurrentFrameworkModule or 'unknown'
 
         table.insert(events.onPlayerConnected.server, {
+            module = module,
+            func = func
+        })
+    end
+
+    --- Trigger func when player is disconnecting
+    --- @param func function Function to execute
+    onPlayerDisconnect = function(func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        table.insert(events.onPlayerDisconnect.server, {
             module = module,
             func = func
         })
@@ -106,9 +120,38 @@ if (SERVER) then
         end
     end
 
+    --- Trigger all player disconnect events
+    --- @param source int PlayerId
+    triggerPlayerDisconnect = function(source, reason)
+        for _, playerDisconnectEvent in pairs(events.onPlayerDisconnect.server or {}) do
+            try(function()
+                local continue, error, error_message = false, false, ''
+            
+                playerDisconnectEvent.func(source, function()
+                    continue = true
+                end, function(err_message)
+                    continue = true
+                    error = true
+                    error_message = err_message or 'Unknown Error'
+                end, reason)
+
+                while not continue do
+                    Citizen.Wait(0)
+                end
+
+                if (error) then
+                    error:print(error)
+                    return
+                end
+            end, function(err) end)
+        end
+    end
+
     -- FiveM maniplulation
     _ENV.onPlayerConnecting = onPlayerConnecting
     _G.onPlayerConnecting = onPlayerConnecting
     _ENV.triggerPlayerConnecting = triggerPlayerConnecting
     _G.triggerPlayerConnecting = triggerPlayerConnecting
+    _ENV.triggerPlayerDisconnect = triggerPlayerDisconnect
+    _G.triggerPlayerDisconnect = triggerPlayerDisconnect
 end

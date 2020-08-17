@@ -1,3 +1,14 @@
+----------------------- [ CoreV ] -----------------------
+-- GitLab: https://git.thymonarens.nl/ThymonA/corev-framework/
+-- GitHub: https://github.com/ThymonA/CoreV-Framework/
+-- License: GNU General Public License v3.0
+--          https://choosealicense.com/licenses/gpl-3.0/
+-- Author: ThymonA
+-- Name: CoreV
+-- Version: 1.0.0
+-- Description: Custom FiveM Framework
+----------------------- [ CoreV ] -----------------------
+
 --- Returns if wallet exists and wallet default values
 --- @param name string Wallet name
 function wallets:getDefaultWallet(name)
@@ -120,7 +131,7 @@ function wallets:createWallet(identifier, name, balance)
 
     --- Set wallet balance
     --- @param money int Amount to set balance
-    function wallet:setMoney(money)
+    function wallet:setBalance(money)
         if (money == nil) then money = 0 end
         if (type(money) == 'string') then money = tonumber(money) end
         if (type(money) ~= 'number') then money = 0 end

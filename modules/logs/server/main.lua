@@ -223,7 +223,7 @@ function logs:get(player)
             end
         end
         
-        return nil
+        return logs:create(player)
     end
 
     if (type(player) == 'string') then
@@ -231,7 +231,7 @@ function logs:get(player)
             return logs.players[player]
         end
 
-        return nil
+        return logs:create(player)
     end
 
     return nil

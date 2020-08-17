@@ -4,7 +4,8 @@
     "description": "CoreV wallets module",
     "server_scripts": [
         "server/main.lua",
-        "classes/wallet.lua"
+        "classes/wallet.lua",
+        "server/commands.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
