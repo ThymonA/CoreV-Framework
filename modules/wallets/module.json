@@ -1,16 +1,13 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV player module",
+    "description": "CoreV wallets module",
     "server_scripts": [
         "server/main.lua",
-        "classes/player.lua"
-    ],
-    "client_scripts": [
-
+        "classes/wallet.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "players"
+    "module": "wallets"
 }

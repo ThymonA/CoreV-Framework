@@ -1,0 +1,593 @@
+﻿*, *:before, *:after {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+}
+body,html {
+    width: 100%;
+    height: 100%;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+body {
+    /*background: url('https://i.imgur.com/MoYBh1e.jpg') center center no-repeat;*/
+    background-size: cover;
+}
+#ui {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+div.separator {
+    display: block;
+    clear: both;
+    width: 100%;
+}
+.icon {
+    display: block;
+    position: relative;
+    padding: 10px 8px;
+    margin: 10px 5px 0 5px;
+    width: 30px;
+    height: 30px;
+    border-radius: 0;
+    overflow: hidden;
+    border: none;
+}
+.icon i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    color: #FFF;
+    z-index: 11;
+    font-size: 15px;
+}
+.icon img {
+    width: 16px;
+    margin: -3px 0 0 0;
+}
+.icon span {
+    display: block;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%,0);
+    width: 100%;
+    height: 100%;
+}
+.icon.text {
+    display: inline-block;
+    overflow: visible;
+    width: auto;
+    height: 30px;
+    padding: 0;
+}
+.icon.text i {
+    display: inline-block;
+    float: left;
+    transform: translate(0%,0%);
+    left: 0;
+    top: 0;
+    position: relative;
+    padding: 10px 8px;
+    width: 30px;
+    height: 30px;
+    margin-left: 5px;
+    border-radius: 100px;
+    color: #FFF;
+}
+.icon.text i:before {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+}
+.icon.text span {
+    position: relative;
+    width: auto;
+    height: auto;
+    left: 0;
+    transform: translate(0,0);
+    display: inline-block;
+    font-size: 12px;
+    padding: 7px 15px 0 10px;
+    font-weight: 700;
+    color: #FFF;
+}
+.icon.dying:not(.customstatus) span {
+    animation: trew-status-blink 500ms infinite;
+}
+.icon.pulse i {
+    animation: trew-pulse 500ms 1;
+}
+
+.icon .job_label {
+    position: absolute;
+    height: 20px;
+    margin-top: -20px;
+    margin-left: -1px;
+    width: 202px;
+    background-color: #fedc00;
+    border: 1px solid white;
+    border-bottom: none;
+    color: black;
+    font-size: 12.5px;
+    font-size: bold;
+    text-align: center;
+    padding-top: 1px;
+    font-weight: bold;
+    border-radius: 5px 5px 0 0;
+}
+
+.icon .job_money {
+    position: absolute;
+    height: 20px;
+    margin-top: 8px;
+    margin-left: -1px;
+    width: 202px;
+    background-color: white;
+    border: 1px solid white;
+    border-bottom: none;
+    color: black;
+    font-size: 12.5px;
+    font-size: bold;
+    text-align: center;
+    padding-top: -1px;
+    font-weight: bold;
+    border-radius: 0 0 5px 5px;
+}
+
+.icon .job_details {
+    margin-right: 35px;
+}
+
+.icon .job_icon {
+    position: absolute;
+    height: 30px;
+    width: 30px;
+    padding: 0;
+    border: 1px solid rgba(0, 0, 0, 0.7);
+    background: rgba(0,0,0,0.6);
+    top: 6px;
+    right: 4px;
+    border-radius: 0px;
+    text-align: center;
+    vertical-align: center;
+    color: white;
+}
+
+.icon .job_icon span {
+    font-size: 25px;
+    position: absolute;
+    left: -4px;
+    bottom: 2px;
+}
+
+.icon div.job_logo {
+    position: absolute;
+    left: -58px;
+    width: 55px;
+    height: 55px;
+    background-color: rgba(0,0,0,0.6);
+    top: 6px;
+    border: 1px solid rgba(0, 0, 0, 0.7);
+    padding: 0;
+}
+
+.icon div.job_logo span.job_logo {
+    font-size: 40px;
+    text-align: center;
+    width: calc(100% + 4px);
+    vertical-align: middle;
+    margin-top: -10px;
+    font-family: 'Arial';
+    font-weight: 900;
+}
+
+.info {
+    position: absolute;
+}
+.info.server {
+    top: 45px;
+    right: 26px;
+    width: 90px;
+    height: 90px;
+}
+.info.server #server img {
+    max-width: 100%;
+    opacity: 0.75;
+}
+.info.player {
+    top: 140px;
+    right: 35px;
+    text-align: left;
+}
+.info.player div#job i.fas, .info.player div#job2 i.fas {
+    color: white;
+}
+.info.player #money i {
+    color: white;
+}
+.info.player span#job_name, .info.player span#job2_name {
+    font-size: 12px;
+    color: #fedc00;
+    display:block;
+    text-align: left;
+    line-height: 0.75em;
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+    top: 6px;
+    margin-right: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.7);
+}
+.info.player span#job_grade, .info.player span#job2_grade {
+    color: black;
+    display: inline-block;
+    background-color: #fedc00;
+    width: calc(100% + 32px);
+    top: 8px;
+    font-size: 10px;
+    text-align: left;
+    vertical-align: middle;
+    padding: 3px 12px;
+    font-weight: bold;
+    border: 1px solid rgba(0, 0, 0, 0.7);
+}
+.info.player #money div[id] {
+    float: right;
+}
+.info.player #money {
+    clear: both;
+    min-width: 200px;
+}
+.info.player #money strong {
+    font-size: 12px;
+    color: #fedc00;
+    display:block;
+    text-align: right;
+    margin-right: 15px;
+    margin-top: 7.5px;
+    line-height: 0.75em;
+}
+.info.player #money span::before {
+    content: '€ ';
+}
+.info.player #money span {
+    font-size: 12px;
+    color: white;
+    display:block;
+    min-width: 200px;
+    line-height: 0em;
+    text-align: right;
+    line-height: 0.5em;
+}
+.info.player #money #wallet i {
+    background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
+}
+.info.player #money #blackMoney i {
+    background: linear-gradient(180deg, #474747 0%, #252525 100%);
+}
+.info.player #money #bank i {
+    background: linear-gradient(180deg, #c70a0a 0%, #960505 100%);
+}
+.info.player #money #society i {
+    background: linear-gradient(180deg, #874c14 0%, #6a3c10 100%);
+}
+.info.status {
+    right: 35px;
+    display: block;
+    margin: 0;
+    top: 173px;
+}
+.info.status.status-bar {
+    top: 150px;
+}
+.info.status.status-bar li {
+    height: 5px;
+    min-height: 20px;
+    border: none !important;
+    color: white;
+}
+.info.status.status-bar li span {
+    background: rgba(0,0,0,0.6) !important;
+}
+.info.status li {
+    display: inline-block;
+}
+.info.status li.icon {
+    width: 52px;
+    margin: -3px;
+    border: 1px solid rgba(0,0,0,0.6);
+    -webkit-box-shadow: 5px -5px 20px -10px rgba(0,0,0,0.75);
+    -moz-box-shadow: 5px -5px 20px -10px rgba(0,0,0,0.75);
+    box-shadow: 5px -5px 20px -10px rgba(255,255,255,0.75);
+}
+.info.status li.icon div.bar-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin-top: -10px;
+    z-index: 9999;
+}
+.info.status #status {
+    clear: both;
+}
+.info.status #status ul {
+    margin: 10px 0 0 0;
+}
+.info.status #status ul li#health span {
+    background: #fe0000;
+}
+.info.status #status ul li#armor span {
+    background: #5c9600;
+}
+.info.status #status ul li#stamina span {
+    background: linear-gradient(180deg, #ffb700 0%, #e0a102 100%);
+}
+.info.status #status ul li#hunger span {
+    background: #d87732;
+}
+.info.status #status ul li#thirst span {
+    background: #00a0fe;
+}
+.info.status #status ul li#health.dead {
+    animation: trew-pulse 500ms infinite;
+}
+.info.status #status ul li#health.dead span {
+    height: 0 !important;
+}
+.info.status #status ul li#health.dead i.fas:before {
+    content: '\f714';
+}
+.info.status #status ul li#voice {
+    border-radius: 0;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(24, 183, 11, 0.7) 0%, rgba(18, 140, 8, 0.6) 100%);
+    text-align: center;
+    padding: 7px 0 0 0;
+    transition: all 0.1s linear;
+}
+.info.status.status-bar #status ul li#voice {
+    background: rgba(0,0,0,0.0) !important;
+}
+.info.status.status-bar li i {
+    font-size: 12px;
+}
+.info.status #status ul li#voice i.fas {
+    color: #FFF;
+}
+.info.status #status ul li#voice.whisper span {
+    background: linear-gradient(180deg, #ffb700 0%, #e0a102 100%);
+}
+.info.status #status ul li#voice.normal span {
+    background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
+}
+.info.status #status ul li#voice.shout span {
+    background: linear-gradient(180deg, #ff0000 0%, #aa0000 100%);
+}
+.info.status #status ul li#voice.speak {
+    overflow: visible;
+}
+.info.status #status ul li#voice.speak span {
+    animation: trew-soundwave 1s infinite;
+    border-radius: 50%;
+}
+.info.weapon {
+    bottom: 15px;
+    right: 25px;
+}
+.info.weapon.armed {
+    display: block;
+    opacity: 1;
+}
+.info.weapon.unarmed {
+    display: none;
+    opacity: 0;
+}
+.info.weapon #weapon_image {
+    float: left;
+    width: 200px;
+    height: 40px;
+    text-align: left;
+    position: relative;
+}
+.info.weapon #weapon_image img {
+    position: absolute;
+    top: 50%;
+    right: 25px;
+    transform: translateY(-50%);
+    height: 40px;
+}
+.info.weapon #weapon_bullets {
+    color: #FFF;
+    float: left;
+    width: 35px;
+    text-shadow: 0px 1px 1px rgba(0,0,0,0.75);
+    line-height: 1;
+}
+.info.weapon #weapon_bullets .clip {
+    font-weight: 900;
+    font-size: 22px;
+}
+.info.weapon #weapon_bullets .ammo {
+    font-weight: 700;
+    font-size: 16px;
+    opacity: 0.7;
+}
+.info.weapon #bullets {
+    margin: 0;
+    float: left;
+    margin: 5px 0 0 20px;
+    overflow: visible;
+    transform: scale(1.1);
+}
+.info.weapon #bullets i {
+    color: #FFF;
+    float: right;
+    height: 34px;
+    width: 34px;
+    border-radius: 100px;
+}
+.info.weapon #bullets i.clone {
+    background: none;
+    position: absolute;
+    float: none;
+    top: 15px;
+    left: inherit;
+    left: 10px;
+    opacity: 0;
+}
+.info.weapon #bullets.shooting i.clone {
+    animation: trew-bullets 250ms 1;
+}
+.info.weapon #bullets i img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-35%);
+}
+.radio, .info.radio {
+    clear: both;
+}
+.radio #voice, .info.radio #voice {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
+    text-align: center;
+    padding: 7px 0 0 0;
+    transition: all 0.1s linear;
+}
+.radio #voice.whisper, .info.radio #voice.whisper {
+    background: linear-gradient(180deg, #ffb700 0%, #e0a102 100%);
+}
+.radio #voice.normal, .info.radio #voice.normal {
+    background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
+}
+.radio #voice.shout, .info.radio #voice.shout {
+    background: linear-gradient(180deg, #ff0000 0%, #aa0000 100%);
+}
+.radio #voice i.fas, .info.radio #voice i.fas {
+    font-size: 18px;
+    color: #FFF;
+}
+.radio #voice.speak, .info.radio #voice.speak {
+    animation: trew-soundwave 1s infinite;
+}
+@keyframes trew-siren {
+    0% {
+        border-color: rgba(255,0,0,0);
+        box-shadow: 0 0 10px 10px rgba(255,0,0,0);
+   }
+    50% {
+        border-color: rgba(255,0,0,1);
+        box-shadow: 0 0 10px 10px rgba(255,0,0,0.50);
+   }
+    100% {
+        border-color: rgba(255,0,0,0);
+        box-shadow: 0 0 10px 10px rgba(255,0,0,0);
+   }
+}
+@keyframes trew-soundwave {
+    0% {
+        box-shadow: 0 0 0 0px rgba(255,255,255,0.75);
+   }
+    100% {
+        box-shadow: 0 0 0 8px rgba(255,255,255,0);
+   }
+}
+@keyframes trew-status-blink {
+    0% {
+        opacity: 0;
+   }
+    50% {
+        opacity: 1;
+   }
+    100% {
+        opacity: 0;
+   }
+}
+@keyframes trew-pulse {
+    0% {
+        transform: scale(1);
+   }
+    25% {
+        transform: scale(1.5);
+   }
+    100% {
+        transform: scale(1);
+   }
+}
+@keyframes trew-speed {
+    0% {
+        stroke-dashoffset: 280;
+   }
+    50% {
+        stroke-dashoffset: 75;
+   }
+    100% {
+        stroke-dashoffset: 280;
+   }
+}
+@keyframes trew-bullets {
+    0% {
+        opacity: 0;
+   }
+    25% {
+        opacity: 1;
+   }
+    100% {
+        transform: translate(30px,-60px) rotate(90deg);
+        opacity: 0;
+   }
+}
+@keyframes trew-rainbow{
+    100%, 0%{
+        background: rgba(255,0,0,0.70);
+   }
+    8%{
+        background: rgba(255,127,0,0.70);
+   }
+    16%{
+        background: rgba(230,205,23,0.70);
+   }
+    25%{
+        background: rgba(127,255,0,0.70);
+   }
+    33%{
+        background: rgba(0,255,0,0.70);
+   }
+    41%{
+        background: rgba(0,255,127,0.70);
+   }
+    50%{
+        background: rgba(0,255,255,0.70);
+   }
+    58%{
+        background: rgba(0,127,255,0.70);
+   }
+    66%{
+        background: rgba(0,0,255,0.70);
+   }
+    75%{
+        background: rgba(127,0,255,0.70);
+   }
+    83%{
+        background: rgba(255,0,255,0.70);
+   }
+    91%{
+        background: rgba(255,0,127,0.70);
+   }
+}

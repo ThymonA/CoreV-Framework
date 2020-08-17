@@ -12,17 +12,20 @@ fx_version 'adamant'
 game 'gta5'
 
 name 'CoreV'
+version '1.0.0'
 description 'Custom FiveM Framework'
 author 'ThymonA'
 contact 'contact@thymonarens.nl'
 url 'https://git.thymonarens.nl/ThymonA/corev-framework/'
 
-version '1.0.0'
+ui_page 'hud/ui.html'
+ui_page_preload 'yes'
 
 files {
     'modules/**/module.json',
     'modules/**/client/**/*.lua',
-    'modules/**/langs/**/*.json'
+    'modules/**/langs/**/*.json',
+    'hud/**/*'
 }
 
 client_scripts {
@@ -69,9 +72,7 @@ server_scripts {
     'server/libs/resources.lua',
 
     'server/functions.lua',
-    'server/main.lua',
-
-    'modules/discord/main.js'
+    'server/main.lua'
 }
 
 modules {
@@ -79,6 +80,7 @@ modules {
     'identifiers',
     'logs',
     'commands',
+    'wallets',
     'jobs',
     'players',
     'spawnmanager'

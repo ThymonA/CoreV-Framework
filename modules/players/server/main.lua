@@ -16,69 +16,33 @@ players:set {
 }
 
 --- Load a player
---- @param self desc1
---- @param source desc2
-function players:loadPlayerData(source)
-    if (self.players ~= nil and self.players[tostring(source)] ~= nil) then
-        return self.players[tostring(source)]
-    end
-
-    local database = m('database')
+--- @param player int|string Player
+function players:getPlayer(player)
     local identifiers = m('identifiers')
-    local jobs = m('jobs')
-    local playerIdentifier = identifiers:getPlayer(source)
-    
-    local playerExists = database:fetchScalar("SELECT COUNT(*) AS `count` FROM `players` WHERE `identifier` = @identifier", {
-        ['@identifier'] = playerIdentifier:getIdentifier()
-    })
+    local identifier = 'none'
 
-    if (playerExists <= 0) then
-        local unemployedJobs = jobs:getJobByName('unemployed')
-        local unemployedGrade = unemployedJobs:getGradeByName('unemployed')
-        
-        database:execute('INSERT INTO `players` (`identifier`, `accounts`, `job`, `grade`, `job2`, `grade2`) VALUES (@identifier, @accounts, @job, @grade, @job2, @grade2)', {
-            ['@identifier'] = playerIdentifier:getIdentifier(),
-            ['@accounts'] = json.encode({}),
-            ['@job'] = unemployedJobs.id,
-            ['@grade'] = unemployedGrade.grade,
-            ['@job2'] = unemployedJobs.id,
-            ['@grade2'] = unemployedGrade.grade,
-        })
-
-        print(_(CR(), 'players', 'player_created', GetPlayerName(source)))
-
-        return self:loadPlayerData(source)
+    if (player == nil or (type(player) == 'number' and player == 0) or (type(player) == 'string' and player == 'console')) then
+        identifier = 'console'
+    elseif(player ~= nil and (type(player) == 'number' and player > 0)) then
+        identifier = identifiers:getIdentifier(player)
+    else
+        identifier = player
     end
 
-    local playerData = database:fetchAll('SELECT * FROM `players` WHERE `identifier` = @identifier', {
-        ['@identifier'] = playerIdentifier:getIdentifier()
-    })[1]
+    if (identifier ~= 'none' and players.players ~= nil and players.players[identifier] ~= nil) then
+        return players.players[identifier]
+    end
 
-    local job = jobs:getJob(playerData.job)
-    local grade = job:getGrade(playerData.grade)
-    local job2 = jobs:getJob(playerData.job2)
-    local grade2 = job:getGrade(playerData.grade2)
-    local player = class('player')
+    if (identifier == 'none') then
+        return nil
+    end
 
-    --- Set default values
-    player:set {
-        identifier = playerIdentifier:getIdentifier(),
-        name = GetPlayerName(source),
-        job = job,
-        grade = grade,
-        job2 = job2,
-        grade2 = grade2,
-        accounts = json.decode(playerData.accounts)
-    }
-
-    players.players[tostring(source)] = player
-
-    return player
+    return self:createPlayer(player)
 end
 
 --- Trigger when player is connecting
 onPlayerConnecting(function(source, returnSuccess, returnError)
-    local loadPlayer = players:loadPlayerData(source)
+    players:getPlayer(source)
 
     returnSuccess()
 end)
@@ -88,18 +52,7 @@ onPlayerConnected(function(source, returnSuccess, returnError)
     local found, identifiers = false, m('identifiers')
     local identifier = identifiers:getIdentifier(source)
 
-    for playerSource, playerObject in pairs(players.players or {}) do
-        if (playerObject.identifier == identifier) then
-            found = true
-
-            players.players[tostring(source)] = playerObject:extend()
-            players.players[playerSource] = nil
-        end
-    end
-
-    if (not found) then
-        local loadPlayer = players:loadPlayerData(source)
-    end
+    players:getPlayer(source)
 
     returnSuccess()
 end)

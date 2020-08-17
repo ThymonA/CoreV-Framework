@@ -1,7 +1,6 @@
 CREATE TABLE `players` (
 	`id` INT AUTO_INCREMENT PRIMARY KEY,
     `identifier` VARCHAR(50) NOT NULL,
-	`accounts` LONGTEXT NOT NULL,
 	`job` INT,
 	`grade` INT,
 	`job2` INT,

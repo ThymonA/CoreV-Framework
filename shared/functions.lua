@@ -78,6 +78,9 @@ local function currentTimeString()
     return timestring
 end
 
+--- Split a string by `delim`
+--- @param str string String to split
+--- @param delim Delimeter to split at
 local function split(str, delim)
     local t = {}
 
@@ -90,6 +93,9 @@ local function split(str, delim)
     return t
 end
 
+--- Trigger client event
+--- @param name string Trigger client event
+--- @param source int Player ID
 local function triggerClientEvent(name, source, ...)
     if (type(source) == 'string') then source = tonumber(source) end
     if (type(source) ~= 'number') then source = 0 end
@@ -99,6 +105,18 @@ local function triggerClientEvent(name, source, ...)
     elseif(SERVER) then
         TriggerClientEvent(name, source, ...)
     end
+end
+
+--- Round up a value
+--- @param value int Value to round up
+--- @param numDecimalPlaces int Number of decimals
+local function round(value, numDecimalPlaces)
+    if (numDecimalPlaces) then
+        local power = 10^numDecimalPlaces
+        return math.floor((value * power) + 0.5) / (power)
+    end
+
+    return math.floor(value + 0.5)
 end
 
 -- FiveM maniplulation
@@ -112,6 +130,8 @@ _ENV.currentTimeString = currentTimeString
 _G.currentTimeString = currentTimeString
 _ENV.split = split
 _G.split = split
+_ENV.round = round
+_G.round = round
 _ENV.CR = GetCurrentResourceName
 _G.CR = GetCurrentResourceName
 

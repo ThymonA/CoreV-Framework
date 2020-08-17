@@ -1,0 +1,131 @@
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0">
+
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700,900&display=swap" id="font">
+	<link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
+
+	<link rel="stylesheet" type="text/css" href="main.css">
+
+	<title>CoreV Framework</title>
+</head>
+
+<body style="font-family: 'Sarabun', sans-serif; letter-spacing: 1px;text-transform: uppercase;">
+	<div id="ui">
+		<div class="info player" style="top: 15px; right: 25px;">
+			<div class="icon text" id="job" style="display:block;margin-top: 10px;">
+				<div class="job_logo">
+					<span class="job_logo">1</span>
+				</div>
+				<div class="job_icon">
+					<span class="job_symbol">+</span>
+				</div>
+				<div class="job_details">
+					<span id="job2_name">DobberdamRP</span>
+					<span id="job2_grade">staff</span>
+				</div>
+			</div>
+			<div class="icon text" id="job2" style="display:block;margin-top: 35px;">
+				<div class="job_logo">
+					<span class="job_logo">2</span>
+				</div>
+				<div class="job_icon">
+					<span class="job_symbol">+</span>
+				</div>
+				<div class="job_details">
+					<span id="job2_name">maffia</span>
+					<span id="job2_grade">godfather</span>
+				</div>
+			</div>
+		</div>
+
+		<div class="info status status-bar" style="margin-left: 5px;">
+			<div id="status">
+				<ul>
+					<li class="icon" id="health">
+						<i>100</i>
+						<span></span>
+					</li>
+					<li class="icon" id="thirst">
+						<i>100</i>
+						<span></span>
+					</li>
+					<li class="icon" id="hunger">
+						<i>100</i>
+						<span></span>
+					</li>
+					<li class="icon" id="stamina" style="display: none;">
+						<i>100</i>
+						<span></span>
+					</li>
+					<li class="icon" id="armor">
+						<i>100</i>
+						<span></span>
+					</li>
+					<li class="icon" id="voice" style="display: none;">
+						<i></i>
+						<span></span>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="info status" style="margin-left: 5px;">
+			<div id="status">
+				<ul>
+					<li class="icon" id="health">
+						<i class="fas fa-heart"></i>
+						<span></span>
+					</li>
+					<li class="icon" id="thirst">
+						<i class="fas fa-tint"></i>
+						<span></span>
+					</li>
+					<li class="icon" id="hunger">
+						<i class="fas fa-utensils"></i>
+						<span></span>
+					</li>
+					<li class="icon" id="stamina" style="display: none;">
+						<i class="fas fa-running"></i>
+						<span></span>
+					</li>
+					<li class="icon" id="armor">
+						<i class="fas fa-shield-alt"></i>
+						<span></span>
+					</li>
+					<li class="icon" id="voice" style="display: none;">
+						<i class="fas fa-microphone-alt"></i>
+						<span></span>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="info weapon animated faster unarmed" id="weapon" style="display:block;">
+			<div id="weapon_image">
+				<img src="img/weapons/pistol.png" alt="">
+			</div>
+
+			<div id="weapon_bullets">
+				<div id="weapon_clip" class="clip"><span>999</span></div>
+				<div id="weapon_ammo" class="ammo"><span>999</span></div>
+			</div>
+			
+			<div class="icon" id="bullets">
+				<i><img src="img/weapon-bullets.png" alt=""></i>
+				<i class="clone"><img src="img/weapon-bullets.png" alt=""></i>
+				<span></span>
+			</div>
+		</div>
+
+		<audio id="sounds"><source type="audio/ogg"></audio>
+
+	</div>
+	
+	<script src="https://cdn.jsdelivr.net/gh/cferdinandi/saferInnerHTML@1/dist/saferInnerHTML.polyfills.min.js"></script>	
+	<script src="app.js"></script>
+</body>
+</html>

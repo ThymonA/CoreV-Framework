@@ -16,28 +16,55 @@ logs:set {
 }
 
 --- Create a log object
---- @param source int Player ID
-function logs:create(source)
+--- @param player int Player ID
+function logs:create(player)
     local playerLog = class('playerlog')
-    local identifierModule = m('identifiers')
-    local playerIdentifiers = identifierModule:getPlayer(source)
+    local identifierModule, database = m('identifiers'), m('database')
+    local playerIdentifiers = identifierModule:getPlayer(player)
     local steamIdentifier = playerIdentifiers:getByType('steam')
     local playerName = 'unknown'
 
-    if (source <= 0) then
-        playerName = 'console'
-    else
-        playerName = GetPlayerName(source) or 'unknown'
-    end
-
     --- Set default values
     playerLog:set {
-        source = source,
-        name = playerName,
-        identifier = playerIdentifiers:getIdentifier(),
-        identifiers = playerIdentifiers:getIdentifiers(),
+        source = nil,
+        name = 'Unknown',
+        identifier = {},
+        identifiers = {},
         avatar = Config.DefaultAvatar or 'none'
     }
+
+    if (player == nil or (type(player) == 'number' and player == 0) or (type(player) == 'string' and player == 'console')) then
+        playerLog.source = 0
+        playerLog.name = 'console'
+        playerLog.identifier = 'console'
+        playerLog.identifiers = {
+            'steam:console',
+            'license:console',
+            'live:console',
+            'xbl:console',
+            'fivem:console',
+            'discord:console',
+            'ip:127.0.0.1'
+        }
+    elseif(player ~= nil and (type(player) == 'number' and player > 0)) then
+        playerLog.source = player
+        playerLog.name = GetPlayerName(player)
+        playerLog.identifier = playerIdentifiers:getIdentifier()
+        playerLog.identifiers = playerIdentifiers:getIdentifiers()
+    elseif(player ~= nil and (type(player) == 'string' and player ~= 'none')) then
+        local playerInfo = database:fetchAll('SELECT * FROM `players` WHERE `identifier` = @identifier', {
+            ['@identifier'] = player
+        })
+
+        if (playerInfo == nil or #playerInfo <= 0) then
+            playerLog.name = 'Unknown'
+        else
+            playerLog.name = playerInfo[1].name
+        end
+
+        playerLog.identifier = player
+        playerLog.identifiers = { player }
+    end
 
     --- Initialize avatar
     function playerLog:initialize()
@@ -91,7 +118,7 @@ function logs:create(source)
 
     --- Returns a player id
     function playerLog:getSource()
-        return self.source or 0
+        return self.source or -1
     end
 
     --- Returns a player avatar
@@ -181,33 +208,43 @@ function logs:create(source)
     --- Intialize player avatar
     playerLog:initialize()
 
-    logs.players[tostring(self.source)] = playerLog
+    logs.players[playerLog.identifier] = playerLog
 
     return playerLog
 end
 
 --- Get a log object by source
---- @param source int Player ID
-function logs:get(source)
-    if (type(source) ~= 'number') then
+--- @param player int Player ID
+function logs:get(player)
+    if (type(player) == 'number') then
+        for identifier, playerLog in pairs(logs.players or {}) do
+            if (playerLog.source == player) then
+                return playerLog
+            end
+        end
+        
         return nil
     end
 
-    if (logs.players ~= nil and logs.players[tostring(source)] ~= nil) then
-        return logs.players[tostring(source)]
+    if (type(player) == 'string') then
+        if (logs.players ~= nil and logs.players[player] ~= nil) then
+            return logs.players[player]
+        end
+
+        return nil
     end
 
     return nil
 end
 
 --- Create console logs
-logs.players[tostring(0)] = logs:create(0)
+logs.players['console'] = logs:create(0)
 
 --- Trigger when player is connecting
 onPlayerConnecting(function(source, returnSuccess, returnError)
     local playerLog = logs:create(source)
 
-    logs.players[tostring(source)] = playerLog
+    logs.players[playerLog.identifier] = playerLog
 
     playerLog:log({
         title = _(CR(), 'logs', 'player_connecting_title', playerLog:getName()),
@@ -224,22 +261,7 @@ onPlayerConnected(function(source, returnSuccess, returnError)
     local found, identifiers = false, m('identifiers')
     local identifier = identifiers:getIdentifier(source)
 
-    for playerSource, logObject in pairs(logs.players or {}) do
-        if (logObject.identifier == identifier) then
-            found = true
-
-            logObject.source = source
-
-            logs.players[tostring(source)] = logObject:extend()
-            logs.players[playerSource] = nil
-        end
-    end
-
-    if (not found) then
-        logs.players[tostring(source)] = logs:create(source)
-    end
-
-    logs.players[tostring(source)]:log({
+    logs.players[identifier]:log({
         title = _(CR(), 'logs', 'player_connected_title', playerLog:getName()),
         action = 'connection.connected',
         color = Colors.Green,

@@ -1,0 +1,1 @@
+ALTER TABLE `players` ADD `name` VARCHAR(100) NOT NULL DEFAULT 'Unknown' AFTER `identifier`;

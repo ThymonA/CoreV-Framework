@@ -10,6 +10,19 @@
 ----------------------- [ CoreV ] -----------------------
 Config.OS               = 'windows'
 Config.DatabaseName     = 'corev'
+
+---------------
+--- Wallets ---
+---------------
+Config.Wallets = {
+    ['cash'] = 500,
+    ['bank'] = 2500,
+    ['crime'] = 0
+}
+
+------------------------
+--- Discord Webhooks ---
+------------------------
 Config.Webhooks = {
     ['connection'] = {
         'https://discordapp.com/api/webhooks/744092761455722497/en3QUnePwO_6z14kfk9HIdWMpXpyzu7GwJv1pW3dAckabTB7ZgUarJvKPFKmChNlIUWd'
@@ -19,4 +32,5 @@ Config.Webhooks = {
     }
 }
 
+--- When webhook don't exists, this webhook will be used
 Config.FallbackWebhook = ''

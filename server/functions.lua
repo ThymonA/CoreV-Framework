@@ -70,6 +70,22 @@ local function getResourceFile(resource, file)
     return nil
 end
 
+--- Log a event with module `logs`
+--- @param player int|string Player
+--- @param object array Log info
+--- @param fallback string|boolean Use fallback
+local function log(player, object, fallback)
+    local logs = m('logs')
+
+    if (logs == nil) then return end
+
+    local playerLogObject = logs:get(player)
+
+    if (playerLogObject == nil) then return end
+
+    playerLogObject:log(object or {}, (fallback or false))
+end
+
 -- FiveM maniplulation
 _ENV.getWebhooks = getWebhooks
 _G.getWebhooks = getWebhooks
@@ -77,3 +93,5 @@ _ENV.getModuleFile = getModuleFile
 _G.getModuleFile = getModuleFile
 _ENV.getResourceFile = getResourceFile
 _G.getResourceFile = getResourceFile
+_ENV.log = log
+_G.log = log

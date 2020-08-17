@@ -39,3 +39,23 @@ onClientTrigger('corev:core:playerLoaded', function()
 
     triggerPlayerConnected(_source)
 end)
+
+AddEventHandler('corev:core:kickPlayer', function(playerId, message, cb)
+    if (source == nil) then source = 0 end
+    if (type(source) == 'string') then source = tonumber(source) end
+    if (type(source) ~= 'number') then source = 0 end
+    if (source > 0) then if (cb ~= nil) then cb(false, 'Unknown') end return end
+
+    local getIds = GetPlayerIdentifiers(playerId) or {}
+    local anyId = #getIds > 0
+
+    if (anyId) then 
+        local playerName = GetPlayerName(playerId)
+
+        DropPlayer(playerId, message)
+
+        if (cb ~= nil) then cb(true, playerName) end
+    else
+        if (cb ~= nil) then cb(false, 'Unknown') end
+    end
+end)
