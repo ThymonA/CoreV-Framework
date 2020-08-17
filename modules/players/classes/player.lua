@@ -60,8 +60,20 @@ function players:createPlayer(_player)
         job = job,
         grade = grade,
         job2 = job2,
-        grade2 = grade2
+        grade2 = grade2,
+        wallets = {}
     }
+
+    local walletResults = {}
+    local wallets = m('wallets')
+
+    for walletName, defaultBalance in pairs(Config.Wallets or {}) do
+        local wallet = wallets:getWallet(player.identifier, walletName)
+
+        walletResults[wallet.name] = wallet
+    end
+
+    player.wallets = walletResults
 
     function player:save()
         local database = m('database')

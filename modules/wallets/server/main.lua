@@ -15,4 +15,29 @@ wallets:set {
     players = {}
 }
 
+--- Load a player wallet
+--- @param player int|string Player
+function wallets:getWallet(player, name)
+    local identifiers = m('identifiers')
+    local identifier = 'none'
+
+    if (player == nil or (type(player) == 'number' and player == 0) or (type(player) == 'string' and player == 'console')) then
+        identifier = 'console'
+    elseif(player ~= nil and (type(player) == 'number' and player > 0)) then
+        identifier = identifiers:getIdentifier(player)
+    else
+        identifier = player
+    end
+
+    if (identifier ~= 'none' and wallets.players ~= nil and wallets.players[identifier] ~= nil and wallets.players[identifier][walletName] ~= nil) then
+        return wallets.players[identifier][walletName]
+    end
+
+    if (identifier == 'none') then
+        return nil
+    end
+
+    return self:createWallet(player, name)
+end
+
 addModule('wallets', wallets)

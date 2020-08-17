@@ -1,7 +1,7 @@
 --- Returns if wallet exists and wallet default values
 --- @param name string Wallet name
 function wallets:getDefaultWallet(name)
-    if (name == nil or name ~= 'string') then return false, 'unknown', 0 end
+    if (name == nil or type(name) ~= 'string') then return false, 'unknown', 0 end
 
     for key, value in pairs(Config.Wallets or {}) do
         if (key == string.lower(name)) then
@@ -21,8 +21,12 @@ function wallets:createWallet(identifier, name, balance)
     local wallet = class('wallet')
     local walletExists, walletName, walletDefaultBalance = self:getDefaultWallet(name)
 
-    if (source == nil or not walletExists) then return nil end
+    if (identifier == nil or not walletExists) then return nil end
     if (identifier == 'none') then return nil end
+
+    if (wallets.players ~= nil and wallets.players[identifier] ~= nil and wallets.players[identifier][walletName] ~= nil) then
+        return wallets.players[identifier][walletName]
+    end
 
     local playerId = db:fetchScalar('SELECT `id` FROM `players` WHERE `identifier` = @identifier LIMIT 1', {
         ['@identifier'] = identifier
@@ -150,6 +154,11 @@ function wallets:createWallet(identifier, name, balance)
             ['@player_id'] = self.playerId
         })
     end
+
+    if (wallets.players == nil) then wallets.players = {} end
+    if (wallets.players[identifier] == nil) then wallets.players[identifier] = {} end
+    
+    wallets.players[identifier][walletName] = wallet
 
     return wallet
 end
