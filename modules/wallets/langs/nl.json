@@ -3,5 +3,7 @@
     "wallet_name": "Naam van wallet",
     "saldo": "Saldo op wallet",
     "help_setwallet": "Zet een wallet van een speler op een bepaald saldo",
+    "help_addwallet": "Voeg geld toe aan een wallet van een speler",
+    "help_removewallet": "Haal geld van een wallet van een speler",
     "invalid_playerId": "Speler id is niet geldig of speler is offline"
 }

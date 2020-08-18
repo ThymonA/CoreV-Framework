@@ -3,5 +3,7 @@
     "player_connecting": "Speler %s is DobberdamRP aan het joinen",
     "player_connecting_title": "%s verbind met DobberdamRP",
     "player_connected": "Speler %s is verbonden met DobberdamRP",
-    "player_connected_title": "%s is gejoined"
+    "player_connected_title": "%s is gejoined",
+    "player_disconnect": "Speler %s heeft DobberdamRP verlaten",
+    "player_disconnect_title": "%s heeft de stad verlaten"
 }

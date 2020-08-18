@@ -47,6 +47,21 @@ function identifiers:createIdentifier(player)
         return 'none'
     end
 
+    if (player ~= nil and type(player) == 'number') then
+        local identifiers = GetPlayerIdentifiers(player)
+        local primaryIdentifier = identifier:getByType(IDTYPE, identifiers)
+
+        if (primaryIdentifier ~= 'none' and identifiers.players ~= nil and identifiers.players[primaryIdentifier] ~= nil) then
+            identifiers.players[primaryIdentifier].source = player
+
+            return identifiers.players[primaryIdentifier]
+        end
+    elseif(player ~= nil and type(player) == 'string') then
+        if (player ~= 'none' and identifiers.players ~= nil and identifiers.players[player] ~= nil) then
+            return identifiers.players[player]
+        end
+    end
+
     if (player == nil or (type(player) == 'number' and player == 0) or (type(player) == 'string' and player == 'console')) then
         identifier.source = 0
         identifier.name = 'Console'

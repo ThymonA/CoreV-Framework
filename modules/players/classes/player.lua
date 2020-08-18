@@ -30,6 +30,10 @@ function players:createPlayer(_player)
         return nil
     end
 
+    if (players.players ~= nil and  players.players[identifier] ~= nil) then
+        return players.players[identifier]
+    end
+
     local playerCount = database:fetchScalar("SELECT COUNT(*) AS `count` FROM `players` WHERE `identifier` = @identifier", {
         ['@identifier'] = identifier
     })

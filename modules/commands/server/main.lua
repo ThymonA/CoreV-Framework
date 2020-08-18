@@ -58,7 +58,6 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
     RegisterCommand(name, function(source, args, rawCommand)
         local playerName = 'unknown' 
         local identifiers = m('identifiers')
-        local logs = m('logs')
         
         if (type(source) == 'string') then source = tonumber(source) end
         if (type(source) ~= 'number') then source = 0 end
@@ -110,22 +109,18 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
             args = newArguments
         end
 
-        local logger = logs:get(identifier)
-
-        if (logger ~= nil) then
-            logger:log(identifier, {
-                args = {
-                    command = name,
-                    arguments = args
-                },
-                action = 'execute.command',
-                color = Colors.Blue,
-                footer = ('command "%s" | %s | %s'):format(name, identifier, currentTimeString()),
-                message = _(CR(), 'commands', 'command_message', playerName, name, json.encode(args)),
-                title = _(CR(), 'commands', 'command_title', playerName),
-                username = ('[COMMAND] /%s LOG'):format(name)
-            })
-        end
+        log(identifier, {
+            args = {
+                command = name,
+                arguments = args
+            },
+            action = 'execute.command',
+            color = Colors.Blue,
+            footer = ('command "%s" | %s | %s'):format(name, '{identifier}', currentTimeString()),
+            message = _(CR(), 'commands', 'command_message', '{playername}', name, json.encode(args)),
+            title = _(CR(), 'commands', 'command_title', '{playername}'),
+            username = ('[COMMAND] /%s LOG'):format(name)
+        })
 
         cmd.callback(source, args, function(msg)
             if (msg ~= nil and type(msg) == 'string') then

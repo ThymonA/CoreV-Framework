@@ -3,7 +3,8 @@
     "game": [ "gta5" ],
     "description": "CoreV logging module",
     "server_scripts": [
-        "server/main.lua"
+        "server/main.lua",
+        "classes/log.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"

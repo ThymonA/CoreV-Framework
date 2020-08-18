@@ -132,7 +132,7 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
 
     identifiers:createIdentifier(source)
 
-    return returnSuccess()
+    returnSuccess()
 end)
 
 -- Trigger when player is fully connected
@@ -156,6 +156,8 @@ onPlayerDisconnect(function(source, returnSuccess, returnError)
             return
         end
     end
+
+    returnSuccess()
 end)
 
 addModule('identifiers', identifiers)
