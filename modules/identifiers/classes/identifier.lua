@@ -83,7 +83,7 @@ function identifiers:createIdentifier(player)
     else
         identifier.source = -1
         
-        local query = 'SELECT * FROM `identifiers` WHERE %s LIMIT 1'
+        local query = 'SELECT * FROM `identifiers` WHERE %s ORDER BY `id` DESC LIMIT 1'
 
         if (IDTYPE == 'steam') then
             query = query:format('`steam` = @identifier')
