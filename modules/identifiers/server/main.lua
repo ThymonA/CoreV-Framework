@@ -153,6 +153,7 @@ onPlayerDisconnect(function(source, returnSuccess, returnError)
     for _identifier, _identifiers in pairs(identifiers.players or {}) do
         if (_identifiers.source == source) then
             identifiers.players[_identifier].source = -1
+            returnSuccess()
             return
         end
     end

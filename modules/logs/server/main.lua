@@ -80,7 +80,7 @@ onPlayerDisconnect(function(source, returnSuccess, returnError)
         logs.players[identifier]:log({
             title = _(CR(), 'logs', 'player_disconnect_title', logs.players[identifier]:getName()),
             action = 'connection.disconnect',
-            color = Colors.Green,
+            color = Colors.Red,
             message = _(CR(), 'logs', 'player_disconnect', logs.players[identifier]:getName())
         })
     end
