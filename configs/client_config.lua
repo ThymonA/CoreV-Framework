@@ -10,3 +10,4 @@
 ----------------------- [ CoreV ] -----------------------
 Config.OS   = 'windows'
 Config.DefaultSpawnLocation = vector3(-206.79, -1015.12, 29.14)
+Config.DrawMarkerDistance = 10

@@ -42,6 +42,7 @@ client_scripts {
 
     'libs/events.lua',
     'libs/modules.lua',
+    'libs/enums/*.lua',
 
     'shared/cache.lua',
     'shared/error.lua',
@@ -65,6 +66,7 @@ server_scripts {
 
     'libs/events.lua',
     'libs/modules.lua',
+    'libs/enums/*.lua',
 
     'shared/cache.lua',
     'shared/error.lua',
@@ -83,5 +85,6 @@ modules {
     'commands',
     'wallets',
     'jobs',
-    'players'
+    'players',
+    'markers'
 }

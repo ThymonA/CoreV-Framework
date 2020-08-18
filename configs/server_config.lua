@@ -11,6 +11,13 @@
 Config.OS               = 'windows'
 Config.DatabaseName     = 'corev'
 
+-------------------------
+--- Permission Groups ---
+-------------------------
+Config.PermissionGroups = {
+    'superadmin'
+}
+
 ---------------
 --- Wallets ---
 ---------------

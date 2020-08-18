@@ -135,6 +135,13 @@ _G.round = round
 _ENV.CR = GetCurrentResourceName
 _G.CR = GetCurrentResourceName
 
+_ENV.string.startswith = function(self, str)
+    return self:find('^' .. str) ~= nil
+end
+_G.string.startswith = function(self, str)
+    return self:find('^' .. str) ~= nil
+end
+
 if (CLIENT) then
     _ENV.TSE = TriggerServerEvent
     _G.TSE = TriggerServerEvent

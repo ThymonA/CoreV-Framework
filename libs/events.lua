@@ -17,8 +17,65 @@ events = {
     },
     onPlayerDisconnect = {
         server = {}
+    },
+    onMarkerEvent = {
+        client = {}
     }
 }
+
+if (CLIENT) then
+    --- Trigger func when event has been triggerd by marker
+    --- @param event string Event name
+    --- @param func function Callback function
+    onMarkerEvent = function(event, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onMarkerEvent.client == nil) then
+            events.onMarkerEvent.client = {}
+        end
+
+        if (events.onMarkerEvent.client[event] == nil) then
+            events.onMarkerEvent.client[event] = {}
+        end
+
+        table.insert(events.onMarkerEvent.client[event], {
+            module = module,
+            event = event,
+            func = func
+        })
+    end
+
+    --- Trigger all player disconnect events
+    --- @param source int PlayerId
+    triggerMarkerEvent = function(event, marker)
+        if (event == nil or type(event) ~= 'string') then return end
+        if (events.onMarkerEvent.client == nil or events.onMarkerEvent.client[event] == nil) then return end
+
+        for i, markerEvent in pairs(events.onMarkerEvent.client[event] or {}) do
+            Citizen.CreateThread(function()
+                try(function()                
+                    markerEvent.func(marker)
+                end, function(err) end)
+            end)
+        end
+    end
+
+    --- Trigger func by server
+    ---@param name string Trigger name
+    ---@param func function Function to trigger
+    onServerTrigger = function(name, func)
+        RegisterNetEvent(name)
+        AddEventHandler(name, func)
+    end
+
+    -- FiveM maniplulation
+    _ENV.onMarkerEvent = onMarkerEvent
+    _G.onMarkerEvent = onMarkerEvent
+    _ENV.triggerMarkerEvent = triggerMarkerEvent
+    _G.triggerMarkerEvent = triggerMarkerEvent
+    _ENV.onServerTrigger = onServerTrigger
+    _G.onServerTrigger = onServerTrigger
+end
 
 if (SERVER) then
     --- Trigger func when player is connecting
