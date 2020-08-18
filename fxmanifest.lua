@@ -76,12 +76,12 @@ server_scripts {
 }
 
 modules {
+    'spawnmanager',
     'database',
     'identifiers',
     'logs',
     'commands',
     'wallets',
     'jobs',
-    'players',
-    'spawnmanager'
+    'players'
 }

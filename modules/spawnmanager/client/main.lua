@@ -30,6 +30,8 @@ Citizen.CreateThread(function()
                 SetModelAsNoLongerNeeded(defaultModel)
             end
 
+            ShutdownLoadingScreen()
+            DoScreenFadeIn(2500)
             FreezeEntityPosition(PlayerPedId(), true)
             SetCanAttackFriendly(PlayerPedId(), true, false)
             NetworkSetFriendlyFireOption(true)
@@ -46,10 +48,7 @@ Citizen.CreateThread(function()
             end
 
             SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z, false, false, false, true)
-
-            ShutdownLoadingScreen()
             FreezeEntityPosition(PlayerPedId(), false)
-            DoScreenFadeIn(2500)
 
             break;
         end
