@@ -103,7 +103,7 @@ function Resources:GetModuleFiles(moduleName)
         return false
     end
 
-    local resourcePath = GetResourcePath(CR()) .. '/modules/' .. moduleName .. '/'
+    local resourcePath = GetResourcePath(GetCurrentResourceName()) .. '/modules/' .. moduleName .. '/'
 
     return Resources:GetPathFiles(resourcePath)
 end
@@ -165,7 +165,7 @@ function Resources:IsFrameworkModule(moduleName)
 
     for _, file in pairs(moduleFiles or {}) do
         if (string.lower(file) == 'module.json') then
-            return true, GetResourcePath(CR()) .. '/modules/' .. moduleName .. '/'
+            return true, GetResourcePath(GetCurrentResourceName()) .. '/modules/' .. moduleName .. '/'
         end
     end
 
@@ -217,7 +217,7 @@ function Resources:ModuleHasMigrations(moduleName)
 
     for _, file in pairs(moduleFiles or {}) do
         if (string.lower(file) == 'migrations') then
-            local newPath = GetResourcePath(CR()) .. '/modules/' .. moduleName .. '/migrations/'
+            local newPath = GetResourcePath(GetCurrentResourceName()) .. '/modules/' .. moduleName .. '/migrations/'
             local migrationFiles = Resources:GetPathFiles(newPath)
             local migrations = {}
 
@@ -270,7 +270,7 @@ end
 --
 function Resources:GetModules()
     local results = {}
-    local moduleDirectoryFiles = Resources:GetPathFiles(GetResourcePath(CR()) .. '/modules/')
+    local moduleDirectoryFiles = Resources:GetPathFiles(GetResourcePath(GetCurrentResourceName()) .. '/modules/')
 
     for _, moduleDir in pairs (moduleDirectoryFiles or {}) do
         local isFrameworkModule, resourcePath = Resources:IsFrameworkModule(moduleDir)
@@ -292,8 +292,8 @@ function Resources:GetModules()
 
     local metadataModules = {}
 
-    for i = 0, GetNumResourceMetadata(CR(), 'module'), 1 do
-        table.insert(metadataModules, GetResourceMetadata(CR(), 'module', i))
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
+        table.insert(metadataModules, GetResourceMetadata(GetCurrentResourceName(), 'module', i))
     end
 
     local finalModules = {}
@@ -320,8 +320,8 @@ function Resources:GenerateManifestInfo(resourceName, module, data, entity)
 
     _manifest:set {
         name = resourceName,
-        module = module,
-        isModule = resourceName == CR(),
+        module = module or resourceName,
+        isModule = resourceName == GetCurrentResourceName(),
         raw = data,
         hasMigrations = entity.hasMigrations or false,
         migrations = entity.migrations or {}
@@ -364,7 +364,7 @@ function Resources:GetResourceManifestInfo(resourceName, resource)
         local data = json.decode(content)
 
         if (data) then
-            return Resources:GenerateManifestInfo(resourceName, resourceName, data, resource)
+            return Resources:GenerateManifestInfo(resourceName, data.module or resourceName, data, resource)
         end
     end
 
@@ -378,20 +378,20 @@ end
 --
 function Resources:GetModuleManifestInfo(moduleName, module)
     if (moduleName == nil or type(moduleName) ~= 'string') then
-        return Resources:GenerateManifestInfo(CR(), moduleName, {}, module)
+        return Resources:GenerateManifestInfo(GetCurrentResourceName(), moduleName, {}, module)
     end
 
-    local content = LoadResourceFile(CR(), 'modules/' .. moduleName .. '/module.json')
+    local content = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. moduleName .. '/module.json')
 
     if (content) then
         local data = json.decode(content)
 
         if (data) then
-            return Resources:GenerateManifestInfo(CR(), moduleName, data, module)
+            return Resources:GenerateManifestInfo(GetCurrentResourceName(), moduleName, data, module)
         end
     end
 
-    return Resources:GenerateManifestInfo(CR(), moduleName, {}, module)
+    return Resources:GenerateManifestInfo(GetCurrentResourceName(), moduleName, {}, module)
 end
 
 --
@@ -403,6 +403,8 @@ function Resources:Execute()
     local count = #frameworkModules
 
     for _, module in pairs(frameworkModules or {}) do
+        _ENV.CurrentFile = ''
+
         local manifest = Resources:GetModuleManifestInfo(module.name, module)
         local script = ''
         local _type = 'client'
@@ -415,7 +417,7 @@ function Resources:Execute()
                 local moduleMigrations = module.migrations or {}
         
                 for _, migration in pairs(moduleMigrations) do
-                    local migrationDone = database:applyMigration(CR(), module.name, migration)
+                    local migrationDone = database:applyMigration(GetCurrentResourceName(), module.name, migration)
         
                     repeat Citizen.Wait(0) until migrationDone == true
                 end
@@ -425,21 +427,29 @@ function Resources:Execute()
         end
     
         for _, _file in pairs(manifest:GetValue(('%s_scripts'):format(_type)) or {}) do
-            local code = LoadResourceFile(CR(), 'modules/' .. module.name .. '/' .. _file)
+            local code = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. module.name .. '/' .. _file)
     
             if (code) then
-                script = script .. code .. '\n'
+                if (script == '') then
+                    script = ('updateFilePath("%s")\n'):format(_file) .. code
+                else
+                    script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
+                end
             end
         end
 
-        _ENV.CurrentFrameworkResource = CR()
+        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
         _ENV.CurrentFrameworkModule = module.name
 
-        local fn = load(script, ('@%s:%s:%s'):format(CR(), module.name, _type), 't', _ENV)
+        local fn, error = load(script, ('@%s:%s:%s:%s'):format(GetCurrentResourceName(), module.name, _type, CurrentFile), 't', _ENV)
 
-        xpcall(fn, function(err)
-            error:print(err)
-        end)
+        if (fn) then
+            xpcall(fn, function(err)
+                error:print(err)
+            end)
+        else
+            error:print(_error)
+        end
 
         local _object = Resources:extend('resource-module')
 
@@ -456,6 +466,8 @@ function Resources:Execute()
 
     for _, resource in pairs(resources or {}) do
         if (not Resources:IsLoaded(resource.name)) then
+            _ENV.CurrentFile = ''
+
             local manifest = Resources:GetResourceManifestInfo(resource.name, resource)
             local script = ''
             local _type = 'client'
@@ -481,17 +493,26 @@ function Resources:Execute()
                 local code = LoadResourceFile(resource.name, _file)
 
                 if (code) then
-                    script = script .. code .. '\n'
+                    if (script == '') then
+                        script = ('updateFilePath("%s")\n'):format(_file) .. code
+                    else
+                        script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
+                    end
                 end
             end
 
             _ENV.CurrentFrameworkResource = resource.name
+            _ENV.CurrentFrameworkModule = resource.module
 
-            local fn = load(script, ('@%s:%s'):format(resource.name, _type), 't', _ENV)
+            local fn, _error = load(script, ('@%s:%s:%s'):format(resource.name, _type, CurrentFile), 't', _ENV)
 
-            xpcall(fn, function(err)
-                error:print(err)
-            end)
+            if (fn) then
+                xpcall(fn, function(err)
+                    error:print(err)
+                end)
+            else
+                error:print(_error)
+            end
 
             if (not Resources:Exists(resource.name)) then
                 local _object = Resources:extend('resource')
@@ -510,6 +531,7 @@ function Resources:Execute()
 
     _ENV.CurrentFrameworkResource = nil
     _ENV.CurrentFrameworkModule = nil
+    _ENV.CurrentFile = ''
 
     Resources.AllResourcesLoaded = true
 end
@@ -523,22 +545,22 @@ function Resources:LoadTranslations(manifest)
         for key, location in pairs(languages or {}) do
             if (string.lower(tostring(key)) == LANGUAGE) then
                 if (manifest.isModule or false) then
-                    local content = LoadResourceFile(CR(), 'modules/' .. manifest.module .. '/' .. location)
+                    local content = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. manifest.module .. '/' .. location)
 
                     if (content) then
                         local data = json.decode(content)
 
                         if (data) then
-                            if (CoreV.Translations[CR()] == nil) then
-                                CoreV.Translations[CR()] = {}
+                            if (CoreV.Translations[GetCurrentResourceName()] == nil) then
+                                CoreV.Translations[GetCurrentResourceName()] = {}
                             end
 
-                            if (CoreV.Translations[CR()][manifest.module] == nil) then
-                                CoreV.Translations[CR()][manifest.module] = {}
+                            if (CoreV.Translations[GetCurrentResourceName()][manifest.module] == nil) then
+                                CoreV.Translations[GetCurrentResourceName()][manifest.module] = {}
                             end
 
                             for _key, _value in pairs(data or {}) do
-                                CoreV.Translations[CR()][manifest.module][_key] = _value
+                                CoreV.Translations[GetCurrentResourceName()][manifest.module][_key] = _value
                             end
                         end
                     end

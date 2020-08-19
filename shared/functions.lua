@@ -119,6 +119,10 @@ local function round(value, numDecimalPlaces)
     return math.floor(value + 0.5)
 end
 
+local function updateFilePath(file)
+    _ENV.CurrentFile = file
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
@@ -132,8 +136,23 @@ _ENV.split = split
 _G.split = split
 _ENV.round = round
 _G.round = round
-_ENV.CR = GetCurrentResourceName
-_G.CR = GetCurrentResourceName
+_ENV.updateFilePath = updateFilePath
+_G.updateFilePath = updateFilePath
+
+_ENV.CR = function()
+    if (CurrentFrameworkResource ~= nil and type(CurrentFrameworkResource) == 'string' and CurrentFrameworkResource ~= '') then
+        return CurrentFrameworkResource
+    end
+
+    return GetCurrentResourceName()
+end
+_G.CR = function()
+    if (CurrentFrameworkResource ~= nil and type(CurrentFrameworkResource) == 'string' and CurrentFrameworkResource ~= '') then
+        return CurrentFrameworkResource
+    end
+
+    return GetCurrentResourceName()
+end
 
 _ENV.string.startswith = function(self, str)
     return self:find('^' .. str) ~= nil

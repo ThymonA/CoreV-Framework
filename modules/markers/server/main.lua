@@ -132,6 +132,8 @@ onPlayerConnected(function(source, returnSuccess, returnError)
 
     local playerMarkers = markers:getPlayerMarkers(source) or {}
 
+    print(#playerMarkers)
+
     TCE('corev:markers:receive', source, playerMarkers)
 
     returnSuccess()

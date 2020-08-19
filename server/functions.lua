@@ -48,7 +48,7 @@ end
 --- @param module string Module name
 --- @param file string Path to module file
 local function getModuleFile(module, file)
-    local content = LoadResourceFile(CR(), 'modules/' .. module .. '/' .. file)
+    local content = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. module .. '/' .. file)
 
     if (content) then
         return content

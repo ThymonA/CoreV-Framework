@@ -15,18 +15,22 @@ error = class('error')
 function error:print(msg, resource, module)
     if (resource ~= nil and type(resource) == 'string') then
         resource = (' [%s]'):format(tostring(resource))
-    elseif (not CurrentFrameworkResource ~= nil and type(CurrentFrameworkResource) == 'string') then
+    elseif (CurrentFrameworkResource ~= nil and type(CurrentFrameworkResource) == 'string') then
         resource = (' [%s]'):format(tostring(CurrentFrameworkResource))
+    else
+        resource = ''
     end
 
     if (module ~= nil and type(module) == 'string') then
         module = (' [%s]'):format(tostring(module))
-    elseif (not CurrentFrameworkModule ~= nil and type(CurrentFrameworkModule) == 'string') then
+    elseif (CurrentFrameworkModule ~= nil and type(CurrentFrameworkModule) == 'string') then
         module = (' [%s]'):format(tostring(CurrentFrameworkModule))
+    else
+        module = ''
     end
 
     if (SERVER) then
-        local currentFile = LoadResourceFile(CR(), 'corev_error.log') or ''
+        local currentFile = LoadResourceFile(GetCurrentResourceName(), 'corev_error.log') or ''
 
         if (not currentFile) then
             currentFile = ''
@@ -34,10 +38,10 @@ function error:print(msg, resource, module)
 
         local newData = ('%s%s ERROR%s%s %s\n'):format(currentFile, currentTimeString(), resource, module, msg)
 
-        SaveResourceFile(CR(), 'corev_error.log', newData)
+        SaveResourceFile(GetCurrentResourceName(), 'corev_error.log', newData)
     end
 
-    print(('[%s][ERROR]%s%s %s'):format(CR(), resource, module, msg))
+    print(('[%s][ERROR]%s%s %s'):format(GetCurrentResourceName(), resource, module, msg))
 end
 
 addModule('error', error)
