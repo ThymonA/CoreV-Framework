@@ -12,7 +12,7 @@ Citizen.CreateThread(function()
     while true do
         if (NetworkIsPlayerActive(PlayerId())) then
             if (GetEntityModel(PlayerPedId()) == GetHashKey('a_f_m_beach_01')) then
-                break;
+                return;
             end
 
             if (GetEntityModel(PlayerPedId()) == GetHashKey('PLAYER_ZERO')) then
@@ -50,7 +50,7 @@ Citizen.CreateThread(function()
             SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z, false, false, false, true)
             FreezeEntityPosition(PlayerPedId(), false)
 
-            break;
+            return;
         end
 
         Citizen.Wait(0)

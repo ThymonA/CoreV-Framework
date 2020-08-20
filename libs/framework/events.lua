@@ -56,6 +56,7 @@ if (CLIENT) then
                 try(function()                
                     markerEvent.func(marker)
                 end, function(err) end)
+                return
             end)
         end
     end

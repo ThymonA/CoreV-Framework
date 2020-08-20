@@ -17,13 +17,15 @@ Citizen.CreateThread(function()
 
     print(('=========== [ CoreV ] ===========\nAll framework executables are loaded \n-> External Resources: %s\n-> Internal Resources: %s\n-> Internal Modules: %s\n=========== [ CoreV ] ===========')
         :format(resource:countAllLoaded()))
+
+    return
 end)
 
 Citizen.CreateThread(function()
 	while true do
 		if (NetworkIsSessionStarted() or NetworkIsPlayerActive(PlayerId())) then
 			TSE('corev:core:playerLoaded')
-			break;
+			return
         end
         
         Citizen.Wait(0)
