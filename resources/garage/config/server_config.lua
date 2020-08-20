@@ -1,7 +1,3 @@
-if (Config == nil) then
-    Config = {}
-end
-
 Config.Markers = {
     ['cars'] = {
         ['spawn'] = {

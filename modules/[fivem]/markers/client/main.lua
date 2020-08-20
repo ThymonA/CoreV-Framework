@@ -86,8 +86,15 @@ Citizen.CreateThread(function()
     end
 end)
 
-onServerTrigger('corev:markers:receive', function(_markers)
-    markers.markers = _markers or {}
+--- Request all markers
+Citizen.CreateThread(function()
+    while not resource.tasks.loadingFramework do
+        Citizen.Wait(0)
+    end
+
+    triggerServerCallback('corev:markers:receive', function(_markers)
+        markers.markers = _markers or {}
+    end)
 end)
 
 addModule('markers', markers)

@@ -88,25 +88,23 @@ local markers = m('markers')
 
 --- Create a marker for each location
 for garageName, garageInfo in pairs(garage.locations or {}) do
-    if (markers ~= nil) then
-        --- Add spawn marker
-        markers:add(('garage.%s.%s'):format('spawn', garageName),
-            ('garage:spawn:%s'):format(garageInfo.type),
-            garage.permissions or { groups = { 'all' }, jobs = { 'all' } },
-            Config.Markers[garageInfo.type]['spawn'].type,
-            garageInfo.location,
-            Config.Markers[garageInfo.type]['spawn'].size,
-            Config.Markers[garageInfo.type]['spawn'].color,
-            garageInfo.addonInfo or {})
+    --- Add spawn marker
+    markers:add(('garage.%s.%s'):format('spawn', garageName),
+        ('garage:spawn:%s'):format(garageInfo.type),
+        garage.permissions or { groups = { 'all' }, jobs = { 'all' } },
+        Config.Markers[garageInfo.type]['spawn'].type,
+        garageInfo.location,
+        Config.Markers[garageInfo.type]['spawn'].size,
+        Config.Markers[garageInfo.type]['spawn'].color,
+        garageInfo.addonInfo or {})
 
-        --- Add delete marker
-        markers:add(('garage.%s.%s'):format('delete', garageName),
-            ('garage:delete:%s'):format(garageInfo.type),
-            garage.permissions or { groups = { 'all' }, jobs = { 'all' } },
-            Config.Markers[garageInfo.type]['delete'].type,
-            garageInfo.delete,
-            Config.Markers[garageInfo.type]['delete'].size,
-            Config.Markers[garageInfo.type]['delete'].color,
-            garageInfo.addonInfo or {})
-    end
+--- Add delete marker
+    markers:add(('garage.%s.%s'):format('delete', garageName),
+        ('garage:delete:%s'):format(garageInfo.type),
+        garage.permissions or { groups = { 'all' }, jobs = { 'all' } },
+        Config.Markers[garageInfo.type]['delete'].type,
+        garageInfo.delete,
+        Config.Markers[garageInfo.type]['delete'].size,
+        Config.Markers[garageInfo.type]['delete'].color,
+        garageInfo.addonInfo or {})
 end

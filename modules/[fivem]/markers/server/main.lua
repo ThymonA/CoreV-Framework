@@ -127,15 +127,11 @@ function markers:getPlayerMarkers(source)
     return _markers
 end
 
---- Trigger when player is connected
-onPlayerConnected(function(source, returnSuccess, returnError)
-    if (source == nil or type(source) ~= 'number') then returnSuccess() end
-
+--- Returns all markers to player
+registerCallback('corev:markers:receive', function(source, cb)
     local playerMarkers = markers:getPlayerMarkers(source) or {}
 
-    TCE('corev:markers:receive', source, playerMarkers)
-
-    returnSuccess()
+    cb(playerMarkers)
 end)
 
 addModule('markers', markers)
