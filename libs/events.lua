@@ -49,7 +49,7 @@ if (CLIENT) then
     --- @param source int PlayerId
     triggerMarkerEvent = function(event, marker)
         if (event == nil or type(event) ~= 'string') then return end
-        if (events.onMarkerEvent.client == nil or events.onMarkerEvent.client[event] == nil) then return end
+        if (events.onMarkerEvent.client == nil or #(events.onMarkerEvent.client[event] or {}) <= 0) then return end
 
         for i, markerEvent in pairs(events.onMarkerEvent.client[event] or {}) do
             Citizen.CreateThread(function()

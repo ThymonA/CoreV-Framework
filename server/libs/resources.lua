@@ -402,7 +402,11 @@ function Resources:Execute()
     local resources = Resources:GetResources()
     local count = #frameworkModules
 
+    local index = 0
+
     for _, module in pairs(frameworkModules or {}) do
+        index = index + 1
+
         _ENV.CurrentFile = ''
 
         local manifest = Resources:GetModuleManifestInfo(module.name, module)
@@ -426,7 +430,7 @@ function Resources:Execute()
             _type = 'server'
         end
     
-        for _, _file in pairs(manifest:GetValue(('%s_scripts'):format(_type)) or {}) do
+        for _, _file in pairs(manifest:GetValue('client_scripts') or {}) do
             local code = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. module.name .. '/' .. _file)
     
             if (code) then
@@ -437,6 +441,34 @@ function Resources:Execute()
                 end
             end
         end
+
+        local indexLabel = '000'
+
+        if (index < 10) then
+            indexLabel = ('00%s'):format(index)
+        elseif (index < 100) then
+            indexLabel = ('0%s'):format(index)
+        else
+            indexLabel = ('%s'):format(index)
+        end
+
+        SaveResourceFile(GetCurrentResourceName(), ('debug/modules/client/%s_%s_%s.lua'):format(indexLabel, module.name, 'client'), script)
+
+        script = ''
+
+        for _, _file in pairs(manifest:GetValue('server_scripts') or {}) do
+            local code = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. module.name .. '/' .. _file)
+    
+            if (code) then
+                if (script == '') then
+                    script = ('updateFilePath("%s")\n'):format(_file) .. code
+                else
+                    script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
+                end
+            end
+        end
+
+        SaveResourceFile(GetCurrentResourceName(), ('debug/modules/server/%s_%s_%s.lua'):format(indexLabel, module.name, 'server'), script)
 
         _ENV.CurrentFrameworkResource = GetCurrentResourceName()
         _ENV.CurrentFrameworkModule = module.name
@@ -466,6 +498,8 @@ function Resources:Execute()
 
     for _, resource in pairs(resources or {}) do
         if (not Resources:IsLoaded(resource.name)) then
+            index = index + 1
+
             _ENV.CurrentFile = ''
 
             local manifest = Resources:GetResourceManifestInfo(resource.name, resource)
@@ -489,7 +523,17 @@ function Resources:Execute()
                 _type = 'server'
             end
 
-            for _, _file in pairs(manifest:GetValue(('%s_scripts'):format(_type)) or {}) do
+            local indexLabel = '000'
+
+            if (index < 10) then
+                indexLabel = ('00%s'):format(index)
+            elseif (index < 100) then
+                indexLabel = ('0%s'):format(index)
+            else
+                indexLabel = ('%s'):format(index)
+            end
+
+            for _, _file in pairs(manifest:GetValue('client_scripts') or {}) do
                 local code = LoadResourceFile(resource.name, _file)
 
                 if (code) then
@@ -500,6 +544,24 @@ function Resources:Execute()
                     end
                 end
             end
+
+            SaveResourceFile(GetCurrentResourceName(), ('debug/resources/client/%s_%s_%s.lua'):format(indexLabel, resource.name, 'client'), script)
+
+            script = ''
+        
+            for _, _file in pairs(manifest:GetValue('server_scripts') or {}) do
+                local code = LoadResourceFile(resource.name, _file)
+
+                if (code) then
+                    if (script == '') then
+                        script = ('updateFilePath("%s")\n'):format(_file) .. code
+                    else
+                        script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
+                    end
+                end
+            end
+
+            SaveResourceFile(GetCurrentResourceName(), ('debug/resources/server/%s_%s_%s.lua'):format(indexLabel, resource.name, 'server'), script)
 
             _ENV.CurrentFrameworkResource = resource.name
             _ENV.CurrentFrameworkModule = resource.module

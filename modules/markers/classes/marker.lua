@@ -17,7 +17,7 @@
 --- @param position vector3 Marker position
 --- @param size vector3 Marker size
 --- @param colors array Marker colors
-function markers:createMarker(name, event, whitelist, markerType, position, size, colors)
+function markers:createMarker(name, event, whitelist, markerType, position, size, colors, addon)
     local marker = class('marker')
 
     marker:set {
@@ -27,7 +27,8 @@ function markers:createMarker(name, event, whitelist, markerType, position, size
         position = position,
         size = size,
         colors = colors,
-        event = event
+        event = event,
+        addon = addon or {}
     }
 
     if (markers.markers ~= nil and markers.markers[name] ~= nil) then

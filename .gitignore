@@ -537,4 +537,7 @@ dist
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
+corev_error.log
+debug/
+
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,visualstudio,lua,git,node,jspm

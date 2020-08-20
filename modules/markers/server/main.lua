@@ -41,7 +41,7 @@ end
 --- @param pos array|vector3|int position of marker
 --- @param info array|vector3|int size of marker
 --- @param hex string color of marker
-function markers:add(name, event, whitelist, mType, pos, info, hex)
+function markers:add(name, event, whitelist, mType, pos, info, hex, addon)
     local position = nil
     local size = nil
     local red, green, blue = 255, 255, 255
@@ -102,7 +102,7 @@ function markers:add(name, event, whitelist, mType, pos, info, hex)
         red = red,
         green = green,
         blue = blue
-    })
+    }, (addon or {}))
 end
 
 --- Get a list of markers
@@ -118,7 +118,8 @@ function markers:getPlayerMarkers(source)
                 position = marker.position,
                 size = marker.size,
                 colors = marker.colors,
-                event = marker.event
+                event = marker.event,
+                addon = marker.addon or {}
             })
         end
     end

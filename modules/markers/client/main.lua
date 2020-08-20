@@ -14,7 +14,8 @@ local markers = class('markers')
 markers:set {
     markers = {},
     drawMarkers = {},
-    inMarker = false
+    inMarker = false,
+    currentMarker = nil
 }
 
 --- Load markers in > markers.drawMarkers
@@ -68,11 +69,15 @@ end)
 Citizen.CreateThread(function()
     while true do
         markers.inMarker = false
+        markers.currentMarker = nil
 
         local coords = GetEntityCoords(GetPlayerPed(-1))
 
         for i, marker in pairs(markers.drawMarkers or {}) do
-            if (#(marker.position - coords) < marker.size.x) then
+            if (not markers.inMarker and #(marker.position - coords) < marker.size.x) then
+                markers.inMarker = true
+                markers.currentMarker = marker
+
                 triggerMarkerEvent(marker.event, marker)
             end
         end
