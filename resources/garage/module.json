@@ -1,0 +1,16 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV garage resource",
+    "client_scripts": [
+        "client/main.lua"
+    ],
+    "server_scripts": [
+        "config/server_config.lua",
+        "server/main.lua"
+    ],
+    "languages": {
+        "nl": "langs/nl.json"
+    },
+    "module": "garage"
+}
