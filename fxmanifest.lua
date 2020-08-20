@@ -25,6 +25,11 @@ files {
     'modules/**/module.json',
     'modules/**/client/**/*.lua',
     'modules/**/langs/**/*.json',
+    'modules/**/client/**/client_*.lua',
+    'resources/**/module.json',
+    'resources/**/client/**/*.lua',
+    'resources/**/langs/**/*.json',
+    'resources/**/client/**/client_*.lua',
     'hud/**/*'
 }
 
@@ -37,15 +42,13 @@ client_scripts {
     'configs/shared_config.lua',
     'configs/client_config.lua',
 
-    'shared/common.lua',
-    'shared/functions.lua',
-
-    'libs/events.lua',
-    'libs/modules.lua',
+    'libs/common.lua',
+    'libs/framework/functions.lua',
+    'libs/modules/cache.lua',
+    'libs/modules/error.lua',
+    'libs/framework/events.lua',
+    'libs/framework/modules.lua',
     'libs/enums/*.lua',
-
-    'shared/cache.lua',
-    'shared/error.lua',
 
     'client/libs/resources.lua',
 
@@ -61,15 +64,13 @@ server_scripts {
     'configs/shared_config.lua',
     'configs/server_config.lua',
 
-    'shared/common.lua',
-    'shared/functions.lua',
-
-    'libs/events.lua',
-    'libs/modules.lua',
+    'libs/common.lua',
+    'libs/framework/functions.lua',
+    'libs/modules/cache.lua',
+    'libs/modules/error.lua',
+    'libs/framework/events.lua',
+    'libs/framework/modules.lua',
     'libs/enums/*.lua',
-
-    'shared/cache.lua',
-    'shared/error.lua',
 
     'server/libs/resources.lua',
 
@@ -86,5 +87,10 @@ modules {
     'wallets',
     'jobs',
     'players',
-    'markers'
+    'markers',
+    'notifications'
+}
+
+resources {
+    'garage'
 }

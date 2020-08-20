@@ -18,14 +18,3 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
 	end
 end)
-
-
-Citizen.CreateThread(function()
-    Resources:Execute()
-
-    while not Resources.AllResourcesLoaded do
-        Citizen.Wait(0)
-    end
-
-    print('Resources loaded!!!!')
-end)

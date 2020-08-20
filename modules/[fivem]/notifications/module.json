@@ -1,13 +1,14 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV logging module",
+    "description": "CoreV notifications module",
+    "client_scripts": [
+        "client/main.lua"
+    ],
     "server_scripts": [
-        "server/main.lua",
-        "classes/log.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "logs"
+    "module": "notifications"
 }

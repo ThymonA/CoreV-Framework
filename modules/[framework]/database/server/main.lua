@@ -223,27 +223,32 @@ end
 --- @param resource string Resource Name
 --- @param module string Module Name
 --- @param name string Migration Name
-function database:applyMigration(resource, module, name)
+function database:applyMigration(object, _migration)
     local queryDone = false
     
     self:ready(function()
-        local content = nil
-
-        if (resource == CR()) then
-            content = getModuleFile(module, 'migrations/' .. name)
-        else
-            content = getResourceFile(resource, 'migrations/' .. name)
-        end
+        local content = getFrameworkFile(object.name, object.type, ('migrations/%s'):format(_migration))
 
         if (content == nil) then
             queryDone = true
             return
         end
 
-        local moduleMigrations = (database.migrations[resource] or {})[module] or {}
+        local resourceName = 'none'
 
-        for _, migration in pairs(moduleMigrations or {}) do
-            if (string.lower(migration.version) == string.lower(name)) then
+        if (string.lower(object.type) == string.lower(ResourceTypes.ExternalResource)) then
+            resourceName = object.name
+        end
+    
+        if (string.lower(object.type) == string.lower(ResourceTypes.InternalResource) or
+            string.lower(object.type) == string.lower(ResourceTypes.InternalModule)) then
+            resourceName = GetCurrentResourceName()
+        end
+
+        local migrations = (database.migrations[resourceName] or {})[object.name] or {}
+
+        for _, migration in pairs(migrations or {}) do
+            if (string.lower(migration.version) == string.lower(_migration)) then
                 queryDone = true
                 return
             end
@@ -252,8 +257,8 @@ function database:applyMigration(resource, module, name)
         database:execute(content, {})
         database:execute('INSERT INTO `migrations` (`resource`, `module`, `version`) VALUES (@resource, @module, @version)', {
             ['@resource'] = resource,
-            ['@module'] = module,
-            ['@version'] = name
+            ['@module'] = object.name,
+            ['@version'] = _migration
         })
 
         queryDone = true

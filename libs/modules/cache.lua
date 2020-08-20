@@ -65,4 +65,14 @@ function cache:exists(key)
     return false
 end
 
-addModule('cache', cache)
+--- Add cache as module when available
+Citizen.CreateThread(function()
+    while true do
+        if (addModule ~= nil and type(addModule) == 'function') then
+            addModule('cache', cache)
+            return
+        end
+
+        Citizen.Wait(0)
+    end
+end)

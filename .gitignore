@@ -538,6 +538,11 @@ dist
 .vscode-test
 
 corev_error.log
-debug/
+debug/external_resources/client/*.lua
+debug/external_resources/server/*.lua
+debug/internal_resources/client/*.lua
+debug/internal_resources/server/*.lua
+debug/internal_modules/client/*.lua
+debug/internal_modules/server/*.lua
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,visualstudio,lua,git,node,jspm

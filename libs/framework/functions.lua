@@ -155,10 +155,16 @@ _G.CR = function()
 end
 
 _ENV.string.startswith = function(self, str)
-    return self:find('^' .. str) ~= nil
+    return self:sub(1, #str) == str
 end
 _G.string.startswith = function(self, str)
-    return self:find('^' .. str) ~= nil
+    return self:sub(1, #str) == str
+end
+_ENV.string.endswith = function(self, str)
+    return self:sub(-#str) == str
+end
+_G.string.endswith = function(self, str)
+    return self:sub(-#str) == str
 end
 
 if (CLIENT) then

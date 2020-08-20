@@ -9,13 +9,14 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 Citizen.CreateThread(function()
-    Resources:Execute()
+    resource:loadAll()
 
-    while not Resources.AllResourcesLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
-    print('Resources loaded!!!!')
+    print(('=========== [ CoreV ] ===========\nAll framework executables are loaded \n-> External Resources: %s\n-> Internal Resources: %s\n-> Internal Modules: %s\n=========== [ CoreV ] ===========')
+        :format(resource:countAllLoaded()))
 end)
 
 AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
@@ -71,5 +72,29 @@ AddEventHandler('corev:core:kickPlayer', function(playerId, message, cb)
         if (cb ~= nil) then cb(true, playerName) end
     else
         if (cb ~= nil) then cb(false, 'Unknown') end
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        local _commands = m('commands')
+
+        if (_commands ~= nil) then
+            _commands:register('reload', { 'superadmin' }, function(source, arguments, showError)
+                ExecuteCommand(('stop ddrp_%s'):format(arguments.script))
+                ExecuteCommand('refresh')
+                ExecuteCommand(('start ddrp_%s'):format(arguments.script))
+            end, true, {
+                help = 'Restart a CoreV resource',
+                validate = true,
+                arguments = {
+                    { name = 'script', help = 'name of script', type = 'string' }
+                }
+            })
+
+            break;
+        end
+
+        Citizen.Wait(0)
     end
 end)

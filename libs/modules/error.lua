@@ -44,4 +44,14 @@ function error:print(msg, resource, module)
     print(('[%s][ERROR]%s%s %s'):format(GetCurrentResourceName(), resource, module, msg))
 end
 
-addModule('error', error)
+--- Add error as module when available
+Citizen.CreateThread(function()
+    while true do
+        if (addModule ~= nil and type(addModule) == 'function') then
+            addModule('error', error)
+            return
+        end
+
+        Citizen.Wait(0)
+    end
+end)

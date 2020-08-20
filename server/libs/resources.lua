@@ -8,109 +8,25 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-Resources = class('Resources')
+resource = class('resource')
 
--- Set default values
-Resources:set {
-    Resources = {},
-    FrameworkModules = {},
-    AllModulesLoaded = false,
-    AllResourcesLoaded = false
+--- Set default values
+resource:set {
+    externalResources = {},
+    internalResources = {},
+    internalModules = {},
+    internalResourceStructure = {},
+    internalModuleStructure = {},
+    tasks = {
+        loadingInternalStructures = false,
+        loadingExecutables = false,
+        loadingFramework = false
+    }
 }
 
---
--- Returns `true` if resource exits
--- @resourceName string Resource name
--- @return boolean `true` if resource exists
-function Resources:Exists(resourceName)
-    if (resourceName == nil or type(resourceName) ~= 'string') then
-        return false
-    end
-
-    resourceName = string.lower(tostring(resourceName))
-
-    return Resources.Resources[resourceName] ~= nil
-end
-
---
--- Returns `true` if module exits
--- @moduleName string Module name
--- @return boolean `true` if module exists
-function Resources:ModuleExists(moduleName)
-    if (moduleName == nil or type(moduleName) ~= 'string') then
-        return false
-    end
-
-    moduleName = string.lower(tostring(moduleName))
-
-    return Resources.FrameworkModules[moduleName] ~= nil
-end
-
---
--- Returns `true` if resource is loaded
--- @resourceName string Resource name
--- @return boolean `true` if resource is loaded
-function Resources:IsLoaded(resourceName)
-    if (resourceName == nil or type(resourceName) ~= 'string') then
-        return true
-    end
-
-    resourceName = string.lower(tostring(resourceName))
-
-    if (Resources:Exists(resourceName)) then
-        return not (not Resources.Resources[resourceName].loaded or false)
-    end
-end
-
---
--- Returns `true` if module is loaded
--- @moduleName string Module name
--- @return boolean `true` if module is loaded
-function Resources:IsModuleLoaded(moduleName)
-    if (moduleName == nil or type(moduleName) ~= 'string') then
-        return true
-    end
-
-    moduleName = string.lower(tostring(moduleName))
-
-    if (Resources:ModuleExists(moduleName)) then
-        return not (not Resources.FrameworkModules[moduleName].loaded or false)
-    end
-end
-
---
--- Returns a list of files in root directory of given resource
--- @resourceName string Name of the resource
--- @return array List of files in root directory
---
-function Resources:GetResourceFiles(resourceName)
-    if (resourceName == nil or type(resourceName) ~= 'string') then
-        return false
-    end
-
-    local resourcePath = GetResourcePath(resourceName)
-
-    return Resources:GetPathFiles(resourcePath)
-end
-
---
--- Returns a list of files in root directory of given module
--- @moduleName string Name of the module
--- @return array List of files in root directory
---
-function Resources:GetModuleFiles(moduleName)
-    if (moduleName == nil or type(moduleName) ~= 'string') then
-        return false
-    end
-
-    local resourcePath = GetResourcePath(GetCurrentResourceName()) .. '/modules/' .. moduleName .. '/'
-
-    return Resources:GetPathFiles(resourcePath)
-end
-
---- Returns a list of files in given path
---- @param path string path
-function Resources:GetPathFiles(path)
+--- Returns a list of files of given path
+--- @path string Path
+function resource:getPathFiles(path)
     local results = {}
 
     if ((string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') and path ~= nil) then
@@ -138,516 +54,589 @@ function Resources:GetPathFiles(path)
     return results
 end
 
---
--- Returns `true` if given resource is a framework resource
--- @resourceName string Name of the resource
--- @return boolean `true` if resource is framework resource
---
-function Resources:IsFrameworkResource(resourceName)
-    local resourceFiles = Resources:GetResourceFiles(resourceName)
+--- Load internal structures by path
+--- @newPath string internal path
+function resource:loadPathStructures(newPath)
+    newPath = newPath or ''
 
-    for _, file in pairs(resourceFiles or {}) do
-        if (string.lower(file) == 'module.json') then
-            return true, resourceFiles
-        end
-    end
-
-    return false, '/'
-end
-
---
--- Returns `true` if given module is a framework module
--- @moduleName string Name of the module
--- @return boolean `true` if module is framework module
---
-function Resources:IsFrameworkModule(moduleName)
-    local moduleFiles = Resources:GetModuleFiles(moduleName)
-
-    for _, file in pairs(moduleFiles or {}) do
-        if (string.lower(file) == 'module.json') then
-            return true, GetResourcePath(GetCurrentResourceName()) .. '/modules/' .. moduleName .. '/'
-        end
-    end
-
-    return false, '/'
-end
-
---
--- Returns `true` if resource has any migration
--- @resourceName string Name of the resource
--- @return boolean `true` if resource has any migration
---
-function Resources:ResourceHasMigrations(resourceName)
-    if (not SERVER) then
-        return false
-    end
-
-    local resourceFiles = Resources:GetResourceFiles(resourceName)
-
-    for _, file in pairs(resourceFiles or {}) do
-        if (string.lower(file) == 'migrations') then
-            local newPath = GetResourcePath(resourceName) .. '/migrations/'
-            local migrationFiles = Resources:GetPathFiles(newPath)
-            local migrations = {}
-
-            for _, migrationFile in pairs(migrationFiles or {}) do
-                if (string.match(migrationFile, '.sql')) then
-                    table.insert(migrations, migrationFile)
-                end
-            end
-
-            return #migrations > 0, migrations
-        end
-    end
-
-    return false
-end
-
---
--- Returns `true` if module has any migration
--- @moduleName string Name of the module
--- @return boolean `true` if module has any migration
---
-function Resources:ModuleHasMigrations(moduleName)
-    if (not SERVER) then
-        return false
-    end
-
-    local moduleFiles = Resources:GetModuleFiles(moduleName)
-
-    for _, file in pairs(moduleFiles or {}) do
-        if (string.lower(file) == 'migrations') then
-            local newPath = GetResourcePath(GetCurrentResourceName()) .. '/modules/' .. moduleName .. '/migrations/'
-            local migrationFiles = Resources:GetPathFiles(newPath)
-            local migrations = {}
-
-            for _, migrationFile in pairs(migrationFiles or {}) do
-                if (string.match(migrationFile, '.sql')) then
-                    table.insert(migrations, migrationFile)
-                end
-            end
-
-            return #migrations > 0, migrations
-        end
-    end
-
-    return false, {}
-end
-
---
--- Returns a list of framework resources
--- @return array List of framework resources
---
-function Resources:GetResources()
     local results = {}
-    local resources = GetNumResources()
+    local internalPath = GetResourcePath(GetCurrentResourceName())
+    local directoryFiles = self:getPathFiles(('%s/%s/'):format(internalPath, newPath))
 
-    for index = 0, resources, 1 do
-        local resourceName = GetResourceByFindIndex(index)
-        local isFrameworkResource, resourcePath = Resources:IsFrameworkResource(resourceName)
+    for i, directory in pairs(directoryFiles or {}) do
+        if (directory:startswith('[') and directory:endswith(']')) then
+            local files = resource:loadPathStructures(('%s/%s'):format(newPath, directory))
 
-        if (isFrameworkResource) then
-            local _object = class('resource')
-            local hasMigrations, migrations = Resources:ResourceHasMigrations(resourceName)
-
-            _object:set {
-                name = resourceName,
-                path = resourcePath,
-                hasMigrations = hasMigrations,
-                migrations = migrations
+            for i2, file in pairs(files or {}) do
+                results[file.name] = {
+                    name = file.name,
+                    path = file.path,
+                    fullPath = file.fullPath
+                }
+            end
+        else
+            results[directory] = {
+                name = directory,
+                path = (('%s/%s'):format(newPath, directory)),
+                fullPath = (('%s/%s/%s'):format(internalPath, newPath, directory))
             }
-
-            table.insert(results, _object)
         end
     end
 
     return results
 end
 
---
--- Returns a list of framework modules
--- @return array List of framework modules
---
-function Resources:GetModules()
-    local results = {}
-    local moduleDirectoryFiles = Resources:GetPathFiles(GetResourcePath(GetCurrentResourceName()) .. '/modules/')
+--- Load internal structures
+function resource:loadStructures()
+    if (self.tasks.loadingInternalStructures) then return end
 
-    for _, moduleDir in pairs (moduleDirectoryFiles or {}) do
-        local isFrameworkModule, resourcePath = Resources:IsFrameworkModule(moduleDir)
+    local resources = self:loadPathStructures('resources')
+    local modules = self:loadPathStructures('modules')
 
-        if (isFrameworkModule) then
-            local _object = class('resource-module')
-            local hasMigrations, migrations = Resources:ModuleHasMigrations(moduleDir)
+    self.internalResourceStructure = resources
+    self.internalModuleStructure = modules
 
-            _object:set {
-                name = moduleDir,
-                path = resourcePath,
-                hasMigrations = hasMigrations,
-                migrations = migrations
-            }
+    self.tasks.loadingInternalStructures = true
+end
 
-            table.insert(results, _object)
+--- Returns `true` if resource/module exists
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:exists(name, _type)
+    if (name == nil or type(name) ~= 'string') then return false end
+
+    name = string.lower(name)
+
+    if (string.lower(_type) == string.lower(ResourceTypes.ExternalResource)) then
+        return self.externalResources[name] ~= nil
+    end
+
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalResource)) then
+        return self.internalResources[name] ~= nil
+    end
+
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalModule)) then
+        return self.internalModules[name] ~= nil
+    end
+end
+
+--- Returns `true` if resource is loaded
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:isLoaded(name, _type)
+    if (not self:exists(name, _type)) then return false end
+
+    name = string.lower(name)
+
+    if (string.lower(_type) == string.lower(ResourceTypes.ExternalResource)) then
+        return self.externalResources[name].loaded == true
+    end
+
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalResource)) then
+        return self.internalResources[name].loaded == true
+    end
+
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalModule)) then
+        return self.internalModules[name].loaded == true
+    end
+
+    return false
+end
+
+--- Returns a path
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:getPath(name, _type)
+    local path = 'none'
+
+    if (string.lower(_type) == string.lower(ResourceTypes.ExternalResource)) then
+        path = GetResourcePath(name)
+    end
+
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalResource)) then
+        repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
+
+        if (self.internalResourceStructure ~= nil and self.internalResourceStructure[name] ~= nil) then
+            path = self.internalResourceStructure[name].fullPath
         end
     end
 
-    local metadataModules = {}
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalModule)) then
+        repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
 
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
-        table.insert(metadataModules, GetResourceMetadata(GetCurrentResourceName(), 'module', i))
+        if (self.internalModuleStructure ~= nil and self.internalModuleStructure[name] ~= nil) then
+            path = self.internalModuleStructure[name].fullPath
+        end
     end
 
-    local finalModules = {}
+    return path
+end
 
-    for _, metadataModule in pairs(metadataModules or {}) do
-        for _, _module in pairs(results) do
-            if (string.lower(_module.name) == string.lower(metadataModule)) then
-                table.insert(finalModules, _module)
+--- Returns a list of files of module
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:getFiles(name, _type)
+    if (name == nil or type(name) ~= 'string') then return false end
+
+    local path = self:getPath(name, _type)
+
+    if (path ~= 'none') then
+        return self:getPathFiles(path)
+    end
+
+    return {}
+end
+
+--- Returns `true` if Resource/Module is a framework resource
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:isFrameworkExecutable(name, _type)
+    if (name == nil or type(name) ~= 'string') then return false end
+
+    local content = self:getFilesByPath(name, _type, 'module.json')
+
+    return content ~= nil
+end
+
+--- Returns `true` if Resource/Module is a framework resource
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:hasFrameworkMigrations(name, _type)
+    if (name == nil or type(name) ~= 'string') then return false end
+
+    local files = self:getFiles(name, _type)
+
+    for i, file in pairs(files or {}) do
+        if (string.lower(file) == 'migrations') then
+            return true
+        end
+    end
+
+    return false
+end
+
+--- Returns `true` if Resource/Module is a framework resource
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:getFrameworkMigrations(name, _type)
+    if (not self:hasFrameworkMigrations(name, _type)) then return {} end
+
+    local results = {}
+    local path = ('%s/migrations/'):format(self:getPath(name, _type))
+
+    if (path ~= 'none') then
+        local files = self:getPathFiles(path)
+
+        for i, file in pairs(files or {}) do
+            if (file:endswith('.sql')) then
+                table.insert(results, file)
             end
         end
     end
 
-    return finalModules
+    return results
 end
 
---
--- Generates a manifest object for resource
--- @resourceName string Resource name
--- @data array Raw json data from resource
--- @return object Resource manifest object
---
-function Resources:GenerateManifestInfo(resourceName, module, data, entity)
-    local _manifest = class('manifest')
+--- Generates a framework manifest for Resource/Module
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+function resource:generateFrameworkManifest(name, _type)
+    local resource = ''
+    local internalPath = ''
 
-    _manifest:set {
-        name = resourceName,
-        module = module or resourceName,
-        isModule = resourceName == GetCurrentResourceName(),
-        raw = data,
-        hasMigrations = entity.hasMigrations or false,
-        migrations = entity.migrations or {}
-    }
+    if (string.lower(_type) == string.lower(ResourceTypes.ExternalResource)) then
+        resource = name
+        internalPath = '/module.json'
+    end
 
-    for key, value in pairs(data) do
-        if (key ~= nil) then
-            _manifest:set(key, value)
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalResource)) then
+        repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
+
+        if (self.internalResourceStructure ~= nil and self.internalResourceStructure[name] ~= nil) then
+            resource = GetCurrentResourceName()
+            internalPath = ('%s/module.json'):format(self.internalResourceStructure[name].path)
         end
     end
 
-    function _manifest:GetValue(key)
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalModule)) then
+        repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
+
+        if (self.internalModuleStructure ~= nil and self.internalModuleStructure[name] ~= nil) then
+            resource = GetCurrentResourceName()
+            internalPath = ('%s/module.json'):format(self.internalModuleStructure[name].path)
+        end
+    end
+
+    local manifest = class('manifest')
+
+    --- set default values
+    manifest:set {
+        name = name,
+        type = _type,
+        data = {}
+    }
+
+    --- Returns a value from data in manifest
+    --- @key string key to search for
+    function manifest:getValue(key)
         if (key == nil or type(key) ~= 'string') then
             return nil
         end
 
-        if (_manifest.raw ~= nil and _manifest.raw[key] ~= nil) then
-            return _manifest.raw[key]
+        if (self.data ~= nil and self.data[key] ~= nil) then
+            return self.data[key]
         end
 
         return nil
     end
 
-    return _manifest
-end
-
---
--- Returns a manifest for given resource
--- @resourceName string Resource name
--- @return object Resource manifest object
---
-function Resources:GetResourceManifestInfo(resourceName, resource)
-    if (resourceName == nil or type(resourceName) ~= 'string') then
-        return Resources:GenerateManifestInfo(resourceName, resourceName, {}, resource)
+    if (resource == '' or internalPath == '') then
+        return manifest
     end
 
-    local content = LoadResourceFile(resourceName, 'module.json')
+    local content = LoadResourceFile(resource, internalPath)
 
     if (content) then
         local data = json.decode(content)
 
         if (data) then
-            return Resources:GenerateManifestInfo(resourceName, data.module or resourceName, data, resource)
+            for key, value in pairs(data) do
+                if (key ~= nil) then
+                    manifest.data[key] = value
+                end
+            end
         end
     end
 
-    return Resources:GenerateManifestInfo(resourceName, resourceName, {}, resource)
+    return manifest
 end
 
---
--- Returns a manifest for given resource
--- @resourceName string Resource name
--- @return object Resource manifest object
---
-function Resources:GetModuleManifestInfo(moduleName, module)
-    if (moduleName == nil or type(moduleName) ~= 'string') then
-        return Resources:GenerateManifestInfo(GetCurrentResourceName(), moduleName, {}, module)
+--- Load Resources/Modules
+function resource:loadFrameworkExecutables()
+    local enabledInternalResources, enabledInternalModules = {}, {}
+    local internalResources, internalModules = {}, {}
+    
+    self:loadStructures()
+
+    repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
+
+    --- Load all enabled resources
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'resource'), 1 do
+        table.insert(enabledInternalResources, GetResourceMetadata(GetCurrentResourceName(), 'resource', i))
     end
 
-    local content = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. moduleName .. '/module.json')
+    --- Load all enabled modules
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
+        table.insert(enabledInternalModules, GetResourceMetadata(GetCurrentResourceName(), 'module', i))
+    end
 
-    if (content) then
-        local data = json.decode(content)
+    --- Add all internal executable resources
+    for i, internalResource in pairs(self.internalResourceStructure or {}) do
+        local internalResourceEnabled = false
 
-        if (data) then
-            return Resources:GenerateManifestInfo(GetCurrentResourceName(), moduleName, data, module)
+        for i2, internalResourceName in pairs(enabledInternalResources or {}) do
+            if (string.lower(internalResourceName) == string.lower(internalResource.name)) then
+                internalResourceEnabled = true
+            end
+        end
+
+        if (self:isFrameworkExecutable(internalResource.name, ResourceTypes.InternalResource)) then
+            self.internalResources[internalResource.name] = {
+                name = internalResource.name,
+                path = internalResource.path,
+                fullPath = internalResource.fullPath,
+                enabled = internalResourceEnabled,
+                loaded = false,
+                error = {
+                    status = false,
+                    message = ''
+                },
+                type =  ResourceTypes.InternalResource,
+                hasMigrations = self:hasFrameworkMigrations(internalResource.name, ResourceTypes.InternalResource),
+                migrations = self:getFrameworkMigrations(internalResource.name, ResourceTypes.InternalResource),
+                manifest = self:generateFrameworkManifest(internalResource.name, ResourceTypes.InternalResource)
+            }
         end
     end
 
-    return Resources:GenerateManifestInfo(GetCurrentResourceName(), moduleName, {}, module)
+    --- Add all internal executable modules
+    for i, internalModule in pairs(self.internalModuleStructure or {}) do
+        local internalModuleEnabled = false
+
+        for i2, internalModuleName in pairs(enabledInternalModules or {}) do
+            if (string.lower(internalModuleName) == string.lower(internalModule.name)) then
+                internalModuleEnabled = true
+            end
+        end
+
+        if (self:isFrameworkExecutable(internalModule.name, ResourceTypes.InternalModule)) then
+            self.internalModules[internalModule.name] = {
+                name = internalModule.name,
+                path = internalModule.path,
+                fullPath = internalModule.fullPath,
+                enabled = internalModuleEnabled,
+                loaded = false,
+                error = {
+                    status = false,
+                    message = ''
+                },
+                type =  ResourceTypes.InternalModule,
+                hasMigrations = self:hasFrameworkMigrations(internalModule.name, ResourceTypes.InternalModule),
+                migrations = self:getFrameworkMigrations(internalModule.name, ResourceTypes.InternalModule),
+                manifest = self:generateFrameworkManifest(internalModule.name, ResourceTypes.InternalModule)
+            }
+        end
+    end
+
+    self.tasks.loadingExecutables = true
 end
 
---
--- Execute all framework resources and modules
---
-function Resources:Execute()
-    local frameworkModules = Resources:GetModules()
-    local resources = Resources:GetResources()
-    local count = #frameworkModules
+--- Load all translations for 
+--- @object Any Executable Resource/Module
+function resource:loadTranslations(object)
+    if (object.enabled and object.manifest ~= nil and type(object.manifest) == 'manifest') then
+        local languages = object.manifest:getValue('languages') or {}
 
-    local index = 0
+        for key, location in pairs(languages) do
+            if (string.lower(key) == LANGUAGE) then
+                local resourceName = ''
+                local content = nil
 
-    for _, module in pairs(frameworkModules or {}) do
-        index = index + 1
-
-        _ENV.CurrentFile = ''
-
-        local manifest = Resources:GetModuleManifestInfo(module.name, module)
-        local script = ''
-        local _type = 'client'
-
-        Resources:LoadTranslations(manifest)
-
-        if (SERVER) then
-            if (module.hasMigrations or false) then                
-                local database = m('database')
-                local moduleMigrations = module.migrations or {}
-        
-                for _, migration in pairs(moduleMigrations) do
-                    local migrationDone = database:applyMigration(GetCurrentResourceName(), module.name, migration)
-        
-                    repeat Citizen.Wait(0) until migrationDone == true
+                if (string.lower(object.type) == string.lower(ResourceTypes.ExternalResource)) then
+                    content = LoadResourceFile(object.name, location)
+                    resourceName = object.name
                 end
-            end
+            
+                if (string.lower(object.type) == string.lower(ResourceTypes.InternalResource) or
+                    string.lower(object.type) == string.lower(ResourceTypes.InternalModule)) then
+                    content = LoadResourceFile(GetCurrentResourceName(), ('%s/%s'):format(object.path, location))
+                    resourceName = GetCurrentResourceName()
+                end
 
-            _type = 'server'
-        end
-    
-        for _, _file in pairs(manifest:GetValue('client_scripts') or {}) do
-            local code = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. module.name .. '/' .. _file)
-    
-            if (code) then
-                if (script == '') then
-                    script = ('updateFilePath("%s")\n'):format(_file) .. code
-                else
-                    script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
+                if (content) then
+                    local data = json.decode(content)
+
+                    if (data) then
+                        if (CoreV.Translations[resourceName] == nil) then
+                            CoreV.Translations[resourceName] = {}
+                        end
+
+                        if (CoreV.Translations[resourceName][object.name] == nil) then
+                            CoreV.Translations[resourceName][object.name] = {}
+                        end
+
+                        for _key, _value in pairs(data or {}) do
+                            CoreV.Translations[resourceName][object.name][_key] = _value
+                        end
+                    end
                 end
             end
         end
+    end
+end
 
-        local indexLabel = '000'
+--- Returns a list of files by path
+--- @name string Resource/Module name
+--- @_type string Type of Resource/Module
+--- @internalPath string Internal path of Resource/Module
+function resource:getFilesByPath(name, _type, internalPath)
+    local content = nil
 
-        if (index < 10) then
-            indexLabel = ('00%s'):format(index)
-        elseif (index < 100) then
-            indexLabel = ('0%s'):format(index)
-        else
-            indexLabel = ('%s'):format(index)
-        end
-
-        SaveResourceFile(GetCurrentResourceName(), ('debug/modules/client/%s_%s_%s.lua'):format(indexLabel, module.name, 'client'), script)
-
-        script = ''
-
-        for _, _file in pairs(manifest:GetValue('server_scripts') or {}) do
-            local code = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. module.name .. '/' .. _file)
-    
-            if (code) then
-                if (script == '') then
-                    script = ('updateFilePath("%s")\n'):format(_file) .. code
-                else
-                    script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
-                end
-            end
-        end
-
-        SaveResourceFile(GetCurrentResourceName(), ('debug/modules/server/%s_%s_%s.lua'):format(indexLabel, module.name, 'server'), script)
-
-        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
-        _ENV.CurrentFrameworkModule = module.name
-
-        local fn, error = load(script, ('@%s:%s:%s:%s'):format(GetCurrentResourceName(), module.name, _type, CurrentFile), 't', _ENV)
-
-        if (fn) then
-            xpcall(fn, function(err)
-                error:print(err)
-            end)
-        else
-            error:print(_error)
-        end
-
-        local _object = Resources:extend('resource-module')
-
-        _object:set {
-            name = module.name,
-            manifest = manifest,
-            loaded = true
-        }
-
-        local moduleName = string.lower(tostring(module.name))
-
-        Resources.FrameworkModules[moduleName] = _object
+    if (string.lower(_type) == string.lower(ResourceTypes.ExternalResource)) then        
+        content = LoadResourceFile(name, internalPath)
     end
 
-    for _, resource in pairs(resources or {}) do
-        if (not Resources:IsLoaded(resource.name)) then
-            index = index + 1
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalResource)) then
+        if (self.internalResourceStructure ~= nil and self.internalResourceStructure[name] ~= nil) then
+            content = LoadResourceFile(GetCurrentResourceName(), ('%s/%s'):format(self.internalResourceStructure[name].path, internalPath))
+        end
+    end
 
-            _ENV.CurrentFile = ''
+    if (string.lower(_type) == string.lower(ResourceTypes.InternalModule)) then
+        if (self.internalModuleStructure ~= nil and self.internalModuleStructure[name] ~= nil) then
+            content = LoadResourceFile(GetCurrentResourceName(), ('%s/%s'):format(self.internalModuleStructure[name].path, internalPath))
+        end
+    end
 
-            local manifest = Resources:GetResourceManifestInfo(resource.name, resource)
-            local script = ''
-            local _type = 'client'
+    return content
+end
 
-            Resources:LoadTranslations(manifest)
+--- Save and returns generated executable
+--- @object Any Executable Resource/Module
+function resource:saveExecutable(object)
+    local script = ''
+    local path = 'unknown'
 
-            if (SERVER) then
-                if (manifest.hasMigrations or false) then
+    if (string.lower(object.type) == string.lower(ResourceTypes.ExternalResource)) then
+        path = 'external_resources'
+    elseif (string.lower(object.type) == string.lower(ResourceTypes.InternalResource)) then
+        path = 'internal_resources'
+    elseif (string.lower(object.type) == string.lower(ResourceTypes.InternalModule)) then
+        path = 'internal_modules'
+    end
+
+    for i2, file in pairs(object.manifest:getValue('client_scripts') or {}) do
+        local code = self:getFilesByPath(object.name, object.type, file)
+
+        if (code) then
+            script = ('%s%s\n'):format(script, code)
+        end
+    end
+
+    SaveResourceFile(GetCurrentResourceName(), ('debug/%s/client/%s_%s.lua'):format(path, object.name, 'client'), script)
+
+    script = ''
+
+    for i2, file in pairs(object.manifest:getValue('server_scripts') or {}) do
+        local code = self:getFilesByPath(object.name, object.type, file)
+
+        if (code) then
+            script = ('%s%s\n'):format(script, code)
+        end
+    end
+
+    SaveResourceFile(GetCurrentResourceName(), ('debug/%s/server/%s_%s.lua'):format(path, object.name, 'server'), script)
+
+    return script
+end
+
+--- Load all framework Resources/Modules
+function resource:loadAll()
+    self:loadFrameworkExecutables()
+
+    repeat Citizen.Wait(0) until self.tasks.loadingExecutables == true
+
+    local enabledInternalModules = {}
+
+    --- Load all enabled modules
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
+        local _module = GetResourceMetadata(GetCurrentResourceName(), 'module', i)
+
+        if (_module ~= nil and type(_module) == 'string') then
+            table.insert(enabledInternalModules, string.lower(_module))
+        end
+    end
+
+    --- Load and execute all internal modules
+    for i, internalModuleName in pairs(enabledInternalModules or {}) do
+        if (self.internalModules ~= nil and self.internalModules[internalModuleName] ~= nil) then
+            local internalModule = self.internalModules[internalModuleName]
+
+            if (internalModule.enabled) then
+                self:loadTranslations(internalModule)
+    
+                if (internalModule.hasMigrations) then
                     local database = m('database')
-                    local resourceMigrations = manifest.migrations or {}
+                    
+                    for i2, migration in pairs(internalModule.migrations) do
+                        local migrationTaskDone = database:applyMigration(internalModule, migration)
     
-                    for _, migration in pairs(resourceMigrations) do
-                        local migrationDone = database:applyMigration(resource.name, resource.name, migration)
+                        repeat Citizen.Wait(0) until migrationTaskDone == true
+                    end
+                end
     
-                        repeat Citizen.Wait(0) until migrationDone == true
-                    end
+                local script = self:saveExecutable(internalModule)
+    
+                _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+                _ENV.CurrentFrameworkModule = internalModule.name
+                _G.CurrentFrameworkResource = GetCurrentResourceName()
+                _G.CurrentFrameworkModule = internalModule.name
+    
+                local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+    
+                if (fn) then
+                    xpcall(fn, function(err)
+                        self.internalModules[internalModuleName].error.status = true
+                        self.internalModules[internalModuleName].error.message = err
+    
+                        error:print(err)
+                    end)
                 end
-
-                _type = 'server'
+    
+                if (_error and error ~= '') then
+                    self.internalModules[internalModuleName].error.status = true
+                    self.internalModules[internalModuleName].error.message = _error
+    
+                    error:print(_error)
+                end
+    
+                self.internalModules[internalModuleName].loaded = true
             end
+        end
+    end
 
-            local indexLabel = '000'
+    --- Load and execute all internal resources
+    for i, internalResource in pairs(self.internalResources or {}) do
+        if (internalResource.enabled) then
+            self:loadTranslations(internalResource)
 
-            if (index < 10) then
-                indexLabel = ('00%s'):format(index)
-            elseif (index < 100) then
-                indexLabel = ('0%s'):format(index)
-            else
-                indexLabel = ('%s'):format(index)
-            end
+            if (internalResource.hasMigrations) then
+                local database = m('database')
+                
+                for i2, migration in pairs(internalResource.migrations) do
+                    local migrationTaskDone = database:applyMigration(internalResource, migration)
 
-            for _, _file in pairs(manifest:GetValue('client_scripts') or {}) do
-                local code = LoadResourceFile(resource.name, _file)
-
-                if (code) then
-                    if (script == '') then
-                        script = ('updateFilePath("%s")\n'):format(_file) .. code
-                    else
-                        script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
-                    end
+                    repeat Citizen.Wait(0) until migrationTaskDone == true
                 end
             end
 
-            SaveResourceFile(GetCurrentResourceName(), ('debug/resources/client/%s_%s_%s.lua'):format(indexLabel, resource.name, 'client'), script)
+            local script = self:saveExecutable(internalResource)
 
-            script = ''
-        
-            for _, _file in pairs(manifest:GetValue('server_scripts') or {}) do
-                local code = LoadResourceFile(resource.name, _file)
+            _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+            _ENV.CurrentFrameworkModule = internalResource.name
+            _G.CurrentFrameworkResource = GetCurrentResourceName()
+            _G.CurrentFrameworkModule = internalResource.name
 
-                if (code) then
-                    if (script == '') then
-                        script = ('updateFilePath("%s")\n'):format(_file) .. code
-                    else
-                        script = script .. ('\nupdateFilePath("%s")\n'):format(_file) .. code
-                    end
-                end
-            end
-
-            SaveResourceFile(GetCurrentResourceName(), ('debug/resources/server/%s_%s_%s.lua'):format(indexLabel, resource.name, 'server'), script)
-
-            _ENV.CurrentFrameworkResource = resource.name
-            _ENV.CurrentFrameworkModule = resource.module
-
-            local fn, _error = load(script, ('@%s:%s:%s'):format(resource.name, _type, CurrentFile), 't', _ENV)
+            local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
             if (fn) then
                 xpcall(fn, function(err)
+                    self.internalResources[i].error.status = true
+                    self.internalResources[i].error.message = err
+
                     error:print(err)
                 end)
-            else
+            end
+
+            if (_error and error ~= '') then
+                self.internalResources[i].error.status = true
+                self.internalResources[i].error.message = _error
+
                 error:print(_error)
             end
 
-            if (not Resources:Exists(resource.name)) then
-                local _object = Resources:extend('resource')
-
-                _object:set {
-                    manifest = manifest,
-                    loaded = true
-                }
-
-                local resourceName = string.lower(tostring(resource.name))
-
-                Resources.Resources[resourceName] = _object
-            end
+            self.internalResources[i].loaded = true
         end
     end
 
-    _ENV.CurrentFrameworkResource = nil
-    _ENV.CurrentFrameworkModule = nil
-    _ENV.CurrentFile = ''
-
-    Resources.AllResourcesLoaded = true
+    self.tasks.loadingFramework = true
 end
 
---- Load all translations from manifest
---- @param manifest manifest Manifest Info
-function Resources:LoadTranslations(manifest)
-    if (manifest ~= nil and string.lower(type(manifest)) == 'manifest') then
-        local languages = manifest:GetValue('languages') or {}
+--- Returns how many executables are loaded
+function resource:countAllLoaded()
+    local externalResources, internalResources, internalModules = 0, 0, 0
 
-        for key, location in pairs(languages or {}) do
-            if (string.lower(tostring(key)) == LANGUAGE) then
-                if (manifest.isModule or false) then
-                    local content = LoadResourceFile(GetCurrentResourceName(), 'modules/' .. manifest.module .. '/' .. location)
-
-                    if (content) then
-                        local data = json.decode(content)
-
-                        if (data) then
-                            if (CoreV.Translations[GetCurrentResourceName()] == nil) then
-                                CoreV.Translations[GetCurrentResourceName()] = {}
-                            end
-
-                            if (CoreV.Translations[GetCurrentResourceName()][manifest.module] == nil) then
-                                CoreV.Translations[GetCurrentResourceName()][manifest.module] = {}
-                            end
-
-                            for _key, _value in pairs(data or {}) do
-                                CoreV.Translations[GetCurrentResourceName()][manifest.module][_key] = _value
-                            end
-                        end
-                    end
-                else
-                    local content = LoadResourceFile(manifest.name, location)
-
-                    if (content) then
-                        local data = json.decode(content)
-
-                        if (data) then
-                            if (CoreV.Translations[manifest.name] == nil) then
-                                CoreV.Translations[manifest.name] = {}
-                            end
-
-                            if (CoreV.Translations[manifest.name][manifest.module] == nil) then
-                                CoreV.Translations[manifest.name][manifest.module] = {}
-                            end
-
-                            for _key, _value in pairs(data or {}) do
-                                CoreV.Translations[manifest.name][manifest.module][_key] = _value
-                            end
-                        end
-                    end
-                end
-            end
+    for i, externalResource in pairs(self.externalResources or {}) do
+        if (externalResource.enabled and externalResource.loaded) then
+            externalResources = externalResources + 1
         end
     end
+
+    for i, internalResource in pairs(self.internalResources or {}) do
+        if (internalResource.enabled and internalResource.loaded) then
+            internalResources = internalResources + 1
+        end
+    end
+
+    for i, internalModule in pairs(self.internalModules or {}) do
+        if (internalModule.enabled and internalModule.loaded) then
+            internalModules = internalModules + 1
+        end
+    end
+
+    return externalResources, internalResources, internalModules
 end
+
+--- FiveM maniplulation
+_ENV.getFrameworkFile = function(name, _type, internalPath) return resource:getFilesByPath(name, _type, internalPath) end
+_G.getFrameworkFile = function(name, _type, internalPath) return resource:getFilesByPath(name, _type, internalPath) end
