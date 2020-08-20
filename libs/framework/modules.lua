@@ -213,7 +213,7 @@ function module:get(name)
     return self:get(name)
 end
 
--- FiveM manipulation
+--- FiveM manipulation
 _ENV.addModule = function(name, arguments, override) module:load(name, arguments, override) end
 _G.addModule = function(name, arguments, override) module:load(name, arguments, override) end
 _ENV.m = function(moduleName) return module:get(moduleName) end

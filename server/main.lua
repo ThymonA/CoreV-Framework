@@ -24,7 +24,7 @@ AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
 
     local _source = source
     
-    while not Resources.AllResourcesLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
@@ -34,7 +34,7 @@ end)
 AddEventHandler('playerDropped', function(reason)
     local _source = source
     
-    while not Resources.AllResourcesLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
@@ -44,7 +44,7 @@ end)
 onClientTrigger('corev:core:playerLoaded', function()
     local _source = source
 
-    while not Resources.AllResourcesLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 

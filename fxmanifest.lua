@@ -50,6 +50,7 @@ client_scripts {
     'libs/framework/modules.lua',
     'libs/enums/*.lua',
 
+    'client/libs/callbacks.lua',
     'client/libs/resources.lua',
 
     'client/main.lua'
@@ -72,6 +73,7 @@ server_scripts {
     'libs/framework/modules.lua',
     'libs/enums/*.lua',
 
+    'server/libs/callbacks.lua',
     'server/libs/resources.lua',
 
     'server/functions.lua',
@@ -86,9 +88,7 @@ modules {
     'commands',
     'wallets',
     'jobs',
-    'players',
-    'markers',
-    'notifications'
+    'players'
 }
 
 resources {

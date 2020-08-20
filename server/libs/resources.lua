@@ -565,6 +565,50 @@ function resource:loadAll()
         end
     end
 
+    --- Load and execute all internal modules
+    for i, internalModule in pairs(self.internalModules or {}) do
+        if (not internalModule.loaded) then
+            self:loadTranslations(internalModule)
+
+            if (internalModule.hasMigrations) then
+                local database = m('database')
+                
+                for i2, migration in pairs(internalModule.migrations) do
+                    local migrationTaskDone = database:applyMigration(internalModule, migration)
+
+                    repeat Citizen.Wait(0) until migrationTaskDone == true
+                end
+            end
+
+            local script = self:saveExecutable(internalModule)
+
+            _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+            _ENV.CurrentFrameworkModule = internalModule.name
+            _G.CurrentFrameworkResource = GetCurrentResourceName()
+            _G.CurrentFrameworkModule = internalModule.name
+
+            local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+
+            if (fn) then
+                xpcall(fn, function(err)
+                    self.internalModules[i].error.status = true
+                    self.internalModules[i].error.message = err
+
+                    error:print(err)
+                end)
+            end
+
+            if (_error and error ~= '') then
+                self.internalModules[i].error.status = true
+                self.internalModules[i].error.message = _error
+
+                error:print(_error)
+            end
+
+            self.internalModules[i].loaded = true
+        end
+    end
+
     --- Load and execute all internal resources
     for i, internalResource in pairs(self.internalResources or {}) do
         if (internalResource.enabled) then
@@ -629,13 +673,40 @@ function resource:countAllLoaded()
     end
 
     for i, internalModule in pairs(self.internalModules or {}) do
-        if (internalModule.enabled and internalModule.loaded) then
+        if (internalModule.loaded) then
             internalModules = internalModules + 1
         end
     end
 
     return externalResources, internalResources, internalModules
 end
+
+--- Sent internal structures to client
+registerCallback('corev:resource:loadStructure', function(source, cb)
+    while not resource.tasks.loadingFramework do
+        Citizen.Wait(0)
+    end
+
+    local resourceStructures, moduleStructures = {}, {}
+
+    for i, resourceStructure in pairs(resource.internalResourceStructure or {}) do
+        resourceStructures[i] = {
+            name = resourceStructure.name,
+            path = resourceStructure.path,
+            fullPath = resourceStructure.path
+        }
+    end
+
+    for i, moduleStructure in pairs(resource.internalModuleStructure or {}) do
+        moduleStructures[i] = {
+            name = moduleStructure.name,
+            path = moduleStructure.path,
+            fullPath = moduleStructure.path
+        }
+    end
+
+    cb(resourceStructures, moduleStructures)
+end)
 
 --- FiveM maniplulation
 _ENV.getFrameworkFile = function(name, _type, internalPath) return resource:getFilesByPath(name, _type, internalPath) end
