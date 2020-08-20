@@ -1,0 +1,9 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV streaming module",
+    "client_scripts": [
+        "client/main.lua"
+    ],
+    "module": "streaming"
+}

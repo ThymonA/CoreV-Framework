@@ -88,7 +88,9 @@ modules {
     'commands',
     'wallets',
     'jobs',
-    'players'
+    'players',
+    'streaming',
+    'game'
 }
 
 resources {
