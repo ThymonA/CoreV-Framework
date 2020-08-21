@@ -10,6 +10,21 @@
 ----------------------- [ CoreV ] -----------------------
 local game = class('game')
 
+--- Returns a list of vehicles in area
+--- @coords vector3 coords
+--- @maxDistance int max distance between coords and vehicle
+function game:getVehiclesInArea(coords, maxDistance)
+    local vehicles = {}
+
+    for vehicle in EnumerateVehicles() do
+        if DoesEntityExist(vehicle) and #(coords - GetEntityCoords(vehicle)) <= maxDistance then
+            table.insert(vehicles, vehicle)
+        end
+    end
+
+    return vehicles
+end
+
 --- Spawn a vehicle at specified coords
 --- @moduleName string Hash|string Vehicle hash or name
 --- @coords vector3|table Coords where vehicle needs to be spawned
@@ -40,6 +55,19 @@ function game:spawnVehicle(moduleName, coords, heading, cb)
             end
         end)
     end)
+end
+
+--- Delete specified vehicle
+--- @vehicle vehicle object
+function game:deleteVehicle(vehicle)
+    if (vehicle ~= nil) then
+        if (IsVehiclePreviouslyOwnedByPlayer(vehicle)) then
+            SetVehicleHasBeenOwnedByPlayer(vehicle, false)
+        end
+
+        SetEntityAsMissionEntity(vehicle, true, true)
+        DeleteVehicle(vehicle)
+    end
 end
 
 addModule('game', game)

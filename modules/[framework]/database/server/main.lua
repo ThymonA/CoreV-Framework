@@ -256,7 +256,7 @@ function database:applyMigration(object, _migration)
 
         database:execute(content, {})
         database:execute('INSERT INTO `migrations` (`resource`, `module`, `version`) VALUES (@resource, @module, @version)', {
-            ['@resource'] = resource,
+            ['@resource'] = resourceName,
             ['@module'] = object.name,
             ['@version'] = _migration
         })

@@ -33,3 +33,24 @@ end, false, {
         { name = 'name', help = _(CR(), 'game', 'vehicle_name'), type = 'any' }
     }
 })
+
+--- Spawn a vehicle with /car {vehicle}
+commands:register('dv', { 'superadmin' }, function(source, arguments, showError)
+    local playerId = source
+
+    if (source <= 0) then
+        showError(_(CR(), 'game', 'console_not_allowed'))
+        return
+    end
+
+    if (arguments.radius ~= nil and type(arguments.radius) == 'string') then arguments.radius = tonumber(arguments.radius) end
+    if (arguments.radius == nil or type(arguments.radius) ~= 'number' or arguments.radius <= 0) then arguments.radius = 0 end
+
+    TCE('corev:game:deleteVehicle', playerId, arguments.radius)
+end, false, {
+    help = _(CR(), 'game', 'help_deletevehicle'),
+    validate = true,
+    arguments = {
+        { name = 'radius', help = _(CR(), 'game', 'vehicle_radius'), type = 'any' }
+    }
+})

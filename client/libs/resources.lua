@@ -383,7 +383,7 @@ function resource:loadAll()
                 _G.CurrentFrameworkResource = GetCurrentResourceName()
                 _G.CurrentFrameworkModule = internalModule.name
     
-                local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+                local fn, _error = load(script, ('@%s:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
     
                 if (fn) then
                     xpcall(fn, function(err)
@@ -418,7 +418,7 @@ function resource:loadAll()
             _G.CurrentFrameworkResource = GetCurrentResourceName()
             _G.CurrentFrameworkModule = internalModule.name
 
-            local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+            local fn, _error = load(script, ('@%s:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
             if (fn) then
                 xpcall(fn, function(err)
@@ -452,7 +452,7 @@ function resource:loadAll()
             _G.CurrentFrameworkResource = GetCurrentResourceName()
             _G.CurrentFrameworkModule = internalResource.name
 
-            local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+            local fn, _error = load(script, ('@%s:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
             if (fn) then
                 xpcall(fn, function(err)
