@@ -19,7 +19,7 @@ body,html {
     user-select: none;
 }
 body {
-    /*background: url('https://i.imgur.com/MoYBh1e.jpg') center center no-repeat;*/
+    /*background: url('https://i.imgur.com/MoYBh1e.jpg') center center no-repeat; */
     background-size: cover;
 }
 #ui {
@@ -179,10 +179,10 @@ div.separator {
     left: -58px;
     width: 55px;
     height: 55px;
-    background-color: rgba(0,0,0,0.6);
+    background-color: rgba(0,0,0,0.4);
     top: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.7);
     padding: 0;
+    border-radius: 10px 0 0 10px;
 }
 
 .icon div.job_logo span.job_logo {
@@ -225,11 +225,12 @@ div.separator {
     display:block;
     text-align: left;
     line-height: 0.75em;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.5);
     padding: 10px;
     top: 6px;
     margin-right: 2px;
-    border: 1px solid rgba(0, 0, 0, 0.7);
+    width: calc(100% + 32px);
+    border-radius: 0 10px 0 0;
 }
 .info.player span#job_grade, .info.player span#job2_grade {
     color: black;
@@ -242,7 +243,7 @@ div.separator {
     vertical-align: middle;
     padding: 3px 12px;
     font-weight: bold;
-    border: 1px solid rgba(0, 0, 0, 0.7);
+    border-radius: 0 0 10px 0;
 }
 .info.player #money div[id] {
     float: right;
@@ -284,6 +285,7 @@ div.separator {
 .info.player #money #society i {
     background: linear-gradient(180deg, #874c14 0%, #6a3c10 100%);
 }
+
 .info.status {
     right: 35px;
     display: block;
@@ -300,7 +302,7 @@ div.separator {
     color: white;
 }
 .info.status.status-bar li span {
-    background: rgba(0,0,0,0.6) !important;
+    background: rgba(0,0,0,0.4) !important;
 }
 .info.status li {
     display: inline-block;
@@ -308,10 +310,7 @@ div.separator {
 .info.status li.icon {
     width: 52px;
     margin: -3px;
-    border: 1px solid rgba(0,0,0,0.6);
-    -webkit-box-shadow: 5px -5px 20px -10px rgba(0,0,0,0.75);
-    -moz-box-shadow: 5px -5px 20px -10px rgba(0,0,0,0.75);
-    box-shadow: 5px -5px 20px -10px rgba(255,255,255,0.75);
+    border: 1px solid rgba(0,0,0,0.3);
 }
 .info.status li.icon div.bar-status {
     position: absolute;
@@ -319,6 +318,18 @@ div.separator {
     left: 0;
     margin-top: -10px;
     z-index: 9999;
+}
+.info.status li:first-child {
+    border-radius: 0 0 0 10px;
+}
+.info.status.status-bar li:first-child {
+    border-radius: 10px 0 0 0;
+}
+.info.status li:last-child {
+    border-radius: 0 0 10px 0;
+}
+.info.status.status-bar li:last-child {
+    border-radius: 0 10px 0 0;
 }
 .info.status #status {
     clear: both;
