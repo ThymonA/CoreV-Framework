@@ -48,8 +48,10 @@ files {
 client_scripts {
     'shared/functions.lua',
 
+    '@NativeUI/NativeUI.lua',
     'vendors/regex.lua',
     'vendors/class.lua',
+    'vendors/entityiter.lua',
 
     'configs/shared_config.lua',
     'configs/client_config.lua',
@@ -107,4 +109,12 @@ modules {
 
 resources {
     'garage'
+}
+
+exports {
+	'getFrameworkCore'
+}
+
+server_exports {
+	'getFrameworkCore'
 }
