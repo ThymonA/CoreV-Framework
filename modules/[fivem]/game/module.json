@@ -3,8 +3,7 @@
     "game": [ "gta5" ],
     "description": "CoreV game module",
     "client_scripts": [
-        "client/main.lua",
-        "client/commands.lua"
+        "client/main.lua"
     ],
     "server_scripts": [
         "server/main.lua",

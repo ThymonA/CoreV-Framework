@@ -20,6 +20,9 @@ events = {
     },
     onMarkerEvent = {
         client = {}
+    },
+    onMarkerLeave = {
+        client = {}
     }
 }
 
@@ -45,13 +48,52 @@ if (CLIENT) then
         })
     end
 
-    --- Trigger all player disconnect events
-    --- @param source int PlayerId
+    --- Trigger func when event has been triggerd by leaving a marker
+    --- @param event string Event name
+    --- @param func function Callback function
+    onMarkerLeave = function(event, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onMarkerLeave.client == nil) then
+            events.onMarkerLeave.client = {}
+        end
+
+        if (events.onMarkerLeave.client[event] == nil) then
+            events.onMarkerLeave.client[event] = {}
+        end
+
+        table.insert(events.onMarkerLeave.client[event], {
+            module = module,
+            event = event,
+            func = func
+        })
+    end
+
+    --- Trigger all player enter a marker events
+    --- @param event string Event name
+    --- @param marker marker Marker that current is triggerd
     triggerMarkerEvent = function(event, marker)
         if (event == nil or type(event) ~= 'string') then return end
         if (events.onMarkerEvent.client == nil or #(events.onMarkerEvent.client[event] or {}) <= 0) then return end
 
         for i, markerEvent in pairs(events.onMarkerEvent.client[event] or {}) do
+            Citizen.CreateThread(function()
+                try(function()                
+                    markerEvent.func(marker)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all player leave a marker events
+    --- @param event string Event name
+    --- @param marker marker Marker that current is triggerd
+    triggerMarkerLeaveEvent = function(event, marker)
+        if (event == nil or type(event) ~= 'string') then return end
+        if (events.onMarkerLeave.client == nil or #(events.onMarkerLeave.client[event] or {}) <= 0) then return end
+
+        for i, markerEvent in pairs(events.onMarkerLeave.client[event] or {}) do
             Citizen.CreateThread(function()
                 try(function()                
                     markerEvent.func(marker)

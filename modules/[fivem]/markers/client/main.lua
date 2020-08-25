@@ -15,7 +15,8 @@ markers:set {
     markers = {},
     drawMarkers = {},
     inMarker = false,
-    currentMarker = nil
+    currentMarker = nil,
+    lastMarker = nil
 }
 
 --- Load markers in > markers.drawMarkers
@@ -77,9 +78,15 @@ Citizen.CreateThread(function()
             if (not markers.inMarker and #(marker.position - coords) < marker.size.x) then
                 markers.inMarker = true
                 markers.currentMarker = marker
+                markers.lastMarker = marker
 
                 triggerMarkerEvent(marker.event, marker)
             end
+        end
+
+        if (markers.currentMarker == nil and markers.lastMarker ~= nil) then
+            triggerMarkerLeaveEvent(markers.lastMarker.event, markers.lastMarker)
+            markers.lastMarker = nil
         end
 
         Citizen.Wait(0)

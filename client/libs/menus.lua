@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-local menus = class('menus')
+menus = class('menus')
 
 --- Set default values
 menus:set {
@@ -70,15 +70,18 @@ end
 --- @param namespace string Menu namespace
 --- @param title string Menu title
 --- @param description string Menu cateogry or menu description
-function menus:create(namespace, title, description)
+function menus:getOrCreate(namespace, title, description)
     if (description == nil or type(description) ~= 'string') then description = '' end
 
     local poolName, poolData, menu = self:generatePoolName(namespace), nil, nil
     local _menu, _namespace, _poolExists = self:getNamespaceMenu(namespace)
 
     if (_menu ~= nil and _namespace == namespace) then
-        error:print(('Your trying to added a existing menu (%s)'):format(namespace))
-        return
+        return self.menus[namespace], self.pools[poolName]
+    end
+
+    if (title == nill or type(title) ~= 'string') then
+        title = namespace
     end
 
     if (_poolExists) then
@@ -97,6 +100,8 @@ function menus:create(namespace, title, description)
 
     self.pools[poolName] = poolData
     self.menus[namespace] = menu
+
+    return self.menus[namespace], self.pools[poolName]
 end
 
 --- Add menus as module when available

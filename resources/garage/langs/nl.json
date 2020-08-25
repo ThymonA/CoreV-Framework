@@ -1,2 +1,5 @@
 {
+    "car_garage": "Voertuig opslag",
+    "garage": "Garage",
+    "press_e_to_spawn_vehicle": "Druk op ~INPUT_PICKUP~ om een voertuig uit je garage te halen"
 }

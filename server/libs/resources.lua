@@ -464,7 +464,7 @@ end
 --- Save and returns generated executable
 --- @object Any Executable Resource/Module
 function resource:saveExecutable(object)
-    local script = ''
+    local script = nil
     local path = 'unknown'
 
     if (string.lower(object.type) == string.lower(ResourceTypes.ExternalResource)) then
@@ -479,23 +479,35 @@ function resource:saveExecutable(object)
         local code = self:getFilesByPath(object.name, object.type, file)
 
         if (code) then
-            script = ('%s%s\n'):format(script, code)
+            if (script == nil) then
+                script = code
+            else
+                script = ('%s\n%s'):format(script, code)
+            end
         end
     end
 
-    SaveResourceFile(GetCurrentResourceName(), ('debug/%s/client/%s_%s.lua'):format(path, object.name, 'client'), script)
+    if (script ~= nil) then
+        SaveResourceFile(GetCurrentResourceName(), ('debug/%s/client/%s_%s.lua'):format(path, object.name, 'client'), script)
+    end
 
-    script = ''
+    script = nil
 
     for i2, file in pairs(object.manifest:getValue('server_scripts') or {}) do
         local code = self:getFilesByPath(object.name, object.type, file)
 
         if (code) then
-            script = ('%s%s\n'):format(script, code)
+            if (script == nil) then
+                script = code
+            else
+                script = ('%s\n%s'):format(script, code)
+            end
         end
     end
 
-    SaveResourceFile(GetCurrentResourceName(), ('debug/%s/server/%s_%s.lua'):format(path, object.name, 'server'), script)
+    if (script ~= nil) then
+        SaveResourceFile(GetCurrentResourceName(), ('debug/%s/server/%s_%s.lua'):format(path, object.name, 'server'), script)
+    end
 
     return script
 end
@@ -517,8 +529,16 @@ function resource:loadAll()
         end
     end
 
+    _ENV.CurrentFrameworkModule = nil
+    _G.CurrentFrameworkModule = nil
+
     --- Load and execute all internal modules
     for i, internalModuleName in pairs(enabledInternalModules or {}) do
+        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+        _ENV.CurrentFrameworkModule = internalModuleName
+        _G.CurrentFrameworkResource = GetCurrentResourceName()
+        _G.CurrentFrameworkModule = internalModuleName
+
         if (self.internalModules ~= nil and self.internalModules[internalModuleName] ~= nil) then
             local internalModule = self.internalModules[internalModuleName]
 
@@ -537,27 +557,24 @@ function resource:loadAll()
     
                 local script = self:saveExecutable(internalModule)
     
-                _ENV.CurrentFrameworkResource = GetCurrentResourceName()
-                _ENV.CurrentFrameworkModule = internalModule.name
-                _G.CurrentFrameworkResource = GetCurrentResourceName()
-                _G.CurrentFrameworkModule = internalModule.name
-    
-                local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-    
-                if (fn) then
-                    xpcall(fn, function(err)
+                if (script ~= nil) then
+                    local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+        
+                    if (fn) then
+                        xpcall(fn, function(err)
+                            self.internalModules[internalModuleName].error.status = true
+                            self.internalModules[internalModuleName].error.message = err
+        
+                            error:print(err)
+                        end)
+                    end
+        
+                    if (_error and error ~= '') then
                         self.internalModules[internalModuleName].error.status = true
-                        self.internalModules[internalModuleName].error.message = err
-    
-                        error:print(err)
-                    end)
-                end
-    
-                if (_error and error ~= '') then
-                    self.internalModules[internalModuleName].error.status = true
-                    self.internalModules[internalModuleName].error.message = _error
-    
-                    error:print(_error)
+                        self.internalModules[internalModuleName].error.message = _error
+        
+                        error:print(_error)
+                    end
                 end
     
                 self.internalModules[internalModuleName].loaded = true
@@ -565,8 +582,16 @@ function resource:loadAll()
         end
     end
 
+    _ENV.CurrentFrameworkModule = nil
+    _G.CurrentFrameworkModule = nil
+
     --- Load and execute all internal modules
     for i, internalModule in pairs(self.internalModules or {}) do
+        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+        _ENV.CurrentFrameworkModule = internalModule.name
+        _G.CurrentFrameworkResource = GetCurrentResourceName()
+        _G.CurrentFrameworkModule = internalModule.name
+
         if (not internalModule.loaded) then
             self:loadTranslations(internalModule)
 
@@ -582,35 +607,40 @@ function resource:loadAll()
 
             local script = self:saveExecutable(internalModule)
 
-            _ENV.CurrentFrameworkResource = GetCurrentResourceName()
-            _ENV.CurrentFrameworkModule = internalModule.name
-            _G.CurrentFrameworkResource = GetCurrentResourceName()
-            _G.CurrentFrameworkModule = internalModule.name
+            if (scirpt ~= nil) then
+                local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
-            local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+                if (fn) then
+                    xpcall(fn, function(err)
+                        self.internalModules[i].error.status = true
+                        self.internalModules[i].error.message = err
 
-            if (fn) then
-                xpcall(fn, function(err)
+                        error:print(err)
+                    end)
+                end
+
+                if (_error and error ~= '') then
                     self.internalModules[i].error.status = true
-                    self.internalModules[i].error.message = err
+                    self.internalModules[i].error.message = _error
 
-                    error:print(err)
-                end)
-            end
-
-            if (_error and error ~= '') then
-                self.internalModules[i].error.status = true
-                self.internalModules[i].error.message = _error
-
-                error:print(_error)
+                    error:print(_error)
+                end
             end
 
             self.internalModules[i].loaded = true
         end
     end
 
+    _ENV.CurrentFrameworkModule = nil
+    _G.CurrentFrameworkModule = nil
+
     --- Load and execute all internal resources
     for i, internalResource in pairs(self.internalResources or {}) do
+        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+        _ENV.CurrentFrameworkModule = internalResource.name
+        _G.CurrentFrameworkResource = GetCurrentResourceName()
+        _G.CurrentFrameworkModule = internalResource.name
+
         if (internalResource.enabled) then
             self:loadTranslations(internalResource)
 
@@ -626,32 +656,32 @@ function resource:loadAll()
 
             local script = self:saveExecutable(internalResource)
 
-            _ENV.CurrentFrameworkResource = GetCurrentResourceName()
-            _ENV.CurrentFrameworkModule = internalResource.name
-            _G.CurrentFrameworkResource = GetCurrentResourceName()
-            _G.CurrentFrameworkModule = internalResource.name
+            if (script ~= nil) then
+                local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
-            local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+                if (fn) then
+                    xpcall(fn, function(err)
+                        self.internalResources[i].error.status = true
+                        self.internalResources[i].error.message = err
 
-            if (fn) then
-                xpcall(fn, function(err)
+                        error:print(err)
+                    end)
+                end
+
+                if (_error and error ~= '') then
                     self.internalResources[i].error.status = true
-                    self.internalResources[i].error.message = err
+                    self.internalResources[i].error.message = _error
 
-                    error:print(err)
-                end)
-            end
-
-            if (_error and error ~= '') then
-                self.internalResources[i].error.status = true
-                self.internalResources[i].error.message = _error
-
-                error:print(_error)
+                    error:print(_error)
+                end
             end
 
             self.internalResources[i].loaded = true
         end
     end
+
+    _ENV.CurrentFrameworkModule = nil
+    _G.CurrentFrameworkModule = nil
 
     self.tasks.loadingFramework = true
 end
