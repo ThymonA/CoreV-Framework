@@ -48,7 +48,6 @@ files {
 client_scripts {
     'shared/functions.lua',
 
-    '@NativeUI/NativeUI.lua',
     'vendors/regex.lua',
     'vendors/class.lua',
     'vendors/entityiter.lua',
@@ -66,6 +65,7 @@ client_scripts {
 
     'client/libs/callbacks.lua',
     'client/libs/resources.lua',
+    'client/classes/menu.lua',
     'client/libs/menus.lua',
 
     'client/main.lua'

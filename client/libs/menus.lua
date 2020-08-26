@@ -12,106 +12,212 @@ menus = class('menus')
 
 --- Set default values
 menus:set {
+    currentMenu = {},
     menus = {},
-    pools = {}
+    timer = GetGameTimer(),
+    chunks = {}
 }
 
---- Returns a existing menu by namespace
---- @param namespace string Namespace
-function menus:getNamespaceMenu(namespace)
-    if (namespace == nil or type(namespace) ~= 'string') then return nil, 'none', 'none' end
+--- Create a thread to fix freezes and crashes
+Citizen.CreateThread(function()
+    --- Open a menu object
+    --- @param namespace string Menu's namespace
+    --- @param name string Menu's name
+    function menus:open(namespace, name)
+        if (namespace == nil or type(namespace) ~= 'string') then return end
+        if (name == nil or type(name) ~= 'string') then return end
 
-    namespace = string.lower(namespace)
+        if (self.menus ~= nil and self.menus[namespace] ~= nil and self.menus[namespace][name] ~= nil) then
+            if (self.menus[namespace][name].isOpen) then
+                return
+            end
 
-    local _poolName = self:generatePoolName(namespace)
+            local anyMenuOpen, currentOpenMenu = self:anyMenuOpen()
+            local menuClossed = false
 
-    if (self.menus ~= nil and self.menus[namespace] ~= nil) then
-        return self.menus[namespace], namespace, self.pools[_poolName] ~= nil
+            if (anyMenuOpen) then
+                self.menus[currentOpenMenu.namespace][currentOpenMenu.name].isOpen = false
+            end
+
+            self.menus[namespace][name]:open()
+
+            SendNUIMessage({
+                action = 'openMenu',
+                data = self.menus[namespace][name]:getData(),
+                __namespace = self.menus[namespace][name].namespace,
+                __name = self.menus[namespace][name].name
+            })
+
+            menus.currentMenu = self.menus[namespace][name]
+        end
     end
 
-    local namespaceParts = split(namespace, '.')
+    --- Close a menu object
+    --- @param namespace string Menu's namespace
+    --- @param name string Menu's name
+    function menus:close(namespace, name)
+        if (namespace == nil or type(namespace) ~= 'string') then return end
+        if (name == nil or type(name) ~= 'string') then return end
 
-    table.remove(namespaceParts, #namespaceParts)
+        if (self.menus ~= nil and self.menus[namespace] ~= nil and self.menus[namespace][name] ~= nil) then
+            if (self.menus[namespace][name].isOpen) then
+                self.menus[namespace][name]:close()
 
-    if (namespaceParts ~= nil and #namespaceParts > 0) then
-        local newNamespace = ''
+                SendNUIMessage({
+                    action = 'closeMenu',
+                    data = self.menus[namespace][name]:getData(),
+                    __namespace = self.menus[namespace][name].namespace,
+                    __name = self.menus[namespace][name].name
+                })
 
-        for i = 1, #namespaceParts, 1 do
-            if (i == 1) then
-                newNamespace = namespaceParts[i]
-            else
-                newNamespace = ('%s.%s'):format(newNamespace, namespaceParts[i])
+                menus.currentMenu = nil
+            end
+        end
+    end
+
+    --- Create a menu object
+    --- @param namespace string Menu's namespace
+    --- @param name string Menu's name
+    --- @param info table Information about menu
+    function menus:create(namespace, name, info)
+        if (namespace == nil or type(namespace) ~= 'string') then return false end
+        if (name == nil or type(name) ~= 'string') then return false end
+        if (info == nil or type(info) ~= 'table') then return false end
+        if (self.menus == nil) then self.menus = {} end
+        if (self.menus[namespace] == nil) then self.menus[namespace] = {} end
+        if (self.menus[namespace][name] ~= nil) then return self.menus[namespace][name] end
+
+        local menu = CoreV.CreateAMenu(namespace, name, info)
+
+        self.menus[namespace][name] = menu
+
+        return self.menus[namespace][name]
+    end
+
+    --- Add a menu item to menu
+    --- @param namespace string Menu's namespace
+    --- @param name string Menu's name
+    --- @param item table Menu item
+    function menus:addItem(namespace, name, item)
+        if (namespace == nil or type(namespace) ~= 'string') then return end
+        if (name == nil or type(name) ~= 'string') then return end
+        if (item == nil or type(item) ~= 'table') then return end
+        if (self.menus == nil) then return end
+        if (self.menus[namespace] == nil) then return end
+        if (self.menus[namespace][name] == nil) then return end
+
+        self.menus[namespace][name]:addItem(item)
+    end
+
+    --- Add a menu items to menu
+    --- @param namespace string Menu's namespace
+    --- @param name string Menu's name
+    --- @param items table Menu items
+    function menus:addItems(namespace, name, items)
+        if (namespace == nil or type(namespace) ~= 'string') then return end
+        if (name == nil or type(name) ~= 'string') then return end
+        if (items == nil or type(items) ~= 'table') then return end
+        if (self.menus == nil) then return end
+        if (self.menus[namespace] == nil) then return end
+        if (self.menus[namespace][name] == nil) then return end
+
+        self.menus[namespace][name]:addItems(items)
+    end
+
+    --- Returns `true` if any menu is open
+    function menus:anyMenuOpen()
+        if (self.menus == nil) then return false, nil end
+
+        for namespace, namespaceMenus in pairs(self.menus or {}) do
+            if (namespace ~= nil and namespaceMenus ~= nil and type(namespace) == 'string' and type(namespaceMenus) == 'table') then
+                for name, menu in pairs(self.menus[namespace] or {}) do
+                    if (menu.isOpen) then
+                        return true, menu
+                    end
+                end
             end
         end
 
-        return self:getNamespaceMenu(newNamespace)
+        return false, nil
     end
 
-    return nil, 'none', self.pools[_poolName] ~= nil
-end
+    --- Register user input and communcate with frontend
+    Citizen.CreateThread(function()
+        while true do
+            Citizen.Wait(10)
 
---- Returns a namespace pool name
---- @param namespace string Namespace
-function menus:generatePoolName(namespace)
-    if (namespace == nil or type(namespace) ~= 'string') then return 'none' end
+            if (menus.currentMenu ~= nil and IsControlPressed(0, 18) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
+                SendNUIMessage({ action = 'controlPressed', control = 'ENTER', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+                menus.timer = GetGameTimer()
+            end
 
-    namespace = string.lower(namespace)
+            if (menus.currentMenu ~= nil and IsControlPressed(0, 177) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
+                SendNUIMessage({ action = 'controlPressed', control = 'BACKSPACE', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+                menus.timer = GetGameTimer()
+            end
 
-    local namespaceParts = split(namespace, '.')
+            if (menus.currentMenu ~= nil and IsControlPressed(0, 27) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
+                SendNUIMessage({ action = 'controlPressed', control = 'TOP', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+                menus.timer = GetGameTimer()
+            end
 
-    if (namespaceParts ~= nil and #namespaceParts > 0) then
-        return namespaceParts[1]
-    end
+            if (menus.currentMenu ~= nil and IsControlPressed(0, 173) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
+                SendNUIMessage({ action = 'controlPressed', control = 'DOWN', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+                menus.timer = GetGameTimer()
+            end
 
-    return namespace
-end
+            if (menus.currentMenu ~= nil and IsControlPressed(0, 174) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
+                SendNUIMessage({ action = 'controlPressed', control = 'LEFT', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+                menus.timer = GetGameTimer()
+            end
 
---- Create a menu or submenu depends on namespace
---- @param namespace string Menu namespace
---- @param title string Menu title
---- @param description string Menu cateogry or menu description
-function menus:getOrCreate(namespace, title, description)
-    if (description == nil or type(description) ~= 'string') then description = '' end
+            if (menus.currentMenu ~= nil and IsControlPressed(0, 175) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
+                SendNUIMessage({ action = 'controlPressed', control = 'RIGHT', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+                menus.timer = GetGameTimer()
+            end
+        end
+    end)
 
-    local poolName, poolData, menu = self:generatePoolName(namespace), nil, nil
-    local _menu, _namespace, _poolExists = self:getNamespaceMenu(namespace)
+    --- Add menus as module when available
+    Citizen.CreateThread(function()
+        while true do
+            if (addModule ~= nil and type(addModule) == 'function') then
+                addModule('menus', menus)
+                return
+            end
 
-    if (_menu ~= nil and _namespace == namespace) then
-        return self.menus[namespace], self.pools[poolName]
-    end
+            Citizen.Wait(0)
+        end
+    end)
+end)
 
-    if (title == nill or type(title) ~= 'string') then
-        title = namespace
-    end
+RegisterNUICallback('__chunk', function(data, cb)
+	menus.chunks[data.id] = menus.chunks[data.id] or ''
+	menus.chunks[data.id] = menus.chunks[data.id] .. data.chunk
 
-    if (_poolExists) then
-        poolData = self.pools[poolName]
-    else
-        poolData = NativeUI.CreatePool()
-    end
+    if data['end'] then
+        local namespace = data.__namespace or 'unknown'
+        local name = data.__name or 'unknown'
 
-    if (_menu ~= nil) then
-        menu = poolData:AddSubMenu(_menu, title, description)
-    else
-        menu = NativeUI.CreateMenu(title, description)
+        if (namespace == nil or type(namespace) ~= 'string') then cb('') return end
+        if (name == nil or type(name) ~= 'string') then cb('') return end
+        if (menus.menus == nil) then cb('') return end
+        if (menus.menus[namespace] == nil) then cb('') return end
+        if (menus.menus[namespace][name] == nil) then cb('') return end
 
-        poolData:Add(menu)
-    end
-
-    self.pools[poolName] = poolData
-    self.menus[namespace] = menu
-
-    return self.menus[namespace], self.pools[poolName]
-end
-
---- Add menus as module when available
-Citizen.CreateThread(function()
-    while true do
-        if (addModule ~= nil and type(addModule) == 'function') then
-            addModule('menus', menus)
-            return
+        local menu = menus.menus[namespace][name]
+        local data = json.decode(menus.chunks[data.id])
+        
+        if (data.__type ~= nil and data.__type == 'close') then
+            menus:close(namespace, name)
+        elseif (data) then
+            menu:triggerEvents(data.__type, menu, data)
         end
 
-        Citizen.Wait(0)
-    end
+        if (data.id ~= nil and menus.chunks ~= nil and menus.chunks[data.id] ~= nil) then
+            menus.chunks[data.id] = nil
+        end
+	end
+
+	cb('')
 end)

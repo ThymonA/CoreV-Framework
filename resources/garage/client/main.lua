@@ -61,7 +61,17 @@ end)
 
 function resource_garage:openGarageMenu()
     local menus = m('menus')
-    local garageMenu = menus:getOrCreate('car_garage', _(CR(), 'garage', 'car_garage'), _(CR(), 'garage', 'garage'))
+    
+    local menu = menus:create(('%s_garage'):format(CR()), 'spawn_cars', {
+        title = _(CR(), 'garage', 'car_garage'),
+        subtitle = _(CR(), 'garage', 'garage')
+    });
 
-    garageMenu:Visible(true)
+    menu:addItems({
+        { prefix = 'MER 512', label = 'Mercedes GLA45', description = 'Dikke Mercedes!' },
+        { prefix = 'BMW 512', label = 'BMW M5', description = 'Dikke BMW!' },
+        { prefix = 'TOY 512', label = 'Toyota Z4', description = 'Dikke Toyota!' }
+    });
+
+    menus:open(('%s_garage'):format(CR()), 'spawn_cars');
 end

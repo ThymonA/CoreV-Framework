@@ -1,4 +1,8 @@
-﻿*, *:before, *:after {
+﻿
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
+@import url("https://fonts.googleapis.com/css?family=Barlow+Condensed:100,200,300,400,500,600,700,800,900");
+
+*, *:before, *:after {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -8,19 +12,17 @@
     margin: 0;
     padding: 0;
 }
-body,html {
-    width: 100%;
-    height: 100%;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
+html {
+    display: grid;
+    min-height: 100%;
 }
+  
 body {
-    /*background: url('https://i.imgur.com/MoYBh1e.jpg') center center no-repeat; */
+/*background: url('https://i.imgur.com/MoYBh1e.jpg') center center no-repeat;*/
     background-size: cover;
+    font-family: 'Barlow Condensed', sans-serif;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 #ui {
     position: relative;
@@ -602,3 +604,138 @@ div.separator {
         background: rgba(255,0,127,0.70);
    }
 }
+
+.corev-menu {
+    position: absolute;
+        
+  }
+  
+  .align-center-left {
+    top: 50%;
+    transform: translateY(-50%) perspective(30em) rotateY(10deg);
+    left: 3.5em;
+  }
+  
+  .corev-menu .corev-menu-head {
+    text-transform  : uppercase;
+    font-size       : 1em;
+    background-color: black;
+    text-align      : center;
+    height          : 90px;
+    line-height     : 90px;
+    color           : black;
+    font-style      : oblique;
+    background-image: url("../images/default.png"); 
+    background-repeat: no-repeat;
+    background-position: center;
+    border-radius   : 10px 10px 0 0;
+    border-bottom   : none;
+  }
+  
+  .corev-menu .corev-menu-category {
+    font-size       : 1em;
+    height          : 35px;
+    line-height     : 35px;
+    padding         : 20px;
+    color           : #fedc00;
+    background-color: rgba(0, 0, 0, 1);
+    text-transform  : uppercase;
+    font-size       : 18px;
+    font-weight     : 500;
+    padding         : 0 15px;
+    position        : left;
+    text-align      : left;
+    top             : 0px;
+    letter-spacing  : 1px;
+  }
+  
+  .corev-menu .corev-menu-items {
+    overflow-y      : hidden;
+    background-color: rgba(0, 0, 0, 0.4);
+    border-radius   : 0 0 10px 10px;
+    border-top      : none;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-item {
+    display         : block;
+    font-size       : 1em;
+    height          : 40px;
+    line-height     : 40px;
+    color           : white;
+    text-align      : left; 
+    padding         : 0 15px;
+    display         : flex;
+    justify-content : space-between;
+    min-width       : 300px;
+    font-weight     : 500;
+    letter-spacing  : 1px;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-item.selected {
+    background-color: #fedc00;
+    color :black;
+    font-weight: 800;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-item.disabled {
+    color: gray;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-item i {
+    position        : absolute;
+    right           : 0.5em;
+    height          : 40px;
+    line-height     : 40px;
+    font-size       : 1.5em;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-item span span {
+    color           : #fedc00;
+    margin-right    : 1em;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-item.selected span span {
+    color           : black;
+    font-weight     : 900;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-border {
+    display         : block;
+    font-size       : 1em;
+    height          : 1.5em;
+    line-height     : 1.5em;
+    color           : #fedc00;
+    text-align      : left; 
+    padding         : 0 15px;
+    display         : block;
+    justify-content : space-between;
+    min-width       : 300px;
+    background-color: black;
+    font-weight     : 800;
+    text-transform  : uppercase;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-border span span {
+    font-weight: 500;
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-description {
+    display         : block;
+    font-size       : 1em;
+    min-height      : 40px;
+    line-height     : 25px;
+    color           : white;
+    text-align      : left; 
+    padding         : 0 15px;
+    display         : block;
+    justify-content : space-between;
+    min-width       : 300px;
+    text-transform  : uppercase;
+  }
+  
+  .corev-menu .corev-menu-items .corev-menu-description span span {
+    font-weight     : 700;
+    color           : #fedc00;
+  }
