@@ -59,9 +59,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-function resource_garage:openGarageMenu()
-    local menus = m('menus')
-    
+function resource_garage:openGarageMenu()    
     local menu = menus:create(('%s_garage'):format(CR()), 'spawn_cars', {
         title = _(CR(), 'garage', 'car_garage'),
         subtitle = _(CR(), 'garage', 'garage')
@@ -73,5 +71,5 @@ function resource_garage:openGarageMenu()
         { prefix = 'TOY 512', label = 'Toyota Z4', description = 'Dikke Toyota!' }
     });
 
-    menus:open(('%s_garage'):format(CR()), 'spawn_cars');
+    menu:open();
 end

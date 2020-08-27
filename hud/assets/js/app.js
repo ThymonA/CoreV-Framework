@@ -1,17 +1,32 @@
-(function(){
+$(function(){
     window.menus = {};
 
     menus.template = document.getElementById('menu-template').innerHTML;
     menus.currentResource = 'ddrp_core';
     menus.opened = {};
-    menus.currentMenu = {};
+    menus.currentMenu = null;
     menus.pos = {};
 
+    window.addEventListener('message', function(event) {
+        console.log('WE GOT A MESSAGE!!!!');
+
+        var item = event.data;
+
+        menus.onData(item);
+    });
+
     menus.open = function(namespace, name, data) {
+        console.log('MENU OPEN REQUEST')
+
         if (typeof data == 'undefined') { return; }
+
+        console.log('DATE NOT NULL')
+
         if (typeof menus.opened[namespace] == 'undefined') { menus.opened[namespace] = {} }
         if (typeof menus.pos[namespace] == 'undefined') { menus.pos[namespace] = {}; }
         if (typeof data.items == 'undefined') { data.items = [] }
+
+        console.log('MENU INFO GENERATED')
 
         data.__namespace = namespace;
         data.__name = name;
@@ -39,12 +54,17 @@
             }
         }
 
-        const cachedPosition = 0;
-        const filteredMenuItems = menus.filterDisabled(data);
+        console.log('FOREACH LOOP DONE')
+
+        let cachedPosition = 0;
 
         if (typeof menus.pos[namespace][name] != 'undefined') {
-            cachedPosition = menus.pos[namespace][name]
+            cachedPosition = menus.pos[namespace][name];
         }
+
+        console.log('POS CHECK DONE')
+
+        let filteredMenuItems = menus.filterDisabled(data);
 
         if (typeof filteredMenuItems == 'undefined' ||
             filteredMenuItems == null) {
@@ -68,6 +88,8 @@
             }
         }
 
+        console.log('FILTERED MENU DONE')
+
         if (data.items.length > 0) {
             if (typeof data.items[menus.pos[namespace][name]].description != 'undefined') {
                 menus.description = data.items[menus.pos[namespace][name]].description;
@@ -78,19 +100,27 @@
             menus.description = '';
         }
 
+        console.log('DESCRIPTION DONE')
+
         menus.opened[namespace][name] = data;
         menus.currentMenu = data;
 
+        console.log('RENDER REQUEST DONE')
+
         menus.render();
 
+        console.log('SEND REQUEST')
+
         SendMessage(namespace, name, 'open', menus.opened[namespace][name]);
+
+        console.log('MENU DONE')
     };
 
     menus.close = function(_namespace, _name) {
         if (typeof menus.currentMenu == 'undefined' || menus.currentMenu == null) { return; }
 
-        const namespace = menus.currentMenu.__namespace
-        const name = menus.currentMenu.__name
+        let namespace = menus.currentMenu.__namespace
+        let name = menus.currentMenu.__name
 
         if (typeof namespace == 'undefined' || typeof name == 'undefined' || namespace == null || name == null) { return; }
         if (_namespace != namespace || _name != name) { return; }
@@ -136,8 +166,8 @@
             return;
         }
 
-        const namespace = menus.currentMenu.__namespace
-        const name = menus.currentMenu.__name
+        let namespace = menus.currentMenu.__namespace
+        let name = menus.currentMenu.__name
 
         let menu = menus.opened[namespace][name]
         let view = JSON.parse(JSON.stringify(menu));
@@ -153,7 +183,7 @@
         SendMessage(namespace, name, 'submit', data);
     }
 
-    window.onData = (data) => {
+    menus.onData = (data) => {
         console.log(JSON.stringify(data))
 
         switch (data.action) {
@@ -172,8 +202,8 @@
                     case 'ENTER': {
                         if (typeof menus.currentMenu == 'undefined' || menus.currentMenu == null) { return; }
 
-                        const namespace = menus.currentMenu.__namespace
-                        const name = menus.currentMenu.__name
+                        let namespace = menus.currentMenu.__namespace
+                        let name = menus.currentMenu.__name
 
                         if (typeof namespace == 'undefined' || typeof name == 'undefined' || namespace == null || name == null) { return; }
 
@@ -203,8 +233,8 @@
                     case 'TOP': {
                         if (typeof menus.currentMenu == 'undefined' || menus.currentMenu == null) { return; }
 
-                        const namespace = menus.currentMenu.__namespace
-                        const name = menus.currentMenu.__name
+                        let namespace = menus.currentMenu.__namespace
+                        let name = menus.currentMenu.__name
 
                         if (typeof namespace == 'undefined' || typeof name == 'undefined' || namespace == null || name == null) { return; }
 
@@ -262,8 +292,8 @@
                     case 'DOWN': {
                         if (typeof menus.currentMenu == 'undefined' || menus.currentMenu == null) { return; }
 
-                        const namespace = menus.currentMenu.__namespace
-                        const name = menus.currentMenu.__name
+                        let namespace = menus.currentMenu.__namespace
+                        let name = menus.currentMenu.__name
 
                         if (typeof namespace == 'undefined' || typeof name == 'undefined' || namespace == null || name == null) { return; }
 
@@ -327,10 +357,4 @@
             default: break;
         }
     };
-
-    window.onload = function(e) {
-        window.addEventListener('message', (event) => {
-            onData(event.data);
-        });
-    };
-})();
+});

@@ -18,33 +18,6 @@ author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
-ui_page 'hud/ui.html'
-ui_page_preload 'yes'
-
-files {
-    'modules/**/module.json',
-    'modules/**/client/**/*.lua',
-    'modules/**/langs/**/*.json',
-    'modules/**/client/**/client_*.lua',
-    'modules/**/html/**/*',
-    'modules/**/html/**/*.png',
-    'modules/**/html/**/*.jpg',
-    'modules/**/html/**/*.html',
-    'modules/**/html/**/*.js',
-    'modules/**/html/**/*.css',
-    'resources/**/module.json',
-    'resources/**/client/**/*.lua',
-    'resources/**/langs/**/*.json',
-    'resources/**/client/**/client_*.lua',
-    'resources/**/html/**/*',
-    'resources/**/html/**/*.png',
-    'resources/**/html/**/*.jpg',
-    'resources/**/html/**/*.html',
-    'resources/**/html/**/*.js',
-    'resources/**/html/**/*.css',
-    'hud/**/*'
-}
-
 client_scripts {
     'shared/functions.lua',
 
@@ -93,6 +66,32 @@ server_scripts {
 
     'server/functions.lua',
     'server/main.lua'
+}
+
+ui_page 'hud/ui.html'
+
+files {
+    'modules/**/module.json',
+    'modules/**/client/**/*.lua',
+    'modules/**/langs/**/*.json',
+    'modules/**/client/**/client_*.lua',
+    'modules/**/html/**/*',
+    'modules/**/html/**/*.png',
+    'modules/**/html/**/*.jpg',
+    'modules/**/html/**/*.html',
+    'modules/**/html/**/*.js',
+    'modules/**/html/**/*.css',
+    'resources/**/module.json',
+    'resources/**/client/**/*.lua',
+    'resources/**/langs/**/*.json',
+    'resources/**/client/**/client_*.lua',
+    'resources/**/html/**/*',
+    'resources/**/html/**/*.png',
+    'resources/**/html/**/*.jpg',
+    'resources/**/html/**/*.html',
+    'resources/**/html/**/*.js',
+    'resources/**/html/**/*.css',
+    'hud/**/*'
 }
 
 modules {

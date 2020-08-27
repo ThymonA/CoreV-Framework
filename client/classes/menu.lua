@@ -126,20 +126,15 @@ CoreV.CreateAMenu = function(namespace, name, info)
     end
 
     --- Close current menu
-    function menu:open()
+    function menu:open(open)
         if (self.isOpen) then
             self.isOpen = true
-        else
+        elseif(open) then
             self.isOpen = true
 
-            SendNUIMessage({
-                action = 'openMenu',
-                data = self:getData(),
-                __namespace = self.namespace,
-                __name = self.name
-            })
-
             menus.currentMenu = self
+        else
+            menus:open(self.namespace, self.name)
         end
     end
 
