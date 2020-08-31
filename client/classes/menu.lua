@@ -17,6 +17,7 @@ CoreV.CreateAMenu = function(namespace, name, info)
         name = name,
         title = '',
         subtitle = '',
+        image = 'default.png',
         items = {},
         events = {
             latest = '',
@@ -38,6 +39,15 @@ CoreV.CreateAMenu = function(namespace, name, info)
     --- Set category
     if (info.subtitle ~= nil and type(info.subtitle) == 'string') then
         menu.subtitle = info.subtitle
+    end
+
+    --- Set image
+    if (info.image ~= nil and type(info.image) == 'string') then
+        if (not string.match(info.image, '%A.%A')) then
+            info.image = ('%s.png'):format(info.image)
+        end
+
+        menu.image = info.image
     end
 
     --- Register a callback and will be triggerd when event has been execute
@@ -156,6 +166,7 @@ CoreV.CreateAMenu = function(namespace, name, info)
         return {
             title = self.title or 'Unknown',
             subtitle = self.subtitle or 'unknown',
+            image = self.image or 'default.png',
             items = self.items or {},
             __namespace = self.namespace or 'unknown',
             __name = self.name or 'unknown'

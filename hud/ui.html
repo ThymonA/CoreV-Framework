@@ -112,7 +112,7 @@
 	</div>
 	<template id="menu-template">
 		<div class="corev-menu align-center-left" data-name="{{__name}}" data-namespace="{{__namespace}}">
-			<div class="corev-menu-head">
+			<div class="corev-menu-head" style="{{#image}}background-image: url('./assets/images/{{image}}');{{/image}}">
 				<h1>{{title}}</h1>
 			</div>
 			{{#subtitle}}
