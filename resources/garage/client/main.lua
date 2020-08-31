@@ -32,8 +32,8 @@ onMarkerLeave('garage:spawn:cars', function()
     inMarker = false
     inMarkerEvent = nil
 
-    if (resource_garage.currentMenu ~= nil and resource_garage.currentMenu:Visible()) then
-        resource_garage.currentMenu:Visible(false)
+    if (resource_garage.currentMenu ~= nil and resource_garage.currentMenu.isOpen) then
+        resource_garage.currentMenu:close()
     end
 
     resource_garage.currentMenu = nil
@@ -60,16 +60,37 @@ Citizen.CreateThread(function()
 end)
 
 function resource_garage:openGarageMenu()    
-    local menu = menus:create(('%s_garage'):format(CR()), 'spawn_cars', {
+    local menu, isNew = menus:create(('%s_garage'):format(CR()), 'spawn_cars', {
         title = _(CR(), 'garage', 'car_garage'),
         subtitle = _(CR(), 'garage', 'garage')
-    });
+    })
 
-    menu:addItems({
-        { prefix = 'MER 512', label = 'Mercedes GLA45', description = 'Dikke Mercedes!' },
-        { prefix = 'BMW 512', label = 'BMW M5', description = 'Dikke BMW!' },
-        { prefix = 'TOY 512', label = 'Toyota Z4', description = 'Dikke Toyota!' }
-    });
+    if (menu) then
+        menu:clearItems()
 
-    menu:open();
+        menu:addItems({
+            { prefix = 'MER 512', label = 'Mercedes GLA45', description = 'Dikke Mercedes!' },
+            { prefix = 'BMW 512', label = 'BMW M5', description = 'Dikke BMW!' },
+            { prefix = 'TOY 512', label = 'Toyota Z4', description = 'Dikke Toyota!' }
+        })
+    
+        if (isNew) then
+            menu:registerEvent('open', function(_menu)
+                resource_garage.currentMenu = _menu
+            end)
+            
+            menu:registerEvent('close', function()
+                resource_garage.currentMenu = nil
+                resource_garage.currentEvent = nil
+            end)
+    
+            menu:registerEvent('submit', function(menu, selectedItem, menuInfo)
+                if (selectedItem) then
+                    print(('YOU SELECTED %s'):format(selectedItem.label or 'Unknown'))
+                end
+            end)
+        end
+
+        menu:open()
+    end
 end

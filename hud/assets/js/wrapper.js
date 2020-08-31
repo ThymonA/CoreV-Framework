@@ -1,13 +1,21 @@
 (() => {
-
 	let ChunkWrapper = {};
+
 	ChunkWrapper.MessageSize = 1024;
 	ChunkWrapper.messageId = 0;
 
-	window.SendMessage = function (namespace, name, type, msg) {
+	window.SendMessage = function (namespace, name, messageType, msg) {
+		msg.__type = messageType;
 
 		ChunkWrapper.messageId = (ChunkWrapper.messageId < 65535) ? ChunkWrapper.messageId + 1 : 0;
-		const str = JSON.stringify(msg);
+
+		const _data = JSON.parse(JSON.stringify(msg));
+
+		if (_data.items != null || typeof _data.items != 'undefined') {
+			delete _data.items;
+		}
+
+		const str = JSON.stringify(_data);
 
 		for (let i = 0; i < str.length; i++) {
 
@@ -24,10 +32,10 @@
 
 			i--;
 
-			const data = {
+			let data = {
 				__namespace: namespace,
 				__name: name,
-				__type: type,
+				__type: messageType,
 				id: ChunkWrapper.messageId,
 				chunk: chunk
 			}
@@ -36,9 +44,6 @@
 				data.end = true;
 
 			$.post('http://corev/__chunk', JSON.stringify(data));
-
 		}
-
 	}
-
 })();

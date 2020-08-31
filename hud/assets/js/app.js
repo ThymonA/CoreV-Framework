@@ -8,25 +8,17 @@ $(function(){
     menus.pos = {};
 
     window.addEventListener('message', function(event) {
-        console.log('WE GOT A MESSAGE!!!!');
-
         var item = event.data;
 
         menus.onData(item);
     });
 
     menus.open = function(namespace, name, data) {
-        console.log('MENU OPEN REQUEST')
-
         if (typeof data == 'undefined') { return; }
 
-        console.log('DATE NOT NULL')
-
-        if (typeof menus.opened[namespace] == 'undefined') { menus.opened[namespace] = {} }
-        if (typeof menus.pos[namespace] == 'undefined') { menus.pos[namespace] = {}; }
-        if (typeof data.items == 'undefined') { data.items = [] }
-
-        console.log('MENU INFO GENERATED')
+        if (typeof menus.opened[namespace] == 'undefined' ||  menus.opened[namespace] == null) { menus.opened[namespace] = {} }
+        if (typeof menus.pos[namespace] == 'undefined' || menus.pos[namespace] == null) { menus.pos[namespace] = {}; }
+        if (typeof data.items == 'undefined' || data.items == null) { data.items = [] }
 
         data.__namespace = namespace;
         data.__name = name;
@@ -54,15 +46,11 @@ $(function(){
             }
         }
 
-        console.log('FOREACH LOOP DONE')
-
         let cachedPosition = 0;
 
         if (typeof menus.pos[namespace][name] != 'undefined') {
             cachedPosition = menus.pos[namespace][name];
         }
-
-        console.log('POS CHECK DONE')
 
         let filteredMenuItems = menus.filterDisabled(data);
 
@@ -75,45 +63,46 @@ $(function(){
         } else {
             let posStillExists = false;
 
-            for (let i = 0; i < menu.length; i++) {
-                if (menu[i].pos == cachedPosition) {
+            for (let i = 0; i < data.items.length; i++) {
+                if (data.items[i].pos == cachedPosition) {
                     posStillExists = true;
-                    menus.pos[namespace][name] = menu[i].pos;
+                    menus.pos[namespace][name] = data.items[i].pos;
                     break;
                 }
             }
 
-            if (!posStillExists) {
-                menus.pos[namespace][name] = menu[0].pos;
+            if (!posStillExists && data.items.length > 0) {
+                menus.pos[namespace][name] = data.items[0].pos;
+            } else if (!posStillExists) {
+                menus.pos[namespace][name] = 0;
             }
         }
 
-        console.log('FILTERED MENU DONE')
+        data.description = '';
 
         if (data.items.length > 0) {
-            if (typeof data.items[menus.pos[namespace][name]].description != 'undefined') {
-                menus.description = data.items[menus.pos[namespace][name]].description;
-            } else {
-                menus.description = '';
+            for(i = 0; i < data.items.length; i++) {
+                if (i == menus.pos[namespace][name]) {
+                    data.items[i].selected = true;
+                    
+                    if (typeof data.items[i].description != 'undefined' && data.items[i].description != null) {
+                        data.description = data.items[i].description
+                    }
+                } else {
+                    data.items[i].selected = false;
+                }
             }
-        } else {
-            menus.description = '';
         }
 
-        console.log('DESCRIPTION DONE')
-
         menus.opened[namespace][name] = data;
-        menus.currentMenu = data;
-
-        console.log('RENDER REQUEST DONE')
+        menus.opened[namespace][name].position = menus.pos[namespace][name];
+        menus.currentMenu = menus.opened[namespace][name];
 
         menus.render();
 
-        console.log('SEND REQUEST')
+        data.__open = true;
 
         SendMessage(namespace, name, 'open', menus.opened[namespace][name]);
-
-        console.log('MENU DONE')
     };
 
     menus.close = function(_namespace, _name) {
@@ -135,27 +124,26 @@ $(function(){
     };
 
     menus.filterDisabled = function(menu) {
-        let items = [];
+        let menu_items = []
+		
+		if (menu == null || menu.items == null) {
+			return []
+		}
 
-        if (typeof menu == 'undefined' || menu == null || typeof menu.items == 'undefined' || menu.items == null) {
-            return [];
-        }
-
-        if (menu.items.length > 0) {
-            for (let i = 0; menu.items.length; i++) {
-                if (typeof menu.items[i] != 'undefined') {
-                    menu.items[i].pos = i;
-    
-                    if (typeof menu.items[i].disabled == 'undefined' ||
-                        menu.items[i].disabled == null ||
-                        menu.items[i].disabled == false) {
-                            items.push(menu.items[i]);
-                        }
-                }
+		for (let i = 0; i < menu.items.length; i++) {
+            if (typeof menu.items[i] == 'undefined' || menu.items[i] == null) {
+                continue
             }
-        }
 
-        return items;
+			menu.items[i].pos = i;
+
+			if (menu.items[i].disabled == null ||
+				menu.items[i].disabled == false) {
+                menu_items.push(menu.items[i])
+			}
+		}
+
+		return menu_items
     };
 
     menus.render = function() {
@@ -184,8 +172,6 @@ $(function(){
     }
 
     menus.onData = (data) => {
-        console.log(JSON.stringify(data))
-
         switch (data.action) {
             case 'openMenu': {
                 menus.open(data.__namespace, data.__name, data.data);
@@ -269,15 +255,22 @@ $(function(){
                                 menus.pos[namespace][name] = filteredMenuItems[filteredMenuItems.length - 1].pos;
                             }
 
+                            menus.opened[namespace][name].description = '';
+
                             for(i = 0; i < menu.items.length; i++) {
                                 if (i == menus.pos[namespace][name]) {
                                     menus.opened[namespace][name].items[i].selected = true;
+
+                                    if (typeof menus.opened[namespace][name].items[i].description != 'undefined' && menus.opened[namespace][name].items[i].description != null) {
+                                        menus.opened[namespace][name].description = menus.opened[namespace][name].items[i].description;
+                                    }
                                 } else {
                                     menus.opened[namespace][name].items[i].selected = false;
                                 }
                             }
 
                             menus.render();
+                            menus.opened[namespace][name].position = menus.pos[namespace][name];
                             menus.change(namespace, name, {
                                 __namespace: namespace,
                                 __name: name,
@@ -328,15 +321,22 @@ $(function(){
                                 menus.pos[namespace][name] = filteredMenuItems[0].pos;
                             }
 
+                            menus.opened[namespace][name].description = '';
+
                             for(i = 0; i < menu.items.length; i++) {
                                 if (i == menus.pos[namespace][name]) {
                                     menus.opened[namespace][name].items[i].selected = true;
+
+                                    if (typeof menus.opened[namespace][name].items[i].description != 'undefined' && menus.opened[namespace][name].items[i].description != null) {
+                                        menus.opened[namespace][name].description = menus.opened[namespace][name].items[i].description;
+                                    }
                                 } else {
                                     menus.opened[namespace][name].items[i].selected = false;
                                 }
                             }
 
                             menus.render();
+                            menus.opened[namespace][name].position = menus.pos[namespace][name];
                             menus.change(namespace, name, {
                                 __namespace: namespace,
                                 __name: name,

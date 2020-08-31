@@ -39,16 +39,12 @@ function menus:open(namespace, name)
 
         self.menus[namespace][name]:open(true)
 
-        print('SEND OPENMENU EVENT')
-
         SendNUIMessage({
             action = 'openMenu',
             data = self.menus[namespace][name]:getData(),
             __namespace = self.menus[namespace][name].namespace,
             __name = self.menus[namespace][name].name
         })
-
-        print('DONE SENDING OPENMENU EVENT')
 
         menus.currentMenu = self.menus[namespace][name]
     end
@@ -63,7 +59,7 @@ function menus:close(namespace, name)
 
     if (self.menus ~= nil and self.menus[namespace] ~= nil and self.menus[namespace][name] ~= nil) then
         if (self.menus[namespace][name].isOpen) then
-            self.menus[namespace][name]:close()
+            self.menus[namespace][name]:close(true)
 
             SendNUIMessage({
                 action = 'closeMenu',
@@ -82,18 +78,18 @@ end
 --- @param name string Menu's name
 --- @param info table Information about menu
 function menus:create(namespace, name, info)
-    if (namespace == nil or type(namespace) ~= 'string') then return false end
-    if (name == nil or type(name) ~= 'string') then return false end
-    if (info == nil or type(info) ~= 'table') then return false end
+    if (namespace == nil or type(namespace) ~= 'string') then return false, false end
+    if (name == nil or type(name) ~= 'string') then return false, false end
+    if (info == nil or type(info) ~= 'table') then return false, false end
     if (self.menus == nil) then self.menus = {} end
     if (self.menus[namespace] == nil) then self.menus[namespace] = {} end
-    if (self.menus[namespace][name] ~= nil) then return self.menus[namespace][name] end
+    if (self.menus[namespace][name] ~= nil) then return self.menus[namespace][name], false end
 
     local menu = CoreV.CreateAMenu(namespace, name, info)
 
     self.menus[namespace][name] = menu
 
-    return self.menus[namespace][name]
+    return self.menus[namespace][name], true
 end
 
 --- Add a menu item to menu
@@ -210,10 +206,12 @@ RegisterNUICallback('__chunk', function(data, cb)
 
         local menu = menus.menus[namespace][name]
         local data = json.decode(menus.chunks[data.id])
-        
+
         if (data.__type ~= nil and data.__type == 'close') then
             menus:close(namespace, name)
-        elseif (data) then
+        end
+
+        if (data) then
             menu:triggerEvents(data.__type, menu, data)
         end
 

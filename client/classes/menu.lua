@@ -68,28 +68,82 @@ CoreV.CreateAMenu = function(namespace, name, info)
 
         name = string.lower(name)
 
-        local events = {}
-
         if (name == 'open' and self.events.latest ~= 'open') then
             self.events.latest = 'open'
-            events = self.events.open or {}
+            self:triggerOpenEvents(...)
         elseif (name == 'close' and self.events.latest ~= 'close') then
             self.events.latest = 'close'
-            events = self.events.close or {}
+            self:triggerCloseEvents(...)
         elseif (name == 'change') then
             self.events.latest = 'change'
-            events = self.events.change or {}
+            self:triggerChangeEvents(...)
         elseif (name == 'submit') then
             self.events.latest = 'submit'
-            events = self.events.submit or {}
+            self:triggerSubmitEvents(...)
         end
+    end
 
-        local params = table.pack(...)
-
-        for _, event in pairs(events or {}) do
+    --- Trigger all open event callbacks
+    --- @param menu menu Menu that has been triggerd
+    --- @param data table Information about trigger
+    function menu:triggerOpenEvents(menu, data)
+        for _, event in pairs(self.events.open or {}) do
             if (event ~= nil and type(event) == 'function') then
                 try(function()
-                    event(table.unpack(params))
+                    event(self, data)
+                end, function(e)
+                    error:print(e)
+                end)
+            end
+        end
+    end
+
+    --- Trigger all change event callbacks
+    --- @param menu menu Menu that has been triggerd
+    --- @param data table Information about trigger
+    function menu:triggerCloseEvents(menu, data)
+        for _, event in pairs(self.events.close or {}) do
+            if (event ~= nil and type(event) == 'function') then
+                try(function()
+                    event(self, data)
+                end, function(e)
+                    error:print(e)
+                end)
+            end
+        end
+    end
+
+    --- Trigger all change event callbacks
+    --- @param menu menu Menu that has been triggerd
+    --- @param data table Information about trigger
+    function menu:triggerChangeEvents(menu, data)
+        local oldIndex = data.oldIndex or 0
+        local newIndex = data.newIndex or 0
+        local oldItem = self.items[(oldIndex + 1)] or false
+        local newItem = self.items[(newIndex + 1)] or false
+
+        for _, event in pairs(self.events.change or {}) do
+            if (event ~= nil and type(event) == 'function') then
+                try(function()
+                    event(self, oldItem, newItem, data)
+                end, function(e)
+                    error:print(e)
+                end)
+            end
+        end
+    end
+
+    --- Trigger all submit callbacks
+    --- @param menu menu Menu that has been triggerd
+    --- @param data table Information about trigger
+    function menu:triggerSubmitEvents(menu, data)
+        local selectedIndex = data.index or 0
+        local selectedItem = self.items[(selectedIndex + 1)] or false
+
+        for _, event in pairs(self.events.submit or {}) do
+            if (event ~= nil and type(event) == 'function') then
+                try(function()
+                    event(self, selectedItem, data)
                 end, function(e)
                     error:print(e)
                 end)
@@ -109,19 +163,23 @@ CoreV.CreateAMenu = function(namespace, name, info)
     end
 
     --- Close current menu
-    function menu:close()
-        if (self.isOpen) then
-            self.isOpen = false
-
-            SendNUIMessage({
-                action = 'closeMenu',
-                __namespace = self.namespace,
-                __name = self.name
-            })
-
-            if (menus.currentMenu ~= nil and menus.currentMenu.namespace == self.namespace and menus.currentMenu.name == self.name) then
-                menus.currentMenu = nil
+    function menu:close(isFromMenus)
+        if (isFromMenus and isFromMenus == true) then
+            if (self.isOpen) then
+                self.isOpen = false
+    
+                SendNUIMessage({
+                    action = 'closeMenu',
+                    __namespace = self.namespace,
+                    __name = self.name
+                })
+    
+                if (menus.currentMenu ~= nil and menus.currentMenu.namespace == self.namespace and menus.currentMenu.name == self.name) then
+                    menus.currentMenu = nil
+                end
             end
+        else
+            menus:close(self.namespace, self.name)
         end
     end
 
@@ -172,6 +230,11 @@ CoreV.CreateAMenu = function(namespace, name, info)
         for key, value in pairs(items or {}) do
             self:addItem(value)
         end
+    end
+
+    --- Clear all menu items
+    function menu:clearItems()
+        self.items = {}
     end
 
     return menu
