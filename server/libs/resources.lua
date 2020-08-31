@@ -458,7 +458,11 @@ function resource:getFilesByPath(name, _type, internalPath)
         end
     end
 
-    return content
+    if (content) then
+        return content
+    end
+
+    return nil
 end
 
 --- Save and returns generated executable
@@ -482,7 +486,12 @@ function resource:saveExecutable(object)
             if (script == nil) then
                 script = code
             else
-                script = ('%s\n%s'):format(script, code)
+                local ff, nl, cr, ht, vt, ws = ("\f\n\r\t\v "):byte(1,6)
+
+                script = script .. [[
+
+
+]] .. code
             end
         end
     end
@@ -500,7 +509,12 @@ function resource:saveExecutable(object)
             if (script == nil) then
                 script = code
             else
-                script = ('%s\n%s'):format(script, code)
+                local ff, nl, cr, ht, vt, ws = ("\f\n\r\t\v "):byte(1,6)
+
+                script = script .. [[
+
+
+]] .. code
             end
         end
     end

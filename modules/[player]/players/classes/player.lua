@@ -70,6 +70,7 @@ function players:createPlayer(_player)
     end
 
     player:set {
+        id = playerData.id,
         identifier = identifier,
         name = playerName,
         job = job,

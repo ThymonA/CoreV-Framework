@@ -1,0 +1,6 @@
+{
+    "car_parking": "Voertuig opslag",
+    "parking": "Garage",
+    "brand_description": "Je hebt %s %s",
+    "press_e_to_spawn_vehicle": "Druk op ~INPUT_PICKUP~ om een voertuig uit je garage te halen"
+}

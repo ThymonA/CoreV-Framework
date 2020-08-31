@@ -323,7 +323,11 @@ function resource:getFilesByPath(name, _type, internalPath)
         end
     end
 
-    return content
+    if (content) then
+        return tostring(content)
+    end
+
+    return nil
 end
 
 --- Returns generated executable
@@ -338,7 +342,7 @@ function resource:loadExecutable(object)
             if (script == nil) then
                 script = code
             else
-                script = ('%s\n%s'):format(script, code)
+                script = ('%s %s'):format(script, code)
             end
         end
     end
@@ -382,7 +386,7 @@ function resource:loadAll()
                 local script = self:loadExecutable(internalModule)
     
                 if (script ~= nil) then
-                    local fn, _error = load(script, ('@%s:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+                    local fn, _error = load(script, ('@%s:internal_modules:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
         
                     if (fn) then
                         xpcall(fn, function(err)
@@ -422,7 +426,7 @@ function resource:loadAll()
             local script = self:loadExecutable(internalModule)
 
             if (script ~= nil) then
-                local fn, _error = load(script, ('@%s:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
+                local fn, _error = load(script, ('@%s:internal_modules:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
                 if (fn) then
                     xpcall(fn, function(err)
@@ -461,22 +465,20 @@ function resource:loadAll()
             local script = self:loadExecutable(internalResource)
 
             if (script ~= nil) then
-                local fn, _error = load(script, ('@%s:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-
-                if (fn) then
-                    xpcall(fn, function(err)
-                        self.internalResources[i].error.status = true
-                        self.internalResources[i].error.message = err
-
-                        error:print(err)
-                    end)
-                end
+                local fn, _error = load(script, ('@%s:internal_resources:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
                 if (_error and error ~= '') then
                     self.internalResources[i].error.status = true
                     self.internalResources[i].error.message = _error
 
                     error:print(_error)
+                elseif (fn) then
+                    xpcall(fn, function(err)
+                        self.internalResources[i].error.status = true
+                        self.internalResources[i].error.message = err
+    
+                        error:print(err)
+                    end)
                 end
             end
 

@@ -9,13 +9,15 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 Citizen.CreateThread(function()
+    print('[^5Core^4V^7] Is now loading.....')
+
     resource:loadAll()
 
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
-    print(('=========== [ CoreV ] ===========\nAll framework executables are loaded \n-> External Resources: %s\n-> Internal Resources: %s\n-> Internal Modules: %s\n=========== [ CoreV ] ===========')
+    print(('============= [ ^5Core^4V^7 ] =============\n^2All framework executables are loaded ^7\n=====================================\n-> ^1External Resources: ^7%s ^7\n-> ^1Internal Resources: ^7%s ^7\n-> ^1Internal Modules:   ^7%s ^7\n=====================================\n^3VERSION: ^71.0.0\n============= [ ^5Core^4V^7 ] =============')
         :format(resource:countAllLoaded()))
 end)
 

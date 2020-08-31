@@ -670,6 +670,15 @@ div.separator {
     font-weight     : 500;
     letter-spacing  : 1px;
   }
+
+  .corev-menu .corev-menu-items .corev-menu-item img {
+    max-height      : 40px;
+    line-height     : 40px;
+    max-width       : 40px;
+    display         : flex;
+    float           : left;
+    margin-right    : 1em;
+  }
   
   .corev-menu .corev-menu-items .corev-menu-item.selected {
     background-color: #fedc00;
@@ -687,6 +696,10 @@ div.separator {
     height          : 40px;
     line-height     : 40px;
     font-size       : 1.5em;
+  }
+
+  .corev-menu .corev-menu-items .corev-menu-item span.item-info {
+    width: 100%;
   }
   
   .corev-menu .corev-menu-items .corev-menu-item span span {

@@ -26,6 +26,8 @@ client_scripts {
     'vendors/entityiter.lua',
 
     'configs/shared_config.lua',
+    'configs/others/brands_config.lua',
+    'configs/others/vehicle_config.lua',
     'configs/client_config.lua',
 
     'libs/common.lua',
@@ -51,6 +53,8 @@ server_scripts {
     'vendors/class.lua',
 
     'configs/shared_config.lua',
+    'configs/others/brands_config.lua',
+    'configs/others/vehicle_config.lua',
     'configs/server_config.lua',
 
     'libs/common.lua',
@@ -109,7 +113,7 @@ modules {
 }
 
 resources {
-    'garage'
+    'parking'
 }
 
 exports {

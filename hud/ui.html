@@ -123,7 +123,8 @@
 			<div class="corev-menu-items">
 				{{#items}}
 					<div class="corev-menu-item {{#selected}}selected{{/selected}} {{#disabled}}disabled{{/disabled}}" data-index="{{index}}" data-name="{{__name}}" data-namespace="{{__namespace}}">
-						<span>
+						{{#image}}<img src="{{image}}" alt="{{#label}}{{label}}{{/label}}">{{/image}}
+						<span class="item-info">
 							{{#prefix}}<span>{{prefix}}</span>{{/prefix}}
 							{{#label}}{{label}}{{/label}}
 							<i class="fas fa-caret-right"></i>

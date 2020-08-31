@@ -1,0 +1,1 @@
+ALTER TABLE `player_vehicles` ADD `brand` VARCHAR(100) NOT NULL DEFAULT 'unknown' AFTER `name`;

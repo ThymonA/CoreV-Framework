@@ -24,7 +24,7 @@ Config.Markers = {
 }
 
 Config.Locations = {
-    ['BP_GARAGE'] = {
+    ['BP_PARKING'] = {
         type = 'cars',
         location = vector3(215.93, -809.83, 29.74),
         spawn = { x = 229.5, y = -798.46, z = 29.59, h = 162.5 },
