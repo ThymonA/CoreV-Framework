@@ -35,7 +35,7 @@
 			if (i == str.length - 1)
 				data.end = true;
 
-			$.post('http://ddrp_core/__chunk', JSON.stringify(data));
+			$.post('http://corev/__chunk', JSON.stringify(data));
 
 		}
 

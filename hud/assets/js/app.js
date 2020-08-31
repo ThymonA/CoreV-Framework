@@ -2,7 +2,7 @@ $(function(){
     window.menus = {};
 
     menus.template = document.getElementById('menu-template').innerHTML;
-    menus.currentResource = 'ddrp_core';
+    menus.currentResource = 'corev';
     menus.opened = {};
     menus.currentMenu = null;
     menus.pos = {};
