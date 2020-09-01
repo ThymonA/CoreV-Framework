@@ -229,7 +229,13 @@ CoreV.CreateAMenu = function(namespace, name, info)
         end
 
         if (item.image ~= nil and type(item.image) == 'string') then
-            data.image = item.image
+            data.item_image = item.image
+        end
+
+        if (item.addon ~= nil) then
+            data.addon = item.addon
+        else
+            data.addon = {}
         end
 
         table.insert(self.items, data)

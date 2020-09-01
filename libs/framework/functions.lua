@@ -38,7 +38,12 @@ end
 ---@param module Module Name
 ---@param key Translation Key
 local function _(resource, module, key, ...)
-    return ((((CoreV.Translations or {})[resource] or {})[module] or {})[key] or ('MISSING TRANSLATION [%s][%s][%s]'):format(resource, module, key)):format(...)
+    local translations = CoreV.Translations or {}
+    local resourceTranslations = translations[resource] or {}
+    local moduleTranslations = resourceTranslations[module] or {}
+    local translationKey = moduleTranslations[key] or ('MISSING TRANSLATION [%s][%s][%s]'):format(resource, module, key)
+
+    return translationKey:format(...)
 end
 
 --- Returns a current time as string

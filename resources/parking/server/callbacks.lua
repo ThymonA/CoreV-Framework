@@ -1,5 +1,5 @@
 --- Load player's cars
-registerCallback('corev:parking:loadCars', function(source, cb)
+registerCallback('corev:parking:loadCars', function(source, cb, category)
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end

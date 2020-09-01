@@ -54,3 +54,19 @@ end, false, {
         { name = 'radius', help = _(CR(), 'game', 'vehicle_radius'), type = 'any' }
     }
 })
+
+--- Print a vehicle to console with /pc
+commands:register('pc', { 'superadmin' }, function(source, arguments, showError)
+    local playerId = source
+
+    if (source <= 0) then
+        showError(_(CR(), 'game', 'console_not_allowed'))
+        return
+    end
+
+    TCE('corev:game:printVehicle', playerId, arguments.name)
+end, false, {
+    help = _(CR(), 'game', 'help_print_car'),
+    validate = true,
+    arguments = {}
+})

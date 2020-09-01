@@ -5,4 +5,5 @@
     "vehicle_radius": "Radius waarin u voertuig wilt verwijderen",
     "console_not_allowed": "Console is niet toegestaan om deze commando uit te voeren",
     "empty_or_invalid_name": "U heeft een ongeldige naam opgegeven",
+    "help_print_car": "Log vehicle in console om te gebruiken in bijv. scripts"
 }
