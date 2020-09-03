@@ -12,6 +12,7 @@ Citizen.CreateThread(function()
     print('[^5Core^4V^7] Is now loading.....')
 
     resource:loadAll()
+    compiler:generateResource()
 
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)

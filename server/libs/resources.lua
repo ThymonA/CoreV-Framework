@@ -314,8 +314,7 @@ end
 --- Load Resources/Modules
 function resource:loadFrameworkExecutables()
     local enabledInternalResources, enabledInternalModules = {}, {}
-    local internalResources, internalModules = {}, {}
-    
+
     self:loadStructures()
 
     repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
@@ -406,7 +405,7 @@ function resource:loadTranslations(object)
                     content = LoadResourceFile(object.name, location)
                     resourceName = object.name
                 end
-            
+
                 if (string.lower(object.type) == string.lower(ResourceTypes.InternalResource) or
                     string.lower(object.type) == string.lower(ResourceTypes.InternalModule)) then
                     content = LoadResourceFile(GetCurrentResourceName(), ('%s/%s'):format(object.path, location))
@@ -488,10 +487,7 @@ function resource:saveExecutable(object)
             else
                 local ff, nl, cr, ht, vt, ws = ("\f\n\r\t\v "):byte(1,6)
 
-                script = script .. [[
-
-
-]] .. code
+                script = script .. utf8.char(nl) .. code
             end
         end
     end
@@ -511,10 +507,7 @@ function resource:saveExecutable(object)
             else
                 local ff, nl, cr, ht, vt, ws = ("\f\n\r\t\v "):byte(1,6)
 
-                script = script .. [[
-
-
-]] .. code
+                script = script .. utf8.char(nl) .. code
             end
         end
     end
@@ -558,39 +551,39 @@ function resource:loadAll()
 
             if (internalModule.enabled) then
                 self:loadTranslations(internalModule)
-    
+
                 if (internalModule.hasMigrations) then
                     local database = m('database')
-                    
+
                     for i2, migration in pairs(internalModule.migrations) do
                         local migrationTaskDone = database:applyMigration(internalModule, migration)
-    
+
                         repeat Citizen.Wait(0) until migrationTaskDone == true
                     end
                 end
-    
+
                 local script = self:saveExecutable(internalModule)
-    
+
                 if (script ~= nil) then
                     local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-        
+
                     if (fn) then
                         xpcall(fn, function(err)
                             self.internalModules[internalModuleName].error.status = true
                             self.internalModules[internalModuleName].error.message = err
-        
+
                             error:print(err)
                         end)
                     end
-        
-                    if (_error and error ~= '') then
+
+                    if (_error and _error ~= '') then
                         self.internalModules[internalModuleName].error.status = true
                         self.internalModules[internalModuleName].error.message = _error
-        
+
                         error:print(_error)
                     end
                 end
-    
+
                 self.internalModules[internalModuleName].loaded = true
             end
         end
@@ -611,7 +604,7 @@ function resource:loadAll()
 
             if (internalModule.hasMigrations) then
                 local database = m('database')
-                
+
                 for i2, migration in pairs(internalModule.migrations) do
                     local migrationTaskDone = database:applyMigration(internalModule, migration)
 
@@ -621,7 +614,7 @@ function resource:loadAll()
 
             local script = self:saveExecutable(internalModule)
 
-            if (scirpt ~= nil) then
+            if (script ~= nil) then
                 local fn, _error = load(script, ('@%s:%s:server'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
                 if (fn) then
@@ -633,7 +626,7 @@ function resource:loadAll()
                     end)
                 end
 
-                if (_error and error ~= '') then
+                if (_error and _error ~= '') then
                     self.internalModules[i].error.status = true
                     self.internalModules[i].error.message = _error
 
@@ -660,7 +653,7 @@ function resource:loadAll()
 
             if (internalResource.hasMigrations) then
                 local database = m('database')
-                
+
                 for i2, migration in pairs(internalResource.migrations) do
                     local migrationTaskDone = database:applyMigration(internalResource, migration)
 
@@ -682,7 +675,7 @@ function resource:loadAll()
                     end)
                 end
 
-                if (_error and error ~= '') then
+                if (_error and _error ~= '') then
                     self.internalResources[i].error.status = true
                     self.internalResources[i].error.message = _error
 

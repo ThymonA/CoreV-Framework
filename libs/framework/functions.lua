@@ -128,6 +128,14 @@ local function updateFilePath(file)
     _ENV.CurrentFile = file
 end
 
+local function regexEscape(str)
+    return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%%%1")
+end
+
+local function string_replace(str, this, that)
+    return str:gsub(regexEscape(this), that:gsub("%%", "%%%%")) -- only % needs to be escaped for 'that'
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
@@ -171,6 +179,9 @@ end
 _G.string.endswith = function(self, str)
     return self:sub(-#str) == str
 end
+
+_ENV.string.replace = string_replace
+_G.string.replace = string_replace
 
 if (CLIENT) then
     _ENV.TSE = TriggerServerEvent

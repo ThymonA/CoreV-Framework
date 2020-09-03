@@ -3,7 +3,8 @@
     "game": [ "gta5" ],
     "description": "CoreV parking resource",
     "client_scripts": [
-        "client/main.lua"
+        "client/main.lua",
+        "client/test.lua"
     ],
     "server_scripts": [
         "config/server_config.lua",

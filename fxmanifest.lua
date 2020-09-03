@@ -67,6 +67,7 @@ server_scripts {
 
     'server/libs/callbacks.lua',
     'server/libs/resources.lua',
+    'server/libs/compiler.lua',
 
     'server/functions.lua',
     'server/main.lua'

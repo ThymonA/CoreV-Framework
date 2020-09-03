@@ -185,8 +185,7 @@ end
 --- Load Resources/Modules
 function resource:loadFrameworkExecutables()
     local enabledInternalResources, enabledInternalModules = {}, {}
-    local internalResources, internalModules = {}, {}
-    
+
     repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
 
     --- Load all enabled resources
@@ -271,7 +270,7 @@ function resource:loadTranslations(object)
                     content = LoadResourceFile(object.name, location)
                     resourceName = object.name
                 end
-            
+
                 if (string.lower(object.type) == string.lower(ResourceTypes.InternalResource) or
                     string.lower(object.type) == string.lower(ResourceTypes.InternalModule)) then
                     content = LoadResourceFile(GetCurrentResourceName(), ('%s/%s'):format(object.path, location))
@@ -339,10 +338,12 @@ function resource:loadExecutable(object)
         local code = self:getFilesByPath(object.name, object.type, file)
 
         if (code) then
+            local ff, nl, cr, ht, vt, ws = ("\f\n\r\t\v "):byte(1,6)
+
             if (script == nil) then
                 script = code
             else
-                script = ('%s %s'):format(script, code)
+                script = script .. utf8.char(nl) .. code
             end
         end
     end
@@ -382,29 +383,29 @@ function resource:loadAll()
 
             if (internalModule.enabled) then
                 self:loadTranslations(internalModule)
-    
+
                 local script = self:loadExecutable(internalModule)
-    
+
                 if (script ~= nil) then
                     local fn, _error = load(script, ('@%s:internal_modules:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-        
+
                     if (fn) then
                         xpcall(fn, function(err)
                             self.internalModules[internalModuleName].error.status = true
                             self.internalModules[internalModuleName].error.message = err
-        
+
                             error:print(err)
                         end)
                     end
-        
-                    if (_error and error ~= '') then
+
+                    if (_error and _error ~= '') then
                         self.internalModules[internalModuleName].error.status = true
                         self.internalModules[internalModuleName].error.message = _error
-        
+
                         error:print(_error)
                     end
                 end
-    
+
                 self.internalModules[internalModuleName].loaded = true
             end
         end
@@ -437,7 +438,7 @@ function resource:loadAll()
                     end)
                 end
 
-                if (_error and error ~= '') then
+                if (_error and _error ~= '') then
                     self.internalModules[i].error.status = true
                     self.internalModules[i].error.message = _error
 
@@ -467,18 +468,20 @@ function resource:loadAll()
             if (script ~= nil) then
                 local fn, _error = load(script, ('@%s:internal_resources:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
 
-                if (_error and error ~= '') then
+                if (fn) then
+                    xpcall(fn, function(err)
+                        self.internalResources[i].error.status = true
+                        self.internalResources[i].error.message = err
+
+                        error:print(err)
+                    end)
+                end
+
+                if (_error and _error ~= '') then
                     self.internalResources[i].error.status = true
                     self.internalResources[i].error.message = _error
 
                     error:print(_error)
-                elseif (fn) then
-                    xpcall(fn, function(err)
-                        self.internalResources[i].error.status = true
-                        self.internalResources[i].error.message = err
-    
-                        error:print(err)
-                    end)
                 end
             end
 
