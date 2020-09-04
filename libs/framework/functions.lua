@@ -128,12 +128,13 @@ local function updateFilePath(file)
     _ENV.CurrentFile = file
 end
 
-local function regexEscape(str)
-    return str:gsub("[%(%)%.%%%+%-%*%?%[%^%$%]]", "%%%1")
-end
-
 local function string_replace(str, this, that)
-    return str:gsub(regexEscape(this), that:gsub("%%", "%%%%")) -- only % needs to be escaped for 'that'
+    local b,e = str:find(this,1,true)
+  if b==nil then
+     return str
+  else
+     return str:sub(1,b-1) .. that .. str:sub(e+1):replace(this, that)
+  end
 end
 
 -- FiveM maniplulation
