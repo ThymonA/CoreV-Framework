@@ -306,8 +306,10 @@ function compiler:generateResource()
         if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
 
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
-            for i = 1, #publicFiles, 1 do
-                local file = publicFiles[i]
+            local asyncTaskDone = false
+            local async = m('async')
+
+            async:parallel(function(file, cb)
                 local currentFileLocation = frameworkPath .. file
                 local newFileLocation = frameworkClientPath .. file
 
@@ -337,7 +339,13 @@ function compiler:generateResource()
                     pathsCreated[currentFilePath] = currentFilePath
                     compiler:createDirectoryIfNotExists(newFileLocation .. currentFilePath)
                 end
-            end
+
+                cb()
+            end, publicFiles, function()
+                asyncTaskDone = true
+            end)
+
+            repeat Citizen.Wait(0) until asyncTaskDone == true
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             --- to-do: Add Linux variant for copying files
         end
