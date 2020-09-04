@@ -9,17 +9,27 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 Citizen.CreateThread(function()
+    local resourceStarted = os:currentTimeInMilliseconds()
+
     print('[^5Core^4V^7] Is now loading.....')
 
     resource:loadAll()
+
+    local serverSideLoadedAfter = os:currentTimeInMilliseconds() - resourceStarted
+
+    print(('[^5Core^4V^7] Server been loaded after %s seconds'):format(round(serverSideLoadedAfter / 1000, 2)))
+
     compiler:generateResource()
 
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
-    print(('============= [ ^5Core^4V^7 ] =============\n^2All framework executables are loaded ^7\n=====================================\n-> ^1External Resources: ^7%s ^7\n-> ^1Internal Resources: ^7%s ^7\n-> ^1Internal Modules:   ^7%s ^7\n=====================================\n^3VERSION: ^71.0.0\n============= [ ^5Core^4V^7 ] =============')
-        :format(resource:countAllLoaded()))
+    local frameworkLoadedAfter = os:currentTimeInMilliseconds() - resourceStarted
+
+    local numberOfResources, numberOfInternalResources, numberOfModules = resource:countAllLoaded()
+    print(('============= [ ^5Core^4V^7 ] =============\n^2All framework executables are loaded ^7\n=====================================\n-> ^1External Resources:  ^7%s ^7\n-> ^1Internal Resources:  ^7%s ^7\n-> ^1Internal Modules:    ^7%s ^7\n-> ^1Framework Load Time: ^7%s seconds ^7\n=====================================\n^3VERSION: ^71.0.0\n============= [ ^5Core^4V^7 ] =============')
+        :format(numberOfResources, numberOfInternalResources, numberOfModules, round(frameworkLoadedAfter / 1000, 2)))
 end)
 
 AddEventHandler('playerConnecting', function(name, setCallback, deferrals)

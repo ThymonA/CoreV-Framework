@@ -137,11 +137,49 @@ local function string_replace(str, this, that)
   end
 end
 
+local function os_currentTime()
+    local a, b = math.modf(os.clock())
+
+    if (b == 0) then
+        b = '000'
+    else
+        b = tostring(b):sub(3,5)
+    end
+
+    local tf = os.date('%Y-%m-%d %H:%M:%S.', os.time())
+
+    return tf .. b
+end
+
+local function os_currentTimeInMilliseconds()
+    local currentMilliseconds = 0
+    local a, b = math.modf(os.clock())
+
+    if (b == 0) then
+        currentMilliseconds = 0
+    else
+        currentMilliseconds = tonumber(tostring(b):sub(3,5))
+    end
+
+    local currentLocalTime = os.time(os.date('*t'))
+
+    currentLocalTime = currentLocalTime * 1000
+    currentLocalTime = currentLocalTime + currentMilliseconds
+
+    return currentLocalTime
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
 _ENV.string.trim = string_trim
 _G.string.trim = string_trim
+_ENV.string.split = function(self, delim)
+    return split(self, delim)
+end
+_G.string.split = function(self, delim)
+    return split(self, delim)
+end
 _ENV._ = _
 _G._ = _
 _ENV.currentTimeString = currentTimeString
@@ -183,6 +221,20 @@ end
 
 _ENV.string.replace = string_replace
 _G.string.replace = string_replace
+
+_ENV.os.currentTime = function(self)
+    return os_currentTime()
+end
+_G.os.currentTime = function(self)
+    return os_currentTime()
+end
+
+_ENV.os.currentTimeInMilliseconds = function(self)
+    return os_currentTimeInMilliseconds()
+end
+_G.os.currentTimeInMilliseconds = function(self)
+    return os_currentTimeInMilliseconds()
+end
 
 if (CLIENT) then
     _ENV.TSE = TriggerServerEvent

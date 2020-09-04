@@ -10,6 +10,7 @@
 ----------------------- [ CoreV ] -----------------------
 compiler = class('compiler')
 
+--- Default values
 compiler:set {
     externalResources = {},
     internalResources = {},
@@ -60,8 +61,8 @@ function compiler:loadCurrentResourceManifest()
     }
 
     --- Load all required client files
-    for i = 0, GetNumResourceMetadata(manifest.name, 'client_script'), 1 do
-        local file = GetResourceMetadata(manifest.name, 'client_script', i)
+    for i = 0, GetNumResourceMetadata(manifest.name, 'corevclient'), 1 do
+        local file = GetResourceMetadata(manifest.name, 'corevclient', i)
 
         if (file ~= nil) then
             local _file = string.trim(file)
@@ -75,8 +76,8 @@ function compiler:loadCurrentResourceManifest()
     end
 
     --- Load all required files
-    for i = 0, GetNumResourceMetadata(manifest.name, 'file'), 1 do
-        local file = GetResourceMetadata(manifest.name, 'file', i)
+    for i = 0, GetNumResourceMetadata(manifest.name, 'corevfile'), 1 do
+        local file = GetResourceMetadata(manifest.name, 'corevfile', i)
 
         if (file ~= nil) then
             local _file = string.trim(file)
@@ -92,6 +93,7 @@ function compiler:loadCurrentResourceManifest()
     return manifest
 end
 
+--- Returns a list with all the files in current resource
 function compiler:loadCurrentResourceFileStructure()
     local internalPath = GetResourcePath(GetCurrentResourceName())
     internalPath = internalPath:gsub('//', '/')
@@ -158,45 +160,13 @@ function compiler:loadCurrentResourceFileStructure()
     return manifest
 end
 
---- Generates and compiles a resource folder
-function compiler:generateResource()
-    local clientResourceFound = false
-    local clientResourceName = ('%s_client'):format(GetCurrentResourceName())
-    local internalPath = GetResourcePath(GetCurrentResourceName())
+--- Filter all filestructures files based on framework manifest
+--- @param frameworkManifest framework-manifest Framework's Manifest
+--- @param fileStructures framework-structure Framework's File Strcuture
+function compiler:filterAllResourceFiles(frameworkManifest, fileStructures)
+    local includedFiles = { clients = {}, files = {} }
 
-    local internalPathParent = internalPath:gsub('%/' .. GetCurrentResourceName(), '/')
-    internalPathParent = internalPathParent:gsub('%\\' .. GetCurrentResourceName(), '\\')
-
-    local clientResourcePath = internalPath:gsub('%/' .. GetCurrentResourceName(), ('/%s'):format(clientResourceName))
-    clientResourcePath = clientResourcePath:gsub('%\\' .. GetCurrentResourceName(), ('\\%s'):format(clientResourceName))
-
-    for _, directory in pairs(self:getPathFiles(internalPathParent) or {}) do
-        if (directory ~= nil and string.lower(directory) == clientResourceName) then
-            clientResourceFound = true
-            break
-        end
-    end
-
-    if (clientResourceFound) then
-        print(('[^5Core^4V^7] Deleting resource "^5%s^7"'):format(clientResourceName))
-
-        if ((string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') and clientResourcePath ~= nil) then
-            os.execute(('rmdir /s /q "%s"'):format(clientResourcePath))
-        elseif ((string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') and clientResourcePath ~= nil) then
-            os.execute(('rm --recursive %s'):format(clientResourcePath))
-        end
-
-        print(('[^5Core^4V^7] Resource "^5%s^7" deleted'):format(clientResourceName))
-    end
-
-    local frameworkManifest = self:loadCurrentResourceManifest()
-    local fileStructure = self:loadCurrentResourceFileStructure()
-    local includedFiles = {
-        clients = {},
-        files = {}
-    }
-
-    for _, structure in pairs(fileStructure.structures or {}) do
+    for _, structure in pairs(fileStructures.structures or {}) do
         local _hasMatch = false
 
         for __, clientFile in pairs(frameworkManifest.clients or {}) do
@@ -256,7 +226,133 @@ function compiler:generateResource()
         end
     end
 
-    for _, clientFile in pairs(allClientFiles or {}) do
-        print(('^7[^4CoreV^7] ^1%s'):format(clientFile))
+    return allClientFiles, includedFiles.clients, includedFiles.files
+end
+
+--- Returns a path type: directory or file
+--- @param path string Path to check
+function compiler:pathType(path)
+    path = string.replace(path, '\\', '/')
+    path = string.replace(path, '//', '/')
+
+    local pathInfo = string.split(path, '/') or {}
+
+    if (#pathInfo <= 0) then
+        return 'unknown'
     end
+
+    if (string.find(pathInfo[#pathInfo], '.', 1, true) and not string.startswith(pathInfo[#pathInfo], '.')) then
+        return 'file'
+    end
+
+    return 'directory'
+end
+
+--- Create a directory if not exists
+function compiler:createDirectoryIfNotExists(path)
+    if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+        path = string.replace(path, '//', '/')
+        path = string.replace(path, '/', '\\')
+        path = string.replace(path, '\\\\', '\\')
+
+        local _value = nil
+
+        for __value in io.popen(('IF EXIST "%s" (ECHO 1) ELSE (ECHO 0)'):format(path)):lines() do
+            _value = __value
+        end
+
+        local directoryExists = tonumber(_value or '0') == 1
+
+        if (not directoryExists) then
+            os.execute(('mkdir "%s"'):format(path))
+        end
+    elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+        --- to-do: Add Linux variant for copying files
+    end
+end
+
+--- Generates and compiles a resource folder
+function compiler:generateResource()
+    local done = false
+
+    Citizen.CreateThread(function()
+        local clientResourceFound = false
+        local clientResourceName = ('%s_client'):format(GetCurrentResourceName())
+        local internalPath = GetResourcePath(GetCurrentResourceName())
+
+        local internalPathParent = internalPath:gsub('%/' .. GetCurrentResourceName(), '/')
+        internalPathParent = internalPathParent:gsub('%\\' .. GetCurrentResourceName(), '\\')
+
+        local clientResourcePath = internalPath:gsub('%/' .. GetCurrentResourceName(), ('/%s'):format(clientResourceName))
+        clientResourcePath = clientResourcePath:gsub('%\\' .. GetCurrentResourceName(), ('\\%s'):format(clientResourceName))
+
+        for _, directory in pairs(self:getPathFiles(internalPathParent) or {}) do
+            if (directory ~= nil and string.lower(directory) == clientResourceName) then
+                clientResourceFound = true
+                break
+            end
+        end
+
+        if (clientResourceFound) then
+            print(('[^5Core^4V^7] Deleting resource "^5%s^7"'):format(clientResourceName))
+
+            if ((string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') and clientResourcePath ~= nil) then
+                os.execute(('rmdir /s /q "%s"'):format(clientResourcePath))
+            elseif ((string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') and clientResourcePath ~= nil) then
+                os.execute(('rm --recursive %s'):format(clientResourcePath))
+            end
+
+            print(('[^5Core^4V^7] Resource "^5%s^7" deleted'):format(clientResourceName))
+        end
+
+        local frameworkManifest = self:loadCurrentResourceManifest()
+        local fileStructure = self:loadCurrentResourceFileStructure()
+        local publicFiles, clientFiles, fileFiles = self:filterAllResourceFiles(frameworkManifest, fileStructure)
+        local frameworkPath = internalPath
+        local frameworkClientPath = clientResourcePath
+        local pathsCreated = {}
+
+        if (not string.endswith(frameworkPath, '/')) then frameworkPath = frameworkPath .. '/' end
+        if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
+
+        for _, file in pairs(publicFiles) do
+            if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+                local currentFileLocation = frameworkPath .. file
+                local newFileLocation = frameworkClientPath .. file
+
+                currentFileLocation = string.replace(currentFileLocation, '//', '/')
+                currentFileLocation = string.replace(currentFileLocation, '/', '\\')
+                currentFileLocation = string.replace(currentFileLocation, '\\\\', '\\')
+                newFileLocation = string.replace(newFileLocation, '//', '/')
+                newFileLocation = string.replace(newFileLocation, '/', '\\')
+                newFileLocation = string.replace(newFileLocation, '\\\\', '\\')
+
+                local filePathInfo = string.split(file, '/')
+                local currentFilePath = nil
+
+                self:createDirectoryIfNotExists(clientResourcePath)
+
+                for _, pathInfo in pairs(filePathInfo or {}) do
+                    if (currentFilePath == nil) then
+                        currentFilePath = pathInfo
+                    else
+                        currentFilePath = currentFilePath .. '/' .. pathInfo
+                    end
+
+                    if (pathsCreated[currentFilePath] == nil and self:pathType(currentFilePath) == 'directory') then
+                        print(currentFilePath)
+
+                        pathsCreated[currentFilePath] = frameworkClientPath .. currentFilePath
+                        self:createDirectoryIfNotExists(frameworkClientPath .. currentFilePath)
+                    end
+                end
+            elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+                --- to-do: Add Linux variant for copying files
+            end
+        end
+
+        done = true
+    end)
+
+    repeat Wait(0) until done == true
 end

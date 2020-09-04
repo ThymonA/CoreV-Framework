@@ -320,13 +320,13 @@ function resource:loadFrameworkExecutables()
     repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
 
     --- Load all enabled resources
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'resource'), 1 do
-        table.insert(enabledInternalResources, GetResourceMetadata(GetCurrentResourceName(), 'resource', i))
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevresource'), 1 do
+        table.insert(enabledInternalResources, GetResourceMetadata(GetCurrentResourceName(), 'corevresource', i))
     end
 
     --- Load all enabled modules
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
-        table.insert(enabledInternalModules, GetResourceMetadata(GetCurrentResourceName(), 'module', i))
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
+        table.insert(enabledInternalModules, GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i))
     end
 
     --- Add all internal executable resources
@@ -528,8 +528,8 @@ function resource:loadAll()
     local enabledInternalModules = {}
 
     --- Load all enabled modules
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
-        local _module = GetResourceMetadata(GetCurrentResourceName(), 'module', i)
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
+        local _module = GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i)
 
         if (_module ~= nil and type(_module) == 'string') then
             table.insert(enabledInternalModules, string.lower(_module))

@@ -8,9 +8,15 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
+---
+--- Default information about supported games and versions
+---
 fx_version 'adamant'
 game 'gta5'
 
+---
+--- Information about this resource (Custom Framework)
+---
 name 'CoreV'
 version '1.0.0'
 description 'Custom FiveM Framework'
@@ -18,34 +24,10 @@ author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
-client_scripts {
-    'shared/functions.lua',
 
-    'vendors/regex.lua',
-    'vendors/class.lua',
-    'vendors/entityiter.lua',
-
-    'configs/shared_config.lua',
-    'configs/others/brands_config.lua',
-    'configs/others/vehicle_config.lua',
-    'configs/client_config.lua',
-
-    'libs/common.lua',
-    'libs/framework/functions.lua',
-    'libs/modules/cache.lua',
-    'libs/modules/error.lua',
-    'libs/framework/events.lua',
-    'libs/framework/modules.lua',
-    'libs/enums/*.lua',
-
-    'client/libs/callbacks.lua',
-    'client/libs/resources.lua',
-    'client/classes/menu.lua',
-    'client/libs/menus.lua',
-
-    'client/main.lua'
-}
-
+---
+--- Default FiveM server_scripts
+---
 server_scripts {
     'shared/functions.lua',
 
@@ -73,9 +55,41 @@ server_scripts {
     'server/main.lua'
 }
 
-ui_page 'hud/ui.html'
+---
+--- These files will later be placed in `corev_client` resource manifest as `client_scripts`
+---
+corevclients {
+    'shared/functions.lua',
 
-files {
+    'vendors/regex.lua',
+    'vendors/class.lua',
+    'vendors/entityiter.lua',
+
+    'configs/shared_config.lua',
+    'configs/others/brands_config.lua',
+    'configs/others/vehicle_config.lua',
+    'configs/client_config.lua',
+
+    'libs/common.lua',
+    'libs/framework/functions.lua',
+    'libs/modules/cache.lua',
+    'libs/modules/error.lua',
+    'libs/framework/events.lua',
+    'libs/framework/modules.lua',
+    'libs/enums/*.lua',
+
+    'client/libs/callbacks.lua',
+    'client/libs/resources.lua',
+    'client/classes/menu.lua',
+    'client/libs/menus.lua',
+
+    'client/main.lua'
+}
+
+---
+--- These files will later be placed in `corev_client` resource manifest as `files`
+---
+corevfiles {
     'modules/**/module.json',
     'modules/**/client/**/*.lua',
     'modules/**/langs/**/*.json',
@@ -99,7 +113,16 @@ files {
     'hud/**/*'
 }
 
-modules {
+---
+--- These files will later be placed in `corev_client` resource manifest as `ui_page`
+---
+corevuipage 'hud/ui.html'
+
+---
+--- All modules with priority over other modules, load it first in the specified order,
+--- modules not listed will be loaded after this list in a random order.
+---
+corevmodules {
     'spawnmanager',
     'database',
     'identifiers',
@@ -113,14 +136,10 @@ modules {
     'game'
 }
 
-resources {
+---
+--- All resources with priority over other resources, load it first in the specified order,
+--- resources not listed will be loaded after this list in a random order.
+---
+corevresources {
     'parking'
-}
-
-exports {
-	'getFrameworkCore'
-}
-
-server_exports {
-	'getFrameworkCore'
 }
