@@ -33,6 +33,7 @@ server_scripts {
 
     'vendors/regex.lua',
     'vendors/class.lua',
+    'vendors/async.lua',
 
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',

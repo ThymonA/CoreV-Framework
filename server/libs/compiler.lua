@@ -255,17 +255,7 @@ function compiler:createDirectoryIfNotExists(path)
         path = string.replace(path, '/', '\\')
         path = string.replace(path, '\\\\', '\\')
 
-        local _value = nil
-
-        for __value in io.popen(('IF EXIST "%s" (ECHO 1) ELSE (ECHO 0)'):format(path)):lines() do
-            _value = __value
-        end
-
-        local directoryExists = tonumber(_value or '0') == 1
-
-        if (not directoryExists) then
-            os.execute(('mkdir "%s"'):format(path))
-        end
+        os.execute(('md "%s"'):format(path))
     elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
         --- to-do: Add Linux variant for copying files
     end
@@ -315,8 +305,9 @@ function compiler:generateResource()
         if (not string.endswith(frameworkPath, '/')) then frameworkPath = frameworkPath .. '/' end
         if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
 
-        for _, file in pairs(publicFiles) do
-            if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+        if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+            for i = 1, #publicFiles, 1 do
+                local file = publicFiles[i]
                 local currentFileLocation = frameworkPath .. file
                 local newFileLocation = frameworkClientPath .. file
 
@@ -330,25 +321,25 @@ function compiler:generateResource()
                 local filePathInfo = string.split(file, '/')
                 local currentFilePath = nil
 
-                self:createDirectoryIfNotExists(clientResourcePath)
+                compiler:createDirectoryIfNotExists(clientResourcePath)
 
                 for _, pathInfo in pairs(filePathInfo or {}) do
                     if (currentFilePath == nil) then
                         currentFilePath = pathInfo
-                    else
+                    elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory') then
                         currentFilePath = currentFilePath .. '/' .. pathInfo
-                    end
-
-                    if (pathsCreated[currentFilePath] == nil and self:pathType(currentFilePath) == 'directory') then
-                        print(currentFilePath)
-
-                        pathsCreated[currentFilePath] = frameworkClientPath .. currentFilePath
-                        self:createDirectoryIfNotExists(frameworkClientPath .. currentFilePath)
+                    else
+                        break
                     end
                 end
-            elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
-                --- to-do: Add Linux variant for copying files
+
+                if (pathsCreated[currentFilePath] == nil) then
+                    pathsCreated[currentFilePath] = currentFilePath
+                    compiler:createDirectoryIfNotExists(newFileLocation .. currentFilePath)
+                end
             end
+        elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+            --- to-do: Add Linux variant for copying files
         end
 
         done = true
