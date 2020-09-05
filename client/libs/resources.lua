@@ -189,13 +189,13 @@ function resource:loadFrameworkExecutables()
     repeat Citizen.Wait(0) until self.tasks.loadingInternalStructures == true
 
     --- Load all enabled resources
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevresource'), 1 do
-        table.insert(enabledInternalResources, GetResourceMetadata(GetCurrentResourceName(), 'corevresource', i))
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'resource'), 1 do
+        table.insert(enabledInternalResources, GetResourceMetadata(GetCurrentResourceName(), 'resource', i))
     end
 
     --- Load all enabled modules
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
-        table.insert(enabledInternalModules, GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i))
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
+        table.insert(enabledInternalModules, GetResourceMetadata(GetCurrentResourceName(), 'module', i))
     end
 
     --- Add all internal executable resources
@@ -281,6 +281,8 @@ function resource:loadTranslations(object)
                     local data = json.decode(content)
 
                     if (data) then
+                        print(resourceName)
+
                         if (CoreV.Translations[resourceName] == nil) then
                             CoreV.Translations[resourceName] = {}
                         end
@@ -329,28 +331,6 @@ function resource:getFilesByPath(name, _type, internalPath)
     return nil
 end
 
---- Returns generated executable
---- @object Any Executable Resource/Module
-function resource:loadExecutable(object)
-    local script = nil
-
-    for i2, file in pairs(object.manifest:getValue('client_scripts') or {}) do
-        local code = self:getFilesByPath(object.name, object.type, file)
-
-        if (code) then
-            local ff, nl, cr, ht, vt, ws = ("\f\n\r\t\v "):byte(1,6)
-
-            if (script == nil) then
-                script = code
-            else
-                script = script .. utf8.char(nl) .. code
-            end
-        end
-    end
-
-    return script
-end
-
 --- Load all framework Resources/Modules
 function resource:loadAll()
     self:loadFrameworkExecutables()
@@ -360,8 +340,8 @@ function resource:loadAll()
     local enabledInternalModules = {}
 
     --- Load all enabled modules
-    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
-        local _module = GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i)
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'module'), 1 do
+        local _module = GetResourceMetadata(GetCurrentResourceName(), 'module', i)
 
         if (_module ~= nil and type(_module) == 'string') then
             table.insert(enabledInternalModules, string.lower(_module))
@@ -384,28 +364,6 @@ function resource:loadAll()
             if (internalModule.enabled) then
                 self:loadTranslations(internalModule)
 
-                local script = self:loadExecutable(internalModule)
-
-                if (script ~= nil) then
-                    local fn, _error = load(script, ('@%s:internal_modules:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-
-                    if (fn) then
-                        xpcall(fn, function(err)
-                            self.internalModules[internalModuleName].error.status = true
-                            self.internalModules[internalModuleName].error.message = err
-
-                            error:print(err)
-                        end)
-                    end
-
-                    if (_error and _error ~= '') then
-                        self.internalModules[internalModuleName].error.status = true
-                        self.internalModules[internalModuleName].error.message = _error
-
-                        error:print(_error)
-                    end
-                end
-
                 self.internalModules[internalModuleName].loaded = true
             end
         end
@@ -424,28 +382,6 @@ function resource:loadAll()
         if (not internalModule.loaded) then
             self:loadTranslations(internalModule)
 
-            local script = self:loadExecutable(internalModule)
-
-            if (script ~= nil) then
-                local fn, _error = load(script, ('@%s:internal_modules:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-
-                if (fn) then
-                    xpcall(fn, function(err)
-                        self.internalModules[i].error.status = true
-                        self.internalModules[i].error.message = err
-
-                        error:print(err)
-                    end)
-                end
-
-                if (_error and _error ~= '') then
-                    self.internalModules[i].error.status = true
-                    self.internalModules[i].error.message = _error
-
-                    error:print(_error)
-                end
-            end
-
             self.internalModules[i].loaded = true
         end
     end
@@ -462,28 +398,6 @@ function resource:loadAll()
 
         if (internalResource.enabled) then
             self:loadTranslations(internalResource)
-
-            local script = self:loadExecutable(internalResource)
-
-            if (script ~= nil) then
-                local fn, _error = load(script, ('@%s:internal_resources:%s:client'):format(CurrentFrameworkResource, CurrentFrameworkModule), 't', _ENV)
-
-                if (fn) then
-                    xpcall(fn, function(err)
-                        self.internalResources[i].error.status = true
-                        self.internalResources[i].error.message = err
-
-                        error:print(err)
-                    end)
-                end
-
-                if (_error and _error ~= '') then
-                    self.internalResources[i].error.status = true
-                    self.internalResources[i].error.message = _error
-
-                    error:print(_error)
-                end
-            end
 
             self.internalResources[i].loaded = true
         end

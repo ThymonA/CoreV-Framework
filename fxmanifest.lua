@@ -29,11 +29,10 @@ url 'https://git.arens.io/ThymonA/corev-framework/'
 --- Default FiveM server_scripts
 ---
 server_scripts {
-    'shared/functions.lua',
-
     'vendors/regex.lua',
     'vendors/class.lua',
     'vendors/async.lua',
+    'vendors/mustache.lua',
 
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',
@@ -60,11 +59,10 @@ server_scripts {
 --- These files will later be placed in `corev_client` resource manifest as `client_scripts`
 ---
 corevclients {
-    'shared/functions.lua',
-
     'vendors/regex.lua',
     'vendors/class.lua',
     'vendors/entityiter.lua',
+    'vendors/mustache.lua',
 
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',
@@ -77,7 +75,9 @@ corevclients {
     'libs/modules/error.lua',
     'libs/framework/events.lua',
     'libs/framework/modules.lua',
-    'libs/enums/*.lua',
+    'libs/enums/markers.lua',
+    'libs/enums/resource.lua',
+    'libs/enums/vehicle.lua',
 
     'client/libs/callbacks.lua',
     'client/libs/resources.lua',
@@ -111,7 +111,13 @@ corevfiles {
     'resources/**/html/**/*.html',
     'resources/**/html/**/*.js',
     'resources/**/html/**/*.css',
-    'hud/**/*'
+    'hud/**/*.css',
+    'hud/**/*.png',
+    'hud/**/*.js',
+    'hud/ui.html',
+    'hud/assets/css/*.css',
+    'hud/assets/images/*.png',
+    'hud/assets/js/*.js'
 }
 
 ---

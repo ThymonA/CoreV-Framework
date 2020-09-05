@@ -318,6 +318,8 @@ function compiler:generateResource()
         local asyncTaskDone = false
         local async = m('async')
 
+        print(('[^5Core^4V^7] Generate folder structure for "^5%s^7"'):format(clientResourceName))
+
         --- Create all required directories
         async:parallel(function(file, cb)
             local currentFileLocation = frameworkPath .. file
@@ -360,8 +362,258 @@ function compiler:generateResource()
 
         repeat Citizen.Wait(0) until asyncTaskDone == true
 
+        print(('[^5Core^4V^7] Folder structure for "^5%s^7" has been generated'):format(clientResourceName))
+
+        self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles, clientFiles, fileFiles)
+
         done = true
     end)
 
     repeat Wait(0) until done == true
+end
+
+function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, clientFiles, fileFiles)
+    print(('[^5Core^4V^7] Copy files from "^5%s^7" to "^5%s^7"'):format(GetCurrentResourceName(), GetCurrentResourceName() .. '_client'))
+
+    local enabledInternalModules = {}
+    local additionalClientFiles = {}
+    local addedModules = {}
+
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
+        local _module = GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i)
+
+        if (_module ~= nil and type(_module) == 'string') then
+            table.insert(enabledInternalModules, string.lower(_module))
+        end
+    end
+
+    for _, internalModuleName in pairs(enabledInternalModules or {}) do
+        addedModules[internalModuleName] = true
+
+        table.insert(additionalClientFiles, ('client/%s_module_client.lua'):format(internalModuleName))
+    end
+
+    for _, internalModule in pairs(resource.internalModules or {}) do
+        local internalModuleName = internalModule.name
+
+        if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+        elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+            local frameworkFilePath = ('%s/debug/internal_modules/client/%s_client.lua'):format(frameworkPath, internalModuleName)
+            local frameworkClientFilePath = ('%s/client/%s_module_client.lua'):format(clientPath, internalModuleName)
+
+            if (addedModules[internalModuleName] == nil) then
+                table.insert(additionalClientFiles, ('client/%s_module_client.lua'):format(internalModuleName))
+            end
+
+            frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+            frameworkFilePath = string.replace(frameworkFilePath, '\\', '/')
+            frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+
+            os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
+        end
+    end
+
+    for _, internalResource in pairs(resource.internalResources or {}) do
+        local internalResourceName = internalResource.name
+
+        if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+        elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+            local frameworkFilePath = ('%s/debug/internal_resources/client/%s_client.lua'):format(frameworkPath, internalResourceName)
+            local frameworkClientFilePath = ('%s/client/%s_resource_client.lua'):format(clientPath, internalResourceName)
+
+            table.insert(additionalClientFiles, ('client/%s_resource_client.lua'):format(internalResourceName))
+
+            frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+            frameworkFilePath = string.replace(frameworkFilePath, '\\', '/')
+            frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+
+            os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
+        end
+    end
+
+    for _, publicFile in pairs(publicFiles or {}) do
+        if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+        elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+            local frameworkFilePath = ('%s/%s'):format(frameworkPath, publicFile)
+            local frameworkClientFilePath = ('%s/%s'):format(clientPath, publicFile)
+
+            frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+            frameworkFilePath = string.replace(frameworkFilePath, '\\', '/')
+            frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+
+            os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
+        end
+    end
+
+    print(('[^5Core^4V^7] Files copied from "^5%s^7" to "^5%s^7"'):format(GetCurrentResourceName(), GetCurrentResourceName() .. '_client'))
+    print(('[^5Core^4V^7] Generate ^5fxmanifest^7 for "^5%s^7"'):format(GetCurrentResourceName() .. '_client'))
+
+    ---
+    local fxManifestTemplate = [[
+----------------------- [ CoreV ] -----------------------
+-- GitLab: https://git.arens.io/ThymonA/corev-framework/
+-- GitHub: https://github.com/ThymonA/CoreV-Framework/
+-- License: GNU General Public License v3.0
+--          https://choosealicense.com/licenses/gpl-3.0/
+-- Author: Thymon Arens <contact@arens.io>
+-- Name: CoreV
+-- Version: 1.0.0
+-- Description: Custom FiveM Framework
+----------------------- [ CoreV ] -----------------------
+fx_version 'adamant'
+game 'gta5'
+
+name 'CoreV'
+version '1.0.0'
+description 'Custom FiveM Framework'
+author 'ThymonA'
+contact 'contact@arens.io'
+url 'https://git.arens.io/ThymonA/corev-framework/'
+
+ui_page '{{{ui}}}'
+ui_page_preload 'yes'
+
+client_scripts {
+    {{{client_scripts}}}
+}
+
+files {
+    {{{files}}}
+}
+
+modules {
+    {{{modules}}}
+}
+
+resources {
+    {{{resources}}}
+}
+]]
+
+    local fx_client_scripts, fx_files, fx_ui, fx_modules, fx_resources = {}, {}, '', {}, {}
+
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevclient'), 1 do
+        local _file = GetResourceMetadata(GetCurrentResourceName(), 'corevclient', i)
+
+        if (_file ~= nil and type(_file) == 'string') then
+            table.insert(fx_client_scripts, string.lower(_file))
+        end
+    end
+
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevfile'), 1 do
+        local _file = GetResourceMetadata(GetCurrentResourceName(), 'corevfile', i)
+
+        if (_file ~= nil and type(_file) == 'string') then
+            table.insert(fx_files, string.lower(_file))
+        end
+    end
+
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevuipage'), 1 do
+        local _file = GetResourceMetadata(GetCurrentResourceName(), 'corevuipage', i)
+
+        if (_file ~= nil and type(_file) == 'string') then
+            fx_ui = _file
+            break
+        end
+    end
+
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
+        local _file = GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i)
+
+        if (_file ~= nil and type(_file) == 'string') then
+            table.insert(fx_modules, string.lower(_file))
+        end
+    end
+
+    for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevresource'), 1 do
+        local _file = GetResourceMetadata(GetCurrentResourceName(), 'corevresource', i)
+
+        if (_file ~= nil and type(_file) == 'string') then
+            table.insert(fx_resources, string.lower(_file))
+        end
+    end
+
+    for _, additionalClientFile in pairs(additionalClientFiles) do
+        if (additionalClientFile ~= nil and type(additionalClientFile) == 'string') then
+            table.insert(fx_client_scripts, additionalClientFile)
+        end
+    end
+
+    local fxManifest = mustache:render(fxManifestTemplate, {
+        client_scripts = self:tableToString(fx_client_scripts),
+        files = self:tableToString(fx_files),
+        ui = fx_ui,
+        modules = self:tableToString(fx_modules),
+        resources = self:tableToString(fx_resources)
+    })
+
+    SaveResourceFile(GetCurrentResourceName(), 'debug/__fxmanifest.lua', fxManifest)
+
+    if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+    elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+        local frameworkFilePath = ('%s/debug/__fxmanifest.lua'):format(frameworkPath)
+        local frameworkClientFilePath = ('%s/fxmanifest.lua'):format(clientPath)
+
+        frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+        frameworkFilePath = string.replace(frameworkFilePath, '\\', '/')
+        frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+        frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+        frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\', '/')
+        frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+
+        os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
+    end
+
+    print(('[^5Core^4V^7] ^5fxmanifest^7 generated for "^5%s^7"'):format(GetCurrentResourceName() .. '_client'))
+
+    print(('[^5Core^4V^7] Execute command "^5stop %s^7"'):format(GetCurrentResourceName() .. '_client'))
+
+    ExecuteCommand(('stop %s_client'):format(GetCurrentResourceName()))
+
+    Wait(250)
+
+    print('[^5Core^4V^7] Execute command "^5refresh^7"')
+    ExecuteCommand('refresh')
+
+    Wait(250)
+
+    print(('[^5Core^4V^7] Execute command "^5start %s^7"'):format(GetCurrentResourceName() .. '_client'))
+    ExecuteCommand(('start %s_client'):format(GetCurrentResourceName()))
+end
+
+function compiler:tableToString(table)
+    if (table == nil or type(table) ~= 'table') then
+        if (table == nil or type(table) == 'string') then
+            return table
+        end
+
+        return ''
+    end
+
+    local tempString = nil
+
+    for i = 1, #table, 1 do
+        if (i < #table) then
+            if (tempString == nil) then tempString = ("'%s',"):format(table[i])
+            else
+                tempString = ("%s\n    '%s',"):format(tempString, table[i])
+            end
+        else
+            if (tempString == nil) then tempString = ("'%s'"):format(table[i])
+            else
+                tempString = ("%s\n    '%s'"):format(tempString, table[i])
+            end
+        end
+    end
+
+    return tempString or ''
 end

@@ -2,7 +2,7 @@ $(function(){
     window.menus = {};
 
     menus.template = document.getElementById('menu-template').innerHTML;
-    menus.currentResource = 'corev';
+    menus.currentResource = 'corev_client';
     menus.opened = {};
     menus.currentMenu = null;
     menus.pos = {};

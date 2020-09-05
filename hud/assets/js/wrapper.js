@@ -43,7 +43,7 @@
 			if (i == str.length - 1)
 				data.end = true;
 
-			$.post('http://corev/__chunk', JSON.stringify(data));
+			$.post('http://corev_client/__chunk', JSON.stringify(data));
 		}
 	}
 })();

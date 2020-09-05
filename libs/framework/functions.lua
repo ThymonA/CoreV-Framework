@@ -222,6 +222,9 @@ end
 _ENV.string.replace = string_replace
 _G.string.replace = string_replace
 
+if (_ENV.os == nil) then _ENV.os = {} end
+if (_G.os == nil) then _G.os = {} end
+
 _ENV.os.currentTime = function(self)
     return os_currentTime()
 end
