@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-Config.OS               = 'windows'
+Config.OS               = 'linux'
 Config.DatabaseName     = 'corev'
 
 -------------------------

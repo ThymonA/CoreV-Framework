@@ -30,9 +30,12 @@ function compiler:getPathFiles(path)
         end
     elseif ((string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') and path ~= nil) then
         local callit = os.tmpname()
-        os.execute("ls -aF ".. path .. " | grep -v / >"..callit)
+
+        os.execute("ls ".. path .. " | grep -v / >"..callit)
+
         local f = io.open(callit,"r")
-        local rv = f:read("*all")
+        local rv = f:read("*a")
+
         f:close()
         os.remove(callit)
 
@@ -120,9 +123,12 @@ function compiler:loadCurrentResourceFileStructure()
         end
     elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
         local callit = os.tmpname()
-        os.execute('find "' .. internalPath .. '" | grep -v / >' .. callit)
-        local f = io.open(callit, 'r')
-        local rv = f:read('*all')
+
+        os.execute(('find %s -print > %s'):format(internalPath, callit))
+
+        local f = io.open(callit,"r")
+        local rv = f:read("*a")
+
         f:close()
         os.remove(callit)
 
@@ -257,7 +263,11 @@ function compiler:createDirectoryIfNotExists(path)
 
         os.execute(('md "%s"'):format(path))
     elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
-        --- to-do: Add Linux variant for copying files
+        path = string.replace(path, '\\\\', '\\')
+        path = string.replace(path, '\\', '/')
+        path = string.replace(path, '//', '/')
+
+        os.execute(('mkdir -p %s'):format(path))
     end
 end
 
@@ -305,50 +315,46 @@ function compiler:generateResource()
         if (not string.endswith(frameworkPath, '/')) then frameworkPath = frameworkPath .. '/' end
         if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
 
-        if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
-            local asyncTaskDone = false
-            local async = m('async')
+        local asyncTaskDone = false
+        local async = m('async')
 
-            async:parallel(function(file, cb)
-                local currentFileLocation = frameworkPath .. file
-                local newFileLocation = frameworkClientPath .. file
+        async:parallel(function(file, cb)
+            local currentFileLocation = frameworkPath .. file
+            local newFileLocation = frameworkClientPath .. file
 
-                currentFileLocation = string.replace(currentFileLocation, '//', '/')
-                currentFileLocation = string.replace(currentFileLocation, '/', '\\')
-                currentFileLocation = string.replace(currentFileLocation, '\\\\', '\\')
-                newFileLocation = string.replace(newFileLocation, '//', '/')
-                newFileLocation = string.replace(newFileLocation, '/', '\\')
-                newFileLocation = string.replace(newFileLocation, '\\\\', '\\')
+            currentFileLocation = string.replace(currentFileLocation, '\\\\', '\\')
+            currentFileLocation = string.replace(currentFileLocation, '\\', '/')
+            currentFileLocation = string.replace(currentFileLocation, '//', '/')
+            newFileLocation = string.replace(newFileLocation, '\\\\', '\\')
+            newFileLocation = string.replace(newFileLocation, '\\', '/')
+            newFileLocation = string.replace(newFileLocation, '//', '/')
 
-                local filePathInfo = string.split(file, '/')
-                local currentFilePath = nil
+            local filePathInfo = string.split(file, '/')
+            local currentFilePath = nil
 
-                compiler:createDirectoryIfNotExists(clientResourcePath)
+            compiler:createDirectoryIfNotExists(clientResourcePath)
 
-                for _, pathInfo in pairs(filePathInfo or {}) do
-                    if (currentFilePath == nil) then
-                        currentFilePath = pathInfo
-                    elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory') then
-                        currentFilePath = currentFilePath .. '/' .. pathInfo
-                    else
-                        break
-                    end
+            for _, pathInfo in pairs(filePathInfo or {}) do
+                if (currentFilePath == nil) then
+                    currentFilePath = pathInfo
+                elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory') then
+                    currentFilePath = currentFilePath .. '/' .. pathInfo
+                else
+                    break
                 end
+            end
 
-                if (pathsCreated[currentFilePath] == nil) then
-                    pathsCreated[currentFilePath] = currentFilePath
-                    compiler:createDirectoryIfNotExists(newFileLocation .. currentFilePath)
-                end
+            if (pathsCreated[currentFilePath] == nil) then
+                pathsCreated[currentFilePath] = currentFilePath
+                compiler:createDirectoryIfNotExists(newFileLocation .. currentFilePath)
+            end
 
-                cb()
-            end, publicFiles, function()
-                asyncTaskDone = true
-            end)
+            cb()
+        end, publicFiles, function()
+            asyncTaskDone = true
+        end)
 
-            repeat Citizen.Wait(0) until asyncTaskDone == true
-        elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
-            --- to-do: Add Linux variant for copying files
-        end
+        repeat Citizen.Wait(0) until asyncTaskDone == true
 
         done = true
     end)

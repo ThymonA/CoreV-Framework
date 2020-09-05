@@ -29,15 +29,21 @@ resource:set {
 function resource:getPathFiles(path)
     local results = {}
 
+    path = string.replace(path, '//', '/')
+    path = string.replace(path, '\\\\', '\\')
+
     if ((string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') and path ~= nil) then
         for _file in io.popen(('dir "%s" /b'):format(path)):lines() do
             table.insert(results, _file)
         end
     elseif ((string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') and path ~= nil) then
         local callit = os.tmpname()
-        os.execute("ls -aF ".. path .. " | grep -v / >"..callit)
+
+        os.execute("ls ".. path .. " | grep -v / >"..callit)
+
         local f = io.open(callit,"r")
-        local rv = f:read("*all")
+        local rv = f:read("*a")
+
         f:close()
         os.remove(callit)
 
