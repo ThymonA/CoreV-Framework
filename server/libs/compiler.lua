@@ -318,6 +318,7 @@ function compiler:generateResource()
         local asyncTaskDone = false
         local async = m('async')
 
+        --- Create all required directories
         async:parallel(function(file, cb)
             local currentFileLocation = frameworkPath .. file
             local newFileLocation = frameworkClientPath .. file
@@ -335,9 +336,9 @@ function compiler:generateResource()
             compiler:createDirectoryIfNotExists(clientResourcePath)
 
             for _, pathInfo in pairs(filePathInfo or {}) do
-                if (currentFilePath == nil) then
+                if (currentFilePath == nil and string.find(pathInfo, '.', 1, true) == nil) then
                     currentFilePath = pathInfo
-                elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory') then
+                elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory' and not (string.find(pathInfo, '.', 1, true) or false)) then
                     currentFilePath = currentFilePath .. '/' .. pathInfo
                 else
                     break
@@ -346,7 +347,10 @@ function compiler:generateResource()
 
             if (pathsCreated[currentFilePath] == nil) then
                 pathsCreated[currentFilePath] = currentFilePath
-                compiler:createDirectoryIfNotExists(newFileLocation .. currentFilePath)
+
+                if (not (string.find(frameworkClientPath .. currentFilePath, '.', 1, true) or false)) then
+                    compiler:createDirectoryIfNotExists(frameworkClientPath .. currentFilePath)
+                end
             end
 
             cb()
