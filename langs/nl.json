@@ -1,0 +1,13 @@
+{
+    "corev_loading": "Is nu aan het laden.....",
+    "corev_server_load": "Server bestanden zijn geladen in %s seconden",
+    "corev_loaded": "^2Alle onderdelen van framework zijn geladen ^7\n=====================================\n-> ^1External Resources: ^7%s ^7\n-> ^1Internal Resources: ^7%s ^7\n-> ^1Internal Modules:   ^7%s ^7\n-> ^1Framework laadtijd: ^7%s seconden ^7\n=====================================\n^3VERSIE: ^71.0.0",
+    "corev_deleting_resource": "Verwijderen van resource \"^5%s^7\"",
+    "corev_generate_folder_structure": "Aanmaken van mappen voor \"^5%s^7\"",
+    "corev_copy_files": "Bestanden aan het kopiëren van \"^5%s^7\" naar \"^5%s^7\"",
+    "corev_fxmanifest": "Bestand ^5fxmanifest.lua^7 aan het genereren voor \"^5%s^7\"",
+    "corev_command_stop": "Uitvoeren van command \"^5stop %s^7\"",
+    "corev_command_refresh": "Uitvoeren van command \"^5refresh^7\"",
+    "corev_command_start": "Uitvoeren van command \"^5start %s^7\"",
+    "corev_isloading": "Server is aan het opstarten, event geduld a.u.b. [%s]"
+}

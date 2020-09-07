@@ -294,15 +294,13 @@ function compiler:generateResource()
         end
 
         if (clientResourceFound) then
-            print(('[^5Core^4V^7] Deleting resource "^5%s^7"'):format(clientResourceName))
+            print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_deleting_resource', clientResourceName))
 
             if ((string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') and clientResourcePath ~= nil) then
                 os.execute(('rmdir /s /q "%s"'):format(clientResourcePath))
             elseif ((string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') and clientResourcePath ~= nil) then
                 os.execute(('rm --recursive %s'):format(clientResourcePath))
             end
-
-            print(('[^5Core^4V^7] Resource "^5%s^7" deleted'):format(clientResourceName))
         end
 
         local frameworkManifest = self:loadCurrentResourceManifest()
@@ -318,7 +316,7 @@ function compiler:generateResource()
         local asyncTaskDone = false
         local async = m('async')
 
-        print(('[^5Core^4V^7] Generate folder structure for "^5%s^7"'):format(clientResourceName))
+        print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_generate_folder_structure', clientResourceName))
 
         --- Create all required directories
         async:parallel(function(file, cb)
@@ -362,18 +360,18 @@ function compiler:generateResource()
 
         repeat Citizen.Wait(0) until asyncTaskDone == true
 
-        print(('[^5Core^4V^7] Folder structure for "^5%s^7" has been generated'):format(clientResourceName))
-
         self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles, clientFiles, fileFiles)
 
         done = true
     end)
 
     repeat Wait(0) until done == true
+
+    resource.tasks.compileFramework = true
 end
 
 function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, clientFiles, fileFiles)
-    print(('[^5Core^4V^7] Copy files from "^5%s^7" to "^5%s^7"'):format(GetCurrentResourceName(), GetCurrentResourceName() .. '_client'))
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_copy_files', GetCurrentResourceName(), GetCurrentResourceName() .. '_client'))
 
     local enabledInternalModules = {}
     local additionalClientFiles = {}
@@ -454,8 +452,7 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
         end
     end
 
-    print(('[^5Core^4V^7] Files copied from "^5%s^7" to "^5%s^7"'):format(GetCurrentResourceName(), GetCurrentResourceName() .. '_client'))
-    print(('[^5Core^4V^7] Generate ^5fxmanifest^7 for "^5%s^7"'):format(GetCurrentResourceName() .. '_client'))
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_fxmanifest', GetCurrentResourceName() .. '_client'))
 
     ---
     local fxManifestTemplate = [[
@@ -573,20 +570,18 @@ resources {
         os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
     end
 
-    print(('[^5Core^4V^7] ^5fxmanifest^7 generated for "^5%s^7"'):format(GetCurrentResourceName() .. '_client'))
-
-    print(('[^5Core^4V^7] Execute command "^5stop %s^7"'):format(GetCurrentResourceName() .. '_client'))
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_command_stop', GetCurrentResourceName() .. '_client'))
 
     ExecuteCommand(('stop %s_client'):format(GetCurrentResourceName()))
 
     Wait(250)
 
-    print('[^5Core^4V^7] Execute command "^5refresh^7"')
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_command_refresh'))
     ExecuteCommand('refresh')
 
     Wait(250)
 
-    print(('[^5Core^4V^7] Execute command "^5start %s^7"'):format(GetCurrentResourceName() .. '_client'))
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_command_start', GetCurrentResourceName() .. '_client'))
     ExecuteCommand(('start %s_client'):format(GetCurrentResourceName()))
 end
 

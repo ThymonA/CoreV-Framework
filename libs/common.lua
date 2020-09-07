@@ -27,25 +27,3 @@ if (SERVER) then
     _ENV.DBNAME = Config.DatabaseName or 'Unknown'
     _G.DBNAME = Config.DatabaseName or 'Unknown'
 end
-
-AddEventHandler('corev:getFrameworkCore', function(cb)
-    Citizen.CreateThread(function()
-        while not resource.tasks.loadingFramework do
-            Citizen.Wait(0)
-        end
-
-        cb({
-            Modules = module.modules or {}
-        })
-    end)
-end)
-
-function getFrameworkCore()
-    while not resource.tasks.loadingFramework do
-        Citizen.Wait(0)
-    end
-
-    return {
-        Modules = module.modules or {}
-    }
-end

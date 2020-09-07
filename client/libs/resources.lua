@@ -281,8 +281,6 @@ function resource:loadTranslations(object)
                     local data = json.decode(content)
 
                     if (data) then
-                        print(resourceName)
-
                         if (CoreV.Translations[resourceName] == nil) then
                             CoreV.Translations[resourceName] = {}
                         end

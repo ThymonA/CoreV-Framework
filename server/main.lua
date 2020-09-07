@@ -9,36 +9,57 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 Citizen.CreateThread(function()
+    resource:loadFrameworkTranslations()
+
     local resourceStarted = os:currentTimeInMilliseconds()
 
-    print('[^5Core^4V^7] Is now loading.....')
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_loading'))
 
     resource:loadAll()
 
     local serverSideLoadedAfter = os:currentTimeInMilliseconds() - resourceStarted
 
-    print(('[^5Core^4V^7] Server been loaded after %s seconds'):format(round(serverSideLoadedAfter / 1000, 2)))
-
-    compiler:generateResource()
-
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
-    local frameworkLoadedAfter = os:currentTimeInMilliseconds() - resourceStarted
+    print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_server_load', round(serverSideLoadedAfter / 1000, 2)))
 
+    compiler:generateResource()
+
+    while not resource.tasks.compileFramework do
+        Citizen.Wait(0)
+    end
+
+    local frameworkLoadedAfter = os:currentTimeInMilliseconds() - resourceStarted
     local numberOfResources, numberOfInternalResources, numberOfModules = resource:countAllLoaded()
-    print(('============= [ ^5Core^4V^7 ] =============\n^2All framework executables are loaded ^7\n=====================================\n-> ^1External Resources:  ^7%s ^7\n-> ^1Internal Resources:  ^7%s ^7\n-> ^1Internal Modules:    ^7%s ^7\n-> ^1Framework Load Time: ^7%s seconds ^7\n=====================================\n^3VERSION: ^71.0.0\n============= [ ^5Core^4V^7 ] =============')
-        :format(numberOfResources, numberOfInternalResources, numberOfModules, round(frameworkLoadedAfter / 1000, 2)))
+
+    print('============= [ ^5Core^4V^7 ] =============\n' .. _(CR(), 'core', 'corev_loaded', numberOfResources, numberOfInternalResources, numberOfModules, round(frameworkLoadedAfter / 1000, 2)) .. '\n============= [ ^5Core^4V^7 ] =============')
+
+    resource.tasks.frameworkLoaded = true
 end)
 
 AddEventHandler('playerConnecting', function(name, setCallback, deferrals)
     deferrals.defer()
 
-    local _source = source
-    
-    while not resource.tasks.loadingFramework do
+    local _source, dots, times = source, '.', 100
+
+    while not resource.tasks.frameworkLoaded do
         Citizen.Wait(0)
+
+        if (times >= 100) then
+            dots = dots .. '.'
+
+            if (string.len(dots) == 4) then
+                dots = '.'
+            end
+
+            deferrals.update(_(CR(), 'core', 'corev_isloading', dots))
+
+            times = 1
+        end
+
+        times = times + 1
     end
 
     triggerPlayerConnecting(_source, deferrals)
@@ -46,8 +67,8 @@ end)
 
 AddEventHandler('playerDropped', function(reason)
     local _source = source
-    
-    while not resource.tasks.loadingFramework do
+
+    while not resource.tasks.frameworkLoaded do
         Citizen.Wait(0)
     end
 
@@ -57,7 +78,7 @@ end)
 onClientTrigger('corev:core:playerLoaded', function()
     local _source = source
 
-    while not resource.tasks.loadingFramework do
+    while not resource.tasks.frameworkLoaded do
         Citizen.Wait(0)
     end
 

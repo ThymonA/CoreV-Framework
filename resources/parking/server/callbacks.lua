@@ -1,6 +1,6 @@
 --- Load player's cars
 registerCallback('corev:parking:loadCars', function(source, cb, category)
-    while not resource.tasks.loadingFramework do
+    while not resource.tasks.frameworkLoaded do
         Citizen.Wait(0)
     end
 
@@ -15,12 +15,12 @@ registerCallback('corev:parking:loadCars', function(source, cb, category)
             ['@type'] = 'car'
         }, function(results)
             local vehicles = {}
-    
+
             if (results == nil or type(results) ~= 'table' or #results <= 0) then
                 cb(vehicles)
                 return
             end
-    
+
             for _, vehicle in pairs(results or {}) do
                 table.insert(vehicles, {
                     plate = vehicle.plate,
@@ -29,7 +29,7 @@ registerCallback('corev:parking:loadCars', function(source, cb, category)
                     status = 1
                 })
             end
-    
+
             cb(vehicles)
         end)
     else

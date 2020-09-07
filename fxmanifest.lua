@@ -117,7 +117,8 @@ corevfiles {
     'hud/ui.html',
     'hud/assets/css/*.css',
     'hud/assets/images/*.png',
-    'hud/assets/js/*.js'
+    'hud/assets/js/*.js',
+    'langs/*.json'
 }
 
 ---

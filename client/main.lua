@@ -29,7 +29,7 @@ Citizen.CreateThread(function()
 			TSE('corev:core:playerLoaded')
 			return
         end
-        
+
         Citizen.Wait(0)
 	end
 end)

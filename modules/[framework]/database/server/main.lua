@@ -314,7 +314,7 @@ onPlayerConnecting(function(source, returnSuccess, returnError, deferrals)
 
     while not database.isReady do
         if (not textUpdated) then
-            deferrals.update()
+            deferrals.update(_(CR(), 'database', 'database_not_started'))
         end
 
         Citizen.Wait(0)

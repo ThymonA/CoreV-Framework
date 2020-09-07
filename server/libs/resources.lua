@@ -20,7 +20,9 @@ resource:set {
     tasks = {
         loadingInternalStructures = false,
         loadingExecutables = false,
-        loadingFramework = false
+        loadingFramework = false,
+        compileFramework = false,
+        frameworkLoaded = false
     }
 }
 
@@ -241,6 +243,31 @@ function resource:getFrameworkMigrations(name, _type)
     end
 
     return results
+end
+
+--- Load translations for framework, not modules or resources
+function resource:loadFrameworkTranslations()
+    local currentLanguage = string.lower(LANGUAGE) or 'en'
+    local resourceName = GetCurrentResourceName()
+    local content = LoadResourceFile(GetCurrentResourceName(), ('langs/%s.json'):format(currentLanguage))
+
+    if (content) then
+        local data = json.decode(content)
+
+        if (data) then
+            if (CoreV.Translations[resourceName] == nil) then
+                CoreV.Translations[resourceName] = {}
+            end
+
+            if (CoreV.Translations[resourceName]['core'] == nil) then
+                CoreV.Translations[resourceName]['core'] = {}
+            end
+
+            for _key, _value in pairs(data or {}) do
+                CoreV.Translations[resourceName]['core'][_key] = _value
+            end
+        end
+    end
 end
 
 --- Generates a framework manifest for Resource/Module
@@ -726,7 +753,7 @@ end
 
 --- Sent internal structures to client
 registerCallback('corev:resource:loadStructure', function(source, cb)
-    while not resource.tasks.loadingFramework do
+    while not resource.tasks.frameworkLoaded do
         Citizen.Wait(0)
     end
 
