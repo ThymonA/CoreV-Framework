@@ -395,6 +395,21 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
         local internalModuleName = internalModule.name
 
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+            local frameworkFilePath = ('%s/debug/internal_modules/client/%s_client.lua'):format(frameworkPath, internalModuleName)
+            local frameworkClientFilePath = ('%s/client/%s_module_client.lua'):format(clientPath, internalModuleName)
+
+            if (addedModules[internalModuleName] == nil) then
+                table.insert(additionalClientFiles, ('client/%s_module_client.lua'):format(internalModuleName))
+            end
+
+            frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+            frameworkFilePath = string.replace(frameworkFilePath, '/', '\\')
+            frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+
+            os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             local frameworkFilePath = ('%s/debug/internal_modules/client/%s_client.lua'):format(frameworkPath, internalModuleName)
             local frameworkClientFilePath = ('%s/client/%s_module_client.lua'):format(clientPath, internalModuleName)
@@ -418,6 +433,19 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
         local internalResourceName = internalResource.name
 
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+            local frameworkFilePath = ('%s/debug/internal_resources/client/%s_client.lua'):format(frameworkPath, internalResourceName)
+            local frameworkClientFilePath = ('%s/client/%s_resource_client.lua'):format(clientPath, internalResourceName)
+
+            table.insert(additionalClientFiles, ('client/%s_resource_client.lua'):format(internalResourceName))
+
+            frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+            frameworkFilePath = string.replace(frameworkFilePath, '/', '\\')
+            frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+
+            os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             local frameworkFilePath = ('%s/debug/internal_resources/client/%s_client.lua'):format(frameworkPath, internalResourceName)
             local frameworkClientFilePath = ('%s/client/%s_resource_client.lua'):format(clientPath, internalResourceName)
@@ -437,6 +465,17 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
 
     for _, publicFile in pairs(publicFiles or {}) do
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+            local frameworkFilePath = ('%s/%s'):format(frameworkPath, publicFile)
+            local frameworkClientFilePath = ('%s/%s'):format(clientPath, publicFile)
+
+            frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+            frameworkFilePath = string.replace(frameworkFilePath, '/', '\\')
+            frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
+            frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+
+            os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             local frameworkFilePath = ('%s/%s'):format(frameworkPath, publicFile)
             local frameworkClientFilePath = ('%s/%s'):format(clientPath, publicFile)
@@ -556,6 +595,17 @@ resources {
     SaveResourceFile(GetCurrentResourceName(), 'debug/__fxmanifest.lua', fxManifest)
 
     if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+        local frameworkFilePath = ('%s/debug/__fxmanifest.lua'):format(frameworkPath)
+        local frameworkClientFilePath = ('%s/fxmanifest.lua'):format(clientPath)
+
+        frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+        frameworkFilePath = string.replace(frameworkFilePath, '/', '\\')
+        frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+        frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+        frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
+        frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+
+        os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
     elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
         local frameworkFilePath = ('%s/debug/__fxmanifest.lua'):format(frameworkPath)
         local frameworkClientFilePath = ('%s/fxmanifest.lua'):format(clientPath)
