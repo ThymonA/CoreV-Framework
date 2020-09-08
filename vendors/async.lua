@@ -20,16 +20,22 @@ async:set {
 --- @param params table Parameters
 --- @param cb function Callback function
 function async:parallel(func, params, cb)
-    if (#params == 0) then
+    if (#params == 0 and params == {}) then
         if (cb ~= nil) then cb({}) end
         return
     end
 
     local remaining, results = #params, {}
 
-    for i = 1, #params, 1 do
+    if (remaining == 0) then
+        for _, __ in pairs(params or {}) do
+            remaining = remaining + 1
+        end
+    end
+
+    for _, param in pairs(params or {}) do
         self.createThread(function()
-            func(params[i], function(result)
+            func(param, function(result)
                 table.insert(results, result)
 
                 remaining = remaining - 1;

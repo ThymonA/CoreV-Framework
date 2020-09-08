@@ -199,10 +199,10 @@ function resource:loadFrameworkExecutables()
     end
 
     --- Add all internal executable resources
-    for i, internalResource in pairs(self.internalResourceStructure or {}) do
+    for _, internalResource in pairs(self.internalResourceStructure or {}) do
         local internalResourceEnabled = false
 
-        for i2, internalResourceName in pairs(enabledInternalResources or {}) do
+        for _, internalResourceName in pairs(enabledInternalResources or {}) do
             if (string.lower(internalResourceName) == string.lower(internalResource.name)) then
                 internalResourceEnabled = true
             end
@@ -226,10 +226,10 @@ function resource:loadFrameworkExecutables()
     end
 
     --- Add all internal executable modules
-    for i, internalModule in pairs(self.internalModuleStructure or {}) do
+    for _, internalModule in pairs(self.internalModuleStructure or {}) do
         local internalModuleEnabled = false
 
-        for i2, internalModuleName in pairs(enabledInternalModules or {}) do
+        for _, internalModuleName in pairs(enabledInternalModules or {}) do
             if (string.lower(internalModuleName) == string.lower(internalModule.name)) then
                 internalModuleEnabled = true
             end

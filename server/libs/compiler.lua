@@ -14,9 +14,7 @@ compiler = class('compiler')
 compiler:set {
     externalResources = {},
     internalResources = {},
-    internalModules = {},
-    tasks = {
-    }
+    internalModules = {}
 }
 
 --- Returns a list of files of given path
@@ -667,7 +665,7 @@ end
 
 --- Reload all client files
 function compiler:reloadClientFiles()
-    local async, asyncTaskDone, pathsCreated, clientResourceName = m('async'), false, {}, ('%s_client'):format(GetCurrentResourceName())
+    local clientResourceName = ('%s_client'):format(GetCurrentResourceName())
 
     local frameworkManifest = self:loadCurrentResourceManifest()
     local fileStructure = self:loadCurrentResourceFileStructure()
@@ -680,48 +678,6 @@ function compiler:reloadClientFiles()
 
     if (not string.endswith(frameworkPath, '/')) then frameworkPath = frameworkPath .. '/' end
     if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
-
-    --- Create all required directories
-    async:parallel(function(file, cb)
-        local currentFileLocation = frameworkPath .. file
-        local newFileLocation = frameworkClientPath .. file
-
-        currentFileLocation = string.replace(currentFileLocation, '\\\\', '\\')
-        currentFileLocation = string.replace(currentFileLocation, '\\', '/')
-        currentFileLocation = string.replace(currentFileLocation, '//', '/')
-        newFileLocation = string.replace(newFileLocation, '\\\\', '\\')
-        newFileLocation = string.replace(newFileLocation, '\\', '/')
-        newFileLocation = string.replace(newFileLocation, '//', '/')
-
-        local filePathInfo = string.split(file, '/')
-        local currentFilePath = nil
-
-        compiler:createDirectoryIfNotExists(clientResourcePath)
-
-        for _, pathInfo in pairs(filePathInfo or {}) do
-            if (currentFilePath == nil and string.find(pathInfo, '.', 1, true) == nil) then
-                currentFilePath = pathInfo
-            elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory' and not (string.find(pathInfo, '.', 1, true) or false)) then
-                currentFilePath = currentFilePath .. '/' .. pathInfo
-            else
-                break
-            end
-        end
-
-        if (pathsCreated[currentFilePath] == nil) then
-            pathsCreated[currentFilePath] = currentFilePath
-
-            if (not (string.find(frameworkClientPath .. currentFilePath, '.', 1, true) or false)) then
-                compiler:createDirectoryIfNotExists(frameworkClientPath .. currentFilePath)
-            end
-        end
-
-        cb()
-    end, publicFiles, function()
-        asyncTaskDone = true
-    end)
-
-    repeat Wait(0) until asyncTaskDone == true
 
     self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles)
 end
