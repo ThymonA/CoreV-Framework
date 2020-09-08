@@ -1,6 +1,10 @@
-﻿
-@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
+﻿@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css');
 @import url("https://fonts.googleapis.com/css?family=Barlow+Condensed:100,200,300,400,500,600,700,800,900");
+@import url("https://fonts.googleapis.com/css?family=K2D:100,200,300,400,500,600,700,800,900");
+
+::-webkit-scrollbar {
+    display: none;
+}
 
 *, *:before, *:after {
     -webkit-box-sizing: border-box;
@@ -11,7 +15,27 @@
     -moz-osx-font-smoothing: grayscale;
     margin: 0;
     padding: 0;
+    font-family: 'K2D', sans-serif;
 }
+
+.fab,
+.fab:before,
+.fab:after {
+    font-family: "Font Awesome 5 Brands";
+}
+
+.fa,
+.fa:before,
+.fa:after,
+.far,
+.far:before,
+.far:after,
+.fas,
+.fas:before,
+.fas:after {
+    font-family: "Font Awesome 5 Free";
+}
+
 html {
     display: grid;
     min-height: 100%;
@@ -20,21 +44,22 @@ html {
 body {
 /*background: url('https://i.imgur.com/MoYBh1e.jpg') center center no-repeat;*/
     background-size: cover;
-    font-family: 'Barlow Condensed', sans-serif;
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
+
 #ui {
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
 }
+
 div.separator {
     display: block;
     clear: both;
     width: 100%;
 }
+
 .icon {
     display: block;
     position: relative;
@@ -43,9 +68,9 @@ div.separator {
     width: 30px;
     height: 30px;
     border-radius: 0;
-    overflow: hidden;
     border: none;
 }
+
 .icon i {
     position: absolute;
     left: 50%;
@@ -55,10 +80,12 @@ div.separator {
     z-index: 11;
     font-size: 15px;
 }
+
 .icon img {
     width: 16px;
     margin: -3px 0 0 0;
 }
+
 .icon span {
     display: block;
     position: absolute;
@@ -75,6 +102,7 @@ div.separator {
     height: 30px;
     padding: 0;
 }
+
 .icon.text i {
     display: inline-block;
     float: left;
@@ -89,12 +117,14 @@ div.separator {
     border-radius: 100px;
     color: #FFF;
 }
+
 .icon.text i:before {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%,-50%);
 }
+
 .icon.text span {
     position: relative;
     width: auto;
@@ -107,9 +137,11 @@ div.separator {
     font-weight: 700;
     color: #FFF;
 }
+
 .icon.dying:not(.customstatus) span {
     animation: trew-status-blink 500ms infinite;
 }
+
 .icon.pulse i {
     animation: trew-pulse 500ms 1;
 }
@@ -184,7 +216,7 @@ div.separator {
     background-color: rgba(0,0,0,0.4);
     top: 6px;
     padding: 0;
-    border-radius: 10px 0 0 10px;
+    border-radius: 5px 0 0 5px;
 }
 
 .icon div.job_logo span.job_logo {
@@ -193,34 +225,39 @@ div.separator {
     width: calc(100% + 4px);
     vertical-align: middle;
     margin-top: -10px;
-    font-family: 'Arial';
     font-weight: 900;
 }
 
 .info {
     position: absolute;
 }
+
 .info.server {
     top: 45px;
     right: 26px;
     width: 90px;
     height: 90px;
 }
+
 .info.server #server img {
     max-width: 100%;
     opacity: 0.75;
 }
+
 .info.player {
     top: 140px;
     right: 35px;
     text-align: left;
 }
+
 .info.player div#job i.fas, .info.player div#job2 i.fas {
     color: white;
 }
+
 .info.player #money i {
     color: white;
 }
+
 .info.player span#job_name, .info.player span#job2_name {
     font-size: 12px;
     color: #fedc00;
@@ -231,29 +268,33 @@ div.separator {
     padding: 10px;
     top: 6px;
     margin-right: 2px;
-    width: calc(100% + 32px);
-    border-radius: 0 10px 0 0;
+    width: calc(100% + 22px);
+    border-radius: 0 5px 0 0;
 }
+
 .info.player span#job_grade, .info.player span#job2_grade {
     color: black;
     display: inline-block;
     background-color: #fedc00;
-    width: calc(100% + 32px);
+    width: calc(100% + 22px);
     top: 8px;
     font-size: 10px;
     text-align: left;
     vertical-align: middle;
     padding: 3px 12px;
     font-weight: bold;
-    border-radius: 0 0 10px 0;
+    border-radius: 0 0 5px 0;
 }
+
 .info.player #money div[id] {
     float: right;
 }
+
 .info.player #money {
     clear: both;
     min-width: 200px;
 }
+
 .info.player #money strong {
     font-size: 12px;
     color: #fedc00;
@@ -263,9 +304,11 @@ div.separator {
     margin-top: 7.5px;
     line-height: 0.75em;
 }
+
 .info.player #money span::before {
     content: '€ ';
 }
+
 .info.player #money span {
     font-size: 12px;
     color: white;
@@ -275,15 +318,19 @@ div.separator {
     text-align: right;
     line-height: 0.5em;
 }
+
 .info.player #money #wallet i {
     background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
 }
+
 .info.player #money #blackMoney i {
     background: linear-gradient(180deg, #474747 0%, #252525 100%);
 }
+
 .info.player #money #bank i {
     background: linear-gradient(180deg, #c70a0a 0%, #960505 100%);
 }
+
 .info.player #money #society i {
     background: linear-gradient(180deg, #874c14 0%, #6a3c10 100%);
 }
@@ -294,26 +341,32 @@ div.separator {
     margin: 0;
     top: 173px;
 }
+
 .info.status.status-bar {
     top: 150px;
 }
+
 .info.status.status-bar li {
     height: 5px;
     min-height: 20px;
     border: none !important;
     color: white;
 }
+
 .info.status.status-bar li span {
     background: rgba(0,0,0,0.4) !important;
 }
+
 .info.status li {
     display: inline-block;
 }
+
 .info.status li.icon {
     width: 52px;
     margin: -3px;
     border: 1px solid rgba(0,0,0,0.3);
 }
+
 .info.status li.icon div.bar-status {
     position: absolute;
     top: 0;
@@ -321,93 +374,118 @@ div.separator {
     margin-top: -10px;
     z-index: 9999;
 }
+
 .info.status li:first-child {
     border-radius: 0 0 0 10px;
 }
+
 .info.status.status-bar li:first-child {
     border-radius: 10px 0 0 0;
 }
+
 .info.status li:last-child {
     border-radius: 0 0 10px 0;
 }
+
 .info.status.status-bar li:last-child {
     border-radius: 0 10px 0 0;
 }
+
 .info.status #status {
     clear: both;
 }
+
 .info.status #status ul {
     margin: 10px 0 0 0;
 }
+
 .info.status #status ul li#health span {
     background: #fe0000;
 }
+
 .info.status #status ul li#armor span {
     background: #5c9600;
 }
+
 .info.status #status ul li#stamina span {
     background: linear-gradient(180deg, #ffb700 0%, #e0a102 100%);
 }
+
 .info.status #status ul li#hunger span {
     background: #d87732;
 }
+
 .info.status #status ul li#thirst span {
     background: #00a0fe;
 }
+
 .info.status #status ul li#health.dead {
     animation: trew-pulse 500ms infinite;
 }
+
 .info.status #status ul li#health.dead span {
     height: 0 !important;
 }
+
 .info.status #status ul li#health.dead i.fas:before {
     content: '\f714';
 }
+
 .info.status #status ul li#voice {
     border-radius: 0;
-    overflow: hidden;
     background: linear-gradient(180deg, rgba(24, 183, 11, 0.7) 0%, rgba(18, 140, 8, 0.6) 100%);
     text-align: center;
     padding: 7px 0 0 0;
     transition: all 0.1s linear;
 }
+
 .info.status.status-bar #status ul li#voice {
     background: rgba(0,0,0,0.0) !important;
 }
+
 .info.status.status-bar li i {
     font-size: 12px;
 }
+
 .info.status #status ul li#voice i.fas {
     color: #FFF;
 }
+
 .info.status #status ul li#voice.whisper span {
     background: linear-gradient(180deg, #ffb700 0%, #e0a102 100%);
 }
 .info.status #status ul li#voice.normal span {
     background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
 }
+
 .info.status #status ul li#voice.shout span {
     background: linear-gradient(180deg, #ff0000 0%, #aa0000 100%);
 }
+
 .info.status #status ul li#voice.speak {
     overflow: visible;
 }
+
 .info.status #status ul li#voice.speak span {
     animation: trew-soundwave 1s infinite;
     border-radius: 50%;
 }
+
 .info.weapon {
     bottom: 15px;
     right: 25px;
 }
+
 .info.weapon.armed {
     display: block;
     opacity: 1;
 }
+
 .info.weapon.unarmed {
     display: none;
     opacity: 0;
 }
+
 .info.weapon #weapon_image {
     float: left;
     width: 200px;
@@ -415,6 +493,7 @@ div.separator {
     text-align: left;
     position: relative;
 }
+
 .info.weapon #weapon_image img {
     position: absolute;
     top: 50%;
@@ -422,6 +501,7 @@ div.separator {
     transform: translateY(-50%);
     height: 40px;
 }
+
 .info.weapon #weapon_bullets {
     color: #FFF;
     float: left;
@@ -429,15 +509,18 @@ div.separator {
     text-shadow: 0px 1px 1px rgba(0,0,0,0.75);
     line-height: 1;
 }
+
 .info.weapon #weapon_bullets .clip {
     font-weight: 900;
     font-size: 22px;
 }
+
 .info.weapon #weapon_bullets .ammo {
     font-weight: 700;
     font-size: 16px;
     opacity: 0.7;
 }
+
 .info.weapon #bullets {
     margin: 0;
     float: left;
@@ -445,6 +528,7 @@ div.separator {
     overflow: visible;
     transform: scale(1.1);
 }
+
 .info.weapon #bullets i {
     color: #FFF;
     float: right;
@@ -452,6 +536,7 @@ div.separator {
     width: 34px;
     border-radius: 100px;
 }
+
 .info.weapon #bullets i.clone {
     background: none;
     position: absolute;
@@ -461,162 +546,176 @@ div.separator {
     left: 10px;
     opacity: 0;
 }
+
 .info.weapon #bullets.shooting i.clone {
     animation: trew-bullets 250ms 1;
 }
+
 .info.weapon #bullets i img {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%,-35%);
 }
+
 .radio, .info.radio {
     clear: both;
 }
+
 .radio #voice, .info.radio #voice {
     width: 35px;
     height: 35px;
     border-radius: 50%;
-    overflow: hidden;
     background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
     text-align: center;
     padding: 7px 0 0 0;
     transition: all 0.1s linear;
 }
+
 .radio #voice.whisper, .info.radio #voice.whisper {
     background: linear-gradient(180deg, #ffb700 0%, #e0a102 100%);
 }
+
 .radio #voice.normal, .info.radio #voice.normal {
     background: linear-gradient(180deg, #18b70b 0%, #128c08 100%);
 }
+
 .radio #voice.shout, .info.radio #voice.shout {
     background: linear-gradient(180deg, #ff0000 0%, #aa0000 100%);
 }
+
 .radio #voice i.fas, .info.radio #voice i.fas {
     font-size: 18px;
     color: #FFF;
 }
+
 .radio #voice.speak, .info.radio #voice.speak {
     animation: trew-soundwave 1s infinite;
 }
+
 @keyframes trew-siren {
     0% {
         border-color: rgba(255,0,0,0);
         box-shadow: 0 0 10px 10px rgba(255,0,0,0);
-   }
+    }
     50% {
         border-color: rgba(255,0,0,1);
         box-shadow: 0 0 10px 10px rgba(255,0,0,0.50);
-   }
+    }
     100% {
         border-color: rgba(255,0,0,0);
         box-shadow: 0 0 10px 10px rgba(255,0,0,0);
-   }
+    }
 }
+
 @keyframes trew-soundwave {
     0% {
         box-shadow: 0 0 0 0px rgba(255,255,255,0.75);
-   }
+    }
     100% {
         box-shadow: 0 0 0 8px rgba(255,255,255,0);
-   }
+    }
 }
+
 @keyframes trew-status-blink {
     0% {
         opacity: 0;
-   }
+    }
     50% {
         opacity: 1;
-   }
+    }
     100% {
         opacity: 0;
-   }
+    }
 }
+
 @keyframes trew-pulse {
     0% {
         transform: scale(1);
-   }
+    }
     25% {
         transform: scale(1.5);
-   }
+    }
     100% {
         transform: scale(1);
-   }
+    }
 }
+
 @keyframes trew-speed {
     0% {
         stroke-dashoffset: 280;
-   }
+    }
     50% {
         stroke-dashoffset: 75;
-   }
+    }
     100% {
         stroke-dashoffset: 280;
-   }
+    }
 }
+
 @keyframes trew-bullets {
     0% {
         opacity: 0;
-   }
+    }
     25% {
         opacity: 1;
-   }
+    }
     100% {
         transform: translate(30px,-60px) rotate(90deg);
         opacity: 0;
-   }
+    }
 }
+
 @keyframes trew-rainbow{
     100%, 0%{
         background: rgba(255,0,0,0.70);
-   }
+    }
     8%{
         background: rgba(255,127,0,0.70);
-   }
+    }
     16%{
         background: rgba(230,205,23,0.70);
-   }
+    }
     25%{
         background: rgba(127,255,0,0.70);
-   }
+    }
     33%{
         background: rgba(0,255,0,0.70);
-   }
+    }
     41%{
         background: rgba(0,255,127,0.70);
-   }
+    }
     50%{
         background: rgba(0,255,255,0.70);
-   }
+    }
     58%{
         background: rgba(0,127,255,0.70);
-   }
+    }
     66%{
         background: rgba(0,0,255,0.70);
-   }
+    }
     75%{
         background: rgba(127,0,255,0.70);
-   }
+    }
     83%{
         background: rgba(255,0,255,0.70);
-   }
+    }
     91%{
         background: rgba(255,0,127,0.70);
-   }
+    }
 }
 
 .corev-menu {
-    position: absolute;
-        
-  }
-  
-  .align-center-left {
+    position: absolute;    
+}
+
+.align-center-left {
     top: 50%;
     transform: translateY(-50%) perspective(30em) rotateY(10deg);
     left: 3.5em;
-  }
-  
-  .corev-menu .corev-menu-head {
+}
+
+.corev-menu .corev-menu-head {
     text-transform  : uppercase;
     font-size       : 1em;
     background-color: black;
@@ -630,9 +729,9 @@ div.separator {
     background-position: center;
     border-radius   : 10px 10px 0 0;
     border-bottom   : none;
-  }
-  
-  .corev-menu .corev-menu-category {
+}
+
+.corev-menu .corev-menu-category {
     font-size       : 1em;
     height          : 35px;
     line-height     : 35px;
@@ -647,16 +746,15 @@ div.separator {
     text-align      : left;
     top             : 0px;
     letter-spacing  : 1px;
-  }
-  
-  .corev-menu .corev-menu-items {
-    overflow-y      : hidden;
+}
+
+.corev-menu .corev-menu-items {
     background-color: rgba(0, 0, 0, 0.4);
     border-radius   : 0 0 10px 10px;
     border-top      : none;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-item {
+}
+
+.corev-menu .corev-menu-items .corev-menu-item {
     display         : block;
     font-size       : 1em;
     height          : 40px;
@@ -669,50 +767,50 @@ div.separator {
     min-width       : 300px;
     font-weight     : 500;
     letter-spacing  : 1px;
-  }
+}
 
-  .corev-menu .corev-menu-items .corev-menu-item img {
+.corev-menu .corev-menu-items .corev-menu-item img {
     max-height      : 40px;
     line-height     : 40px;
     max-width       : 40px;
     display         : flex;
     float           : left;
     margin-right    : 1em;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-item.selected {
+}
+
+.corev-menu .corev-menu-items .corev-menu-item.selected {
     background-color: #fedc00;
     color :black;
     font-weight: 800;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-item.disabled {
+}
+
+.corev-menu .corev-menu-items .corev-menu-item.disabled {
     color: gray;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-item i {
+}
+
+.corev-menu .corev-menu-items .corev-menu-item i {
     position        : absolute;
     right           : 0.5em;
     height          : 40px;
     line-height     : 40px;
     font-size       : 1.5em;
-  }
+}
 
-  .corev-menu .corev-menu-items .corev-menu-item span.item-info {
+.corev-menu .corev-menu-items .corev-menu-item span.item-info {
     width: 100%;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-item span span {
+}
+
+.corev-menu .corev-menu-items .corev-menu-item span span {
     color           : #fedc00;
     margin-right    : 1em;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-item.selected span span {
+}
+
+.corev-menu .corev-menu-items .corev-menu-item.selected span span {
     color           : black;
     font-weight     : 900;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-border {
+}
+
+.corev-menu .corev-menu-items .corev-menu-border {
     display         : block;
     font-size       : 1em;
     height          : 1.5em;
@@ -726,15 +824,15 @@ div.separator {
     background-color: black;
     font-weight     : 800;
     text-transform  : uppercase;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-border span span {
+}
+
+.corev-menu .corev-menu-items .corev-menu-border span span {
     font-weight: 500;
     margin-left: 5px;
     margin-right: 5px;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-description {
+}
+
+.corev-menu .corev-menu-items .corev-menu-description {
     display         : block;
     font-size       : 1em;
     min-height      : 40px;
@@ -746,9 +844,417 @@ div.separator {
     justify-content : space-between;
     min-width       : 300px;
     text-transform  : uppercase;
-  }
-  
-  .corev-menu .corev-menu-items .corev-menu-description span span {
+}
+
+.corev-menu .corev-menu-items .corev-menu-description span span {
     font-weight     : 700;
     color           : #fedc00;
-  }
+}
+
+.core-chat-container {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 350px;
+    height: 450px;
+    float: left;
+    z-index: 1;
+}
+
+.core-chat-messages {
+    position: absolute;
+    background: #F9FBFF;
+    opacity: 0.5;
+    width: 30%;
+    height: 70%;
+    top: 2.5%;
+    left: 5%;
+    border-radius: 5px 0 0 5px;
+    box-shadow: -5px 5px 10px rgba(119, 119, 119, 0.5);
+}
+
+/*chat messages */
+.core-chat-people {
+    position: absolute;
+    list-style-type: none;
+    width: 30.2%;
+    left: -10px;
+    top: 24.7%;
+    line-height: 0.7em;
+}
+
+.core-chat-people .core-chat-title {
+    text-transform: uppercase;
+    font-size: 0.7em;
+    margin-left: 14px;
+    letter-spacing: 1px;
+    color: #777777;
+}
+
+.core-chat-people .core-chat-time {
+    font-size: 0.3em;
+    color: #777777;
+    position: absolute;
+    right: 10px;
+    margin-top: 2px;
+}
+
+.core-chat-people .core-chat-preview {
+    color: #79C7C5;
+    margin-left: 14px;
+    font-size: 0.5em;
+}
+
+.core-chat-person {
+    padding: 12px 0 12px 12px;
+    border-bottom: 1px solid #79C7C5;
+    cursor: pointer;
+}
+
+.core-chat-person:hover {
+    background: #F9FBFF;
+    transition: all 0.3s ease-in-out;
+}
+
+.core-chat-focus {
+    background: #F9FBFF;
+    margin-left: 1px;
+}
+
+.core-chat-profile {
+    position: absolute;
+    left: 16%;
+    top: 7%;
+}
+
+.core-chat-name2 {
+    position: absolute;
+    top: 50px;
+    left: 2px;
+    text-transform: uppercase;
+    color: #79C7C5;
+    font-size: 0.8em;
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+.core-chat-email {
+    color: #F9FBFF;
+    font-size: 0.5em;
+    margin-left: -30px;
+    margin-top: 2px;
+}
+
+.core-chat-chatbox {
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    height: 30%;
+    width: 60%;
+    border-radius: 10px;
+}
+
+.core-chat-top-bar {
+    width: 100%;
+    height: 25px;
+    background: #F9FBFF;
+    border-radius: 10px 10px 0 0;
+}
+
+.core-chat-avatar {
+    width: 35px;
+    height: 35px;
+    background: linear-gradient(to bottom left, #79C7C5 20%, #A1E2D9 100%);
+    border-radius: 50%;
+    position: absolute;
+    top: 11px;
+    left: 15px;
+}
+
+.core-chat-avatar p {
+    color: #F9FBFF;
+    margin: 7px 12px;
+}
+
+.core-chat-name {
+    position: absolute;
+    top: 22px;
+    text-transform: uppercase;
+    color: #777777;
+    font-size: 0.8em;
+    letter-spacing: 2px;
+    font-weight: 500;
+    left: 25px;
+}
+
+.core-chat-menu {
+    position: absolute;
+    right: 10px;
+    top: 20px;
+    width: 10px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.core-chat-menu:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in;
+}
+
+.core-chat-icons {
+    position: absolute;
+    color: #A1E2D9;
+    padding: 10px;
+    top: 5px;
+    right: 21px;
+    cursor: pointer;
+}
+
+.core-chat-icons .fas {
+    padding: 5px;
+    opacity: 0.8;
+}
+
+.core-chat-icons .fas:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in;
+}
+
+.core-chat-dots {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #79C7C5;
+    box-shadow: 0px 7px 0px #79C7C5, 0px 14px 0px #79C7C5;
+}
+
+.core-chat-middle {
+    width: 100%;
+    max-width: 450px;
+    height: 100%;
+    border-radius: 10px 10px 0 0;
+    padding-top: 10px;
+    left: 0;
+    top: 0;
+    position: fixed;
+}
+
+.core-chat-incoming {
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    padding: 20px;
+}
+
+.core-chat-incoming .core-chat-bubble {
+    background: #b2b2b2;
+}
+
+.core-chat-ellipsis {
+    width: 5px;
+    height: 5px;
+    display: inline-block;
+    background: #b7b7b7;
+    border-radius: 50%;
+    animation: bounce 1.3s linear infinite;
+}
+
+.core-chat-one {
+    animation-delay: 0.6s;
+}
+
+.core-chat-two {
+    animation-delay: 0.5s;
+}
+
+.core-chat-three {
+    animation-delay: 0.8s;
+}
+
+.core-chat-bubble {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 5px;
+    color: #F9FBFF;
+    font-size: 0.7em;
+    padding: 10px 10px 10px 12px;
+    border-radius: 5px;
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+}
+
+.core-chat-inner-messages,
+.core-chat-voldemort {
+    width: 100%;
+    max-width: calc(100% - 10px);
+    overflow: scroll;
+    max-height: 300px;
+}
+
+.core-chat-inner-messages .core-chat-bubble {
+    width: 100%;
+    max-width: 410px;
+    margin-left: 10px;
+    margin-top: 5px;
+    font-weight: 500;
+    padding-right: 35px;
+    font-size: 0.7em;
+}
+
+.core-chat-inner-messages .core-chat-bubble i {
+    margin-right: 5px;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+.core-chat-inner-messages .core-chat-bubble span.core-chat-sender {
+    font-weight: 900;
+    margin-right: 5px;
+    margin-left: 0;
+    border-radius: 5px;
+    line-height: 20px;
+    padding: 0;
+}
+
+.core-chat-inner-messages .core-chat-time {
+    color: white;
+    position: absolute;
+    right: 10px;
+    font-weight: 900;
+    font-size: 12px;
+}
+
+.core-chat-bubble.core-chat-twitter {
+    background: rgba(0,19,112,1);
+    background: -moz-linear-gradient(left, rgba(0,19,112,1) 0%, rgba(32,124,229,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(0,19,112,1)), color-stop(100%, rgba(32,124,229,1)));
+    background: -webkit-linear-gradient(left, rgba(0,19,112,1) 0%, rgba(32,124,229,1) 100%);
+    background: -o-linear-gradient(left, rgba(0,19,112,1) 0%, rgba(32,124,229,1) 100%);
+    background: -ms-linear-gradient(left, rgba(0,19,112,1) 0%, rgba(32,124,229,1) 100%);
+    background: linear-gradient(to right, rgba(0,19,112,1) 0%, rgba(32,124,229,1) 100%);
+}
+
+.core-chat-bubble.core-chat-advertisment {
+    background: rgba(229,199,31,1);
+    background: -moz-linear-gradient(left, rgba(229,199,31,1) 0%, rgba(255,242,0,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(229,199,31,1)), color-stop(100%, rgba(255,242,0,1)));
+    background: -webkit-linear-gradient(left, rgba(229,199,31,1) 0%, rgba(255,242,0,1) 100%);
+    background: -o-linear-gradient(left, rgba(229,199,31,1) 0%, rgba(255,242,0,1) 100%);
+    background: -ms-linear-gradient(left, rgba(229,199,31,1) 0%, rgba(255,242,0,1) 100%);
+    background: linear-gradient(to right, rgba(229,199,31,1) 0%, rgba(255,242,0,1) 100%);
+    color: black;
+}
+
+.core-chat-bubble.core-chat-advertisment .core-chat-time {
+    color: black;
+}
+
+.core-chat-bubble.core-chat-me {
+    background: rgba(92,0,112,1);
+    background: -moz-linear-gradient(left, rgba(92,0,112,1) 0%, rgba(133,31,229,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(92,0,112,1)), color-stop(100%, rgba(133,31,229,1)));
+    background: -webkit-linear-gradient(left, rgba(92,0,112,1) 0%, rgba(133,31,229,1) 100%);
+    background: -o-linear-gradient(left, rgba(92,0,112,1) 0%, rgba(133,31,229,1) 100%);
+    background: -ms-linear-gradient(left, rgba(92,0,112,1) 0%, rgba(133,31,229,1) 100%);
+    background: linear-gradient(to right, rgba(92,0,112,1) 0%, rgba(133,31,229,1) 100%);
+}
+
+.core-chat-bubble.core-chat-ooc {
+    background: rgba(87,87,87,1);
+    background: -moz-linear-gradient(left, rgba(87,87,87,1) 0%, rgba(138,138,138,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(87,87,87,1)), color-stop(100%, rgba(138,138,138,1)));
+    background: -webkit-linear-gradient(left, rgba(87,87,87,1) 0%, rgba(138,138,138,1) 100%);
+    background: -o-linear-gradient(left, rgba(87,87,87,1) 0%, rgba(138,138,138,1) 100%);
+    background: -ms-linear-gradient(left, rgba(87,87,87,1) 0%, rgba(138,138,138,1) 100%);
+    background: linear-gradient(to right, rgba(87,87,87,1) 0%, rgba(138,138,138,1) 100%);
+}
+
+.core-chat-bubble.core-chat-adminmessage {
+    background: rgba(189,0,0,1);
+    background: -moz-linear-gradient(left, rgba(189,0,0,1) 0%, rgba(171,0,0,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(189,0,0,1)), color-stop(100%, rgba(171,0,0,1)));
+    background: -webkit-linear-gradient(left, rgba(189,0,0,1) 0%, rgba(171,0,0,1) 100%);
+    background: -o-linear-gradient(left, rgba(189,0,0,1) 0%, rgba(171,0,0,1) 100%);
+    background: -ms-linear-gradient(left, rgba(189,0,0,1) 0%, rgba(171,0,0,1) 100%);
+    background: linear-gradient(to right, rgba(189,0,0,1) 0%, rgba(171,0,0,1) 100%);
+}
+
+.core-chat-lower {
+    margin-top: 45px;
+}
+
+.core-chat-outgoing {
+    position: absolute;
+    padding: 20px;
+    right: 0;
+    top: 15%;
+    width: 50%;
+    height: 100%;
+}
+
+.core-chat-outgoing .core-chat-bubble {
+    background: #79C7C5;
+    float: right;
+}
+
+.core-chat-bottom-bar {
+    position: fixed;
+    width: 410px;
+    height: 50px;
+    top: 320px;
+    margin-left: 10px;
+    left: 0;
+    background: rgba(54,54,54,1);
+    background: -moz-linear-gradient(left, rgba(54,54,54,1) 0%, rgba(0,0,0,1) 100%);
+    background: -webkit-gradient(left top, right top, color-stop(0%, rgba(54,54,54,1)), color-stop(100%, rgba(0,0,0,1)));
+    background: -webkit-linear-gradient(left, rgba(54,54,54,1) 0%, rgba(0,0,0,1) 100%);
+    background: -o-linear-gradient(left, rgba(54,54,54,1) 0%, rgba(0,0,0,1) 100%);
+    background: -ms-linear-gradient(left, rgba(54,54,54,1) 0%, rgba(0,0,0,1) 100%);
+    background: linear-gradient(to right, rgba(54,54,54,1) 0%, rgba(0,0,0,1) 100%);
+    border-radius: 5px;
+}
+
+.core-chat-left {
+    left: 0px;
+}
+
+.core-chat-container input {
+    padding: 7px;
+    width: calc(100% - 30px);
+    left: 10px;
+    position: absolute;
+    border: 0;
+    top: 8px;
+    background: transparent;
+    color: white;
+}
+
+.core-chat-container input::placeholder {
+    color: white;
+}
+
+.core-chat-container input:focus {
+    color: white;
+    outline: 0;
+}
+
+.core-chat-container button {
+    position: absolute;
+    border: 0;
+    font-size: 1em;
+    color: #A1E2D9;
+    top: 19px;
+    opacity: 0.8;
+    right: 17px;
+    cursor: pointer;
+    outline: 0;
+}
+
+.core-chat-container button:hover {
+    transform: scale(1.1);
+    transition: all 0.3s ease-in-out;
+    color: #79C7C5;
+}

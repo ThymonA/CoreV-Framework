@@ -9,5 +9,6 @@
     "corev_command_stop": "Uitvoeren van command \"^5stop %s^7\"",
     "corev_command_refresh": "Uitvoeren van command \"^5refresh^7\"",
     "corev_command_start": "Uitvoeren van command \"^5start %s^7\"",
-    "corev_isloading": "Server is aan het opstarten, event geduld a.u.b. [%s]"
+    "corev_isloading": "Server is aan het opstarten, event geduld a.u.b. [%s]",
+    "corev_help_reload_client": "Reload CoreV client files and update the resource"
 }

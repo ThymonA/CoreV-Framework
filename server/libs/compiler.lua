@@ -170,69 +170,41 @@ end
 --- @param frameworkManifest framework-manifest Framework's Manifest
 --- @param fileStructures framework-structure Framework's File Strcuture
 function compiler:filterAllResourceFiles(frameworkManifest, fileStructures)
-    local includedFiles = { clients = {}, files = {} }
+    local allClientFiles = {}
 
     for _, structure in pairs(fileStructures.structures or {}) do
         local _hasMatch = false
 
-        for __, clientFile in pairs(frameworkManifest.clients or {}) do
+        for _, clientFile in pairs(frameworkManifest.clients or {}) do
             local _match = string.find(structure, clientFile)
 
             if (_match ~= nil and _match == 1) then
                 _hasMatch = true
+                break
             end
         end
 
         if (_hasMatch) then
-            table.insert(includedFiles.clients, structure)
-        end
+            table.insert(allClientFiles, structure)
+        else
+            _hasMatch = false
 
-        _hasMatch = false
+            for _, clientFile in pairs(frameworkManifest.files or {}) do
+                local _match = string.find(structure, clientFile)
 
-        for __, clientFile in pairs(frameworkManifest.files or {}) do
-            local _match = string.find(structure, clientFile)
-
-            if (_match ~= nil and _match == 1) then
-                _hasMatch = true
+                if (_match ~= nil and _match == 1) then
+                    _hasMatch = true
+                    break
+                end
             end
-        end
 
-        if (_hasMatch) then
-            table.insert(includedFiles.files, structure)
+            if (_hasMatch) then
+                table.insert(allClientFiles, structure)
+            end
         end
     end
 
-    local allClientFiles = {}
-
-    for _, clientFile in pairs(includedFiles.clients or {}) do
-        local _found = false
-
-        for _, _clientFile in pairs(allClientFiles or {}) do
-            if (_clientFile == clientFile) then
-                _found = true
-            end
-        end
-
-        if (not _found) then
-            table.insert(allClientFiles, clientFile)
-        end
-    end
-
-    for _, clientFile in pairs(includedFiles.files or {}) do
-        local _found = false
-
-        for _, _clientFile in pairs(allClientFiles or {}) do
-            if (_clientFile == clientFile) then
-                _found = true
-            end
-        end
-
-        if (not _found) then
-            table.insert(allClientFiles, clientFile)
-        end
-    end
-
-    return allClientFiles, includedFiles.clients, includedFiles.files
+    return allClientFiles
 end
 
 --- Returns a path type: directory or file
@@ -305,7 +277,7 @@ function compiler:generateResource()
 
         local frameworkManifest = self:loadCurrentResourceManifest()
         local fileStructure = self:loadCurrentResourceFileStructure()
-        local publicFiles, clientFiles, fileFiles = self:filterAllResourceFiles(frameworkManifest, fileStructure)
+        local publicFiles = self:filterAllResourceFiles(frameworkManifest, fileStructure)
         local frameworkPath = internalPath
         local frameworkClientPath = clientResourcePath
         local pathsCreated = {}
@@ -360,7 +332,7 @@ function compiler:generateResource()
 
         repeat Citizen.Wait(0) until asyncTaskDone == true
 
-        self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles, clientFiles, fileFiles)
+        self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles)
 
         done = true
     end)
@@ -370,12 +342,22 @@ function compiler:generateResource()
     resource.tasks.compileFramework = true
 end
 
-function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, clientFiles, fileFiles)
+--- Generate executables for corev_client
+--- @param frameworkPath string Framework path
+--- @param clientPath string CoreV client path
+--- @param publicFiles table List of all public files
+function compiler:generateExecutables(frameworkPath, clientPath, publicFiles)
     print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_copy_files', GetCurrentResourceName(), GetCurrentResourceName() .. '_client'))
 
     local enabledInternalModules = {}
     local additionalClientFiles = {}
     local addedModules = {}
+    local async = m('async')
+    local asyncDone = {
+        ['internalModule'] = false,
+        ['internalResource'] = false,
+        ['publicFile'] = false
+    }
 
     for i = 0, GetNumResourceMetadata(GetCurrentResourceName(), 'corevmodule'), 1 do
         local _module = GetResourceMetadata(GetCurrentResourceName(), 'corevmodule', i)
@@ -391,7 +373,7 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
         table.insert(additionalClientFiles, ('client/%s_module_client.lua'):format(internalModuleName))
     end
 
-    for _, internalModule in pairs(resource.internalModules or {}) do
+    async:parallel(function(internalModule, cb)
         local internalModuleName = internalModule.name
 
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
@@ -427,9 +409,15 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
 
             os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
         end
-    end
 
-    for _, internalResource in pairs(resource.internalResources or {}) do
+        cb()
+    end, resource.internalModules, function()
+        asyncDone['internalModule'] = true
+    end)
+
+    repeat Wait(0) until asyncDone['internalModule'] == true
+
+    async:parallel(function(internalResource, cb)
         local internalResourceName = internalResource.name
 
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
@@ -461,9 +449,15 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
 
             os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
         end
-    end
 
-    for _, publicFile in pairs(publicFiles or {}) do
+        cb()
+    end, resource.internalResources, function()
+        asyncDone['internalResource'] = true
+    end)
+
+    repeat Wait(0) until asyncDone['internalResource'] == true
+
+    async:parallel(function(publicFile, cb)
         if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
             local frameworkFilePath = ('%s/%s'):format(frameworkPath, publicFile)
             local frameworkClientFilePath = ('%s/%s'):format(clientPath, publicFile)
@@ -489,7 +483,13 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles, cl
 
             os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
         end
-    end
+
+        cb()
+    end, publicFiles, function()
+        asyncDone['publicFile'] = true
+    end)
+
+    repeat Wait(0) until asyncDone['publicFile'] == true
 
     print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_fxmanifest', GetCurrentResourceName() .. '_client'))
 
@@ -621,7 +621,6 @@ resources {
     end
 
     print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_command_stop', GetCurrentResourceName() .. '_client'))
-
     ExecuteCommand(('stop %s_client'):format(GetCurrentResourceName()))
 
     Wait(250)
@@ -635,6 +634,8 @@ resources {
     ExecuteCommand(('start %s_client'):format(GetCurrentResourceName()))
 end
 
+--- Transform a table to string
+--- @param table table Table to transform
 function compiler:tableToString(table)
     if (table == nil or type(table) ~= 'table') then
         if (table == nil or type(table) == 'string') then
@@ -662,3 +663,93 @@ function compiler:tableToString(table)
 
     return tempString or ''
 end
+
+
+--- Reload all client files
+function compiler:reloadClientFiles()
+    local async, asyncTaskDone, pathsCreated, clientResourceName = m('async'), false, {}, ('%s_client'):format(GetCurrentResourceName())
+
+    local frameworkManifest = self:loadCurrentResourceManifest()
+    local fileStructure = self:loadCurrentResourceFileStructure()
+    local publicFiles = self:filterAllResourceFiles(frameworkManifest, fileStructure)
+    local internalPath = GetResourcePath(GetCurrentResourceName())
+    local clientResourcePath = internalPath:gsub('%/' .. GetCurrentResourceName(), ('/%s'):format(clientResourceName))
+    clientResourcePath = clientResourcePath:gsub('%\\' .. GetCurrentResourceName(), ('\\%s'):format(clientResourceName))
+
+    local frameworkPath, frameworkClientPath = internalPath, clientResourcePath
+
+    if (not string.endswith(frameworkPath, '/')) then frameworkPath = frameworkPath .. '/' end
+    if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
+
+    --- Create all required directories
+    async:parallel(function(file, cb)
+        local currentFileLocation = frameworkPath .. file
+        local newFileLocation = frameworkClientPath .. file
+
+        currentFileLocation = string.replace(currentFileLocation, '\\\\', '\\')
+        currentFileLocation = string.replace(currentFileLocation, '\\', '/')
+        currentFileLocation = string.replace(currentFileLocation, '//', '/')
+        newFileLocation = string.replace(newFileLocation, '\\\\', '\\')
+        newFileLocation = string.replace(newFileLocation, '\\', '/')
+        newFileLocation = string.replace(newFileLocation, '//', '/')
+
+        local filePathInfo = string.split(file, '/')
+        local currentFilePath = nil
+
+        compiler:createDirectoryIfNotExists(clientResourcePath)
+
+        for _, pathInfo in pairs(filePathInfo or {}) do
+            if (currentFilePath == nil and string.find(pathInfo, '.', 1, true) == nil) then
+                currentFilePath = pathInfo
+            elseif (self:pathType(currentFilePath .. '/' .. pathInfo) == 'directory' and not (string.find(pathInfo, '.', 1, true) or false)) then
+                currentFilePath = currentFilePath .. '/' .. pathInfo
+            else
+                break
+            end
+        end
+
+        if (pathsCreated[currentFilePath] == nil) then
+            pathsCreated[currentFilePath] = currentFilePath
+
+            if (not (string.find(frameworkClientPath .. currentFilePath, '.', 1, true) or false)) then
+                compiler:createDirectoryIfNotExists(frameworkClientPath .. currentFilePath)
+            end
+        end
+
+        cb()
+    end, publicFiles, function()
+        asyncTaskDone = true
+    end)
+
+    repeat Wait(0) until asyncTaskDone == true
+
+    self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles)
+end
+
+--- Register commands to CoreV framework
+--- @param commands commands Commands Module
+function compiler:registerCommands(commands)
+    commands:register('reloadclient', { 'superadmin' }, function(source, arguments, showError)
+        self:reloadClientFiles()
+    end, true, {
+        help = _(CR(), 'core', 'corev_help_reload_client'),
+        validate = true,
+        arguments = {}
+    })
+end
+
+--- Thread to register compiler commands
+Citizen.CreateThread(function()
+    while true do
+        if (m ~= nil and type(m) == 'function') then
+            local commands = m('commands')
+
+            if (commands ~= nil and type(commands) == 'commands') then
+                compiler:registerCommands(commands)
+                return
+            end
+        end
+
+        Citizen.Wait(0)
+    end
+end)

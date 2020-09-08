@@ -753,7 +753,7 @@ end
 
 --- Sent internal structures to client
 registerCallback('corev:resource:loadStructure', function(source, cb)
-    while not resource.tasks.frameworkLoaded do
+    while not resource.tasks.loadingInternalStructures do
         Citizen.Wait(0)
     end
 

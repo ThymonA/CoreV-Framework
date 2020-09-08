@@ -68,7 +68,7 @@ end)
 AddEventHandler('playerDropped', function(reason)
     local _source = source
 
-    while not resource.tasks.frameworkLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
@@ -78,7 +78,7 @@ end)
 onClientTrigger('corev:core:playerLoaded', function()
     local _source = source
 
-    while not resource.tasks.frameworkLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 

@@ -56,9 +56,8 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
     }
 
     RegisterCommand(name, function(source, args, rawCommand)
-        local playerName = 'unknown' 
         local identifiers = m('identifiers')
-        
+
         if (type(source) == 'string') then source = tonumber(source) end
         if (type(source) ~= 'number') then source = 0 end
 

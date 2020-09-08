@@ -95,7 +95,7 @@ end)
 
 --- Request all markers
 Citizen.CreateThread(function()
-    while not resource.tasks.frameworkLoaded do
+    while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 

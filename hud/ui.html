@@ -9,7 +9,7 @@
 
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:300,400,700,900&display=swap" id="font">
 	<link href="https://fonts.googleapis.com/css2?family=Sarabun&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css">
 
 	<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
@@ -24,8 +24,24 @@
 </head>
 
 <body style="font-family: 'Sarabun', sans-serif; letter-spacing: 1px;text-transform: uppercase;">
+	<div class="core-chat-container">
+		<div class="core-chat-chatbox">
+			<div class="core-chat-middle">
+				<div class="core-chat-voldemort">
+					<div class="core-chat-inner-messages">
+						
+					</div>
+				</div>
+			</div>
+			<div class="core-chat-bottom-bar" style="display: none;">
+				<div class="core-chat-chat">
+					<input type="text" placeholder="Type a message..." />
+				</div>
+			</div>
+		</div>
+	</div>
 	<div id="ui">
-		<div class="info player" style="top: 15px; right: 25px;">
+		<div class="info player" style="top: 15px; right: 15px;">
 			<div class="icon text" id="job" style="display:block;margin-top: 10px;">
 				<div class="job_logo">
 					<span class="job_logo">1</span>
@@ -137,6 +153,14 @@
 					</span>
 				</div>
 			</div>
+		</div>
+	</template>
+	<template id="message-template">
+		<div class="core-chat-bubble core-chat-{{type}}">
+			<div class="core-chat-time">{{time}}</div>
+			<i class="fas fa-{{icon}}"></i>
+			<span class="core-chat-sender">{{sender}}:</span>
+			{{message}}
 		</div>
 	</template>
 </body>

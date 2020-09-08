@@ -1,29 +1,3 @@
-local IsFrameworkLoaded = false
-local Modules = {}
-
-function FrameworkLoaded(cb)
-    Citizen.CreateThread(function()
-        while IsFrameworkLoaded ~= true do
-            Citizen.Wait(0)
-        end
-
-        cb()
-    end)
-end
-
-_ENV.FrameworkLoaded = FrameworkLoaded
-_G.FrameworkLoaded = FrameworkLoaded
-
-TriggerEvent('corev:getFrameworkCore', function(framework)
-    while framework == nil do
-        Citizen.Wait(0)
-    end
-
-    Modules = framework.Modules or {}
-
-    IsFrameworkLoaded = true
-end)
-
 local function loadModule(name)
     if (name == nil or type(name) ~= 'string') then return nil end
 
