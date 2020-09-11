@@ -111,13 +111,26 @@ if (CLIENT) then
         AddEventHandler(name, func)
     end
 
+    --- Trigger func by client
+    ---@param name string Trigger name
+    ---@param func function Function to trigger
+    onClientTrigger = function(name, func)
+        AddEventHandler(name, func)
+    end
+
     -- FiveM maniplulation
     _ENV.onMarkerEvent = onMarkerEvent
     _G.onMarkerEvent = onMarkerEvent
+    _ENV.onMarkerLeave = onMarkerLeave
+    _G.onMarkerLeave = onMarkerLeave
     _ENV.triggerMarkerEvent = triggerMarkerEvent
     _G.triggerMarkerEvent = triggerMarkerEvent
+    _ENV.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
+    _G.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
     _ENV.onServerTrigger = onServerTrigger
     _G.onServerTrigger = onServerTrigger
+    _ENV.onClientTrigger = onClientTrigger
+    _G.onClientTrigger = onClientTrigger
 end
 
 if (SERVER) then
@@ -162,13 +175,20 @@ if (SERVER) then
         AddEventHandler(name, func)
     end
 
+    --- Trigger func by server
+    ---@param name string Trigger name
+    ---@param func function Function to trigger
+    onServerTrigger = function(name, func)
+        AddEventHandler(name, func)
+    end
+
     --- Trigger all player connecting events
     --- @param source int PlayerId
     triggerPlayerConnecting = function(source, deferrals)
         for _, playerConnectingEvent in pairs(events.onPlayerConnecting.server or {}) do
             try(function()
                 local continue, error, error_message = false, false, ''
-            
+
                 playerConnectingEvent.func(source, function()
                     continue = true
                 end, function(err_message)
@@ -199,7 +219,7 @@ if (SERVER) then
         for _, playerConnectedEvent in pairs(events.onPlayerConnected.server or {}) do
             try(function()
                 local continue, error, error_message = false, false, ''
-            
+
                 playerConnectedEvent.func(source, function()
                     continue = true
                 end, function(err_message)
@@ -213,7 +233,7 @@ if (SERVER) then
                 end
 
                 if (error) then
-                    error:print(error)
+                    error:print(error_message)
                     return
                 end
             end, function(err) end)
@@ -226,7 +246,7 @@ if (SERVER) then
         for _, playerDisconnectEvent in pairs(events.onPlayerDisconnect.server or {}) do
             try(function()
                 local continue, error, error_message = false, false, ''
-            
+
                 playerDisconnectEvent.func(source, function()
                     continue = true
                 end, function(err_message)
@@ -240,7 +260,7 @@ if (SERVER) then
                 end
 
                 if (error) then
-                    error:print(error)
+                    error:print(error_message)
                     return
                 end
             end, function(err) end)
@@ -250,8 +270,18 @@ if (SERVER) then
     -- FiveM maniplulation
     _ENV.onPlayerConnecting = onPlayerConnecting
     _G.onPlayerConnecting = onPlayerConnecting
+    _ENV.onPlayerDisconnect = onPlayerDisconnect
+    _G.onPlayerDisconnect = onPlayerDisconnect
+    _ENV.onPlayerConnected = onPlayerConnected
+    _G.onPlayerConnected = onPlayerConnected
     _ENV.triggerPlayerConnecting = triggerPlayerConnecting
     _G.triggerPlayerConnecting = triggerPlayerConnecting
     _ENV.triggerPlayerDisconnect = triggerPlayerDisconnect
     _G.triggerPlayerDisconnect = triggerPlayerDisconnect
+    _ENV.triggerPlayerConnected = triggerPlayerConnected
+    _G.triggerPlayerConnected = triggerPlayerConnected
+    _ENV.onClientTrigger = onClientTrigger
+    _G.onClientTrigger = onClientTrigger
+    _ENV.onServerTrigger = onServerTrigger
+    _G.onServerTrigger = onServerTrigger
 end

@@ -43,7 +43,9 @@ function menus:open(namespace, name)
             action = 'openMenu',
             data = self.menus[namespace][name]:getData(),
             __namespace = self.menus[namespace][name].namespace,
-            __name = self.menus[namespace][name].name
+            __name = self.menus[namespace][name].name,
+            __resource = GetCurrentResourceName(),
+            __module = 'menu'
         })
 
         menus.currentMenu = self.menus[namespace][name]
@@ -65,7 +67,9 @@ function menus:close(namespace, name)
                 action = 'closeMenu',
                 data = self.menus[namespace][name]:getData(),
                 __namespace = self.menus[namespace][name].namespace,
-                __name = self.menus[namespace][name].name
+                __name = self.menus[namespace][name].name,
+                __resource = GetCurrentResourceName(),
+                __module = 'menu'
             })
 
             menus.currentMenu = nil
@@ -144,35 +148,33 @@ Citizen.CreateThread(function()
     while true do
         Citizen.Wait(10)
 
-        SetNuiFocus(false, false)
-
         if (menus.currentMenu ~= nil and IsControlPressed(0, 18) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
-            SendNUIMessage({ action = 'controlPressed', control = 'ENTER', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+            SendNUIMessage({ action = 'controlPressed', control = 'ENTER', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name, __resource = GetCurrentResourceName(), __module = 'menu' })
             menus.timer = GetGameTimer()
         end
 
         if (menus.currentMenu ~= nil and IsControlPressed(0, 177) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
-            SendNUIMessage({ action = 'controlPressed', control = 'BACKSPACE', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+            SendNUIMessage({ action = 'controlPressed', control = 'BACKSPACE', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name, __resource = GetCurrentResourceName(), __module = 'menu' })
             menus.timer = GetGameTimer()
         end
 
         if (menus.currentMenu ~= nil and IsControlPressed(0, 27) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
-            SendNUIMessage({ action = 'controlPressed', control = 'TOP', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+            SendNUIMessage({ action = 'controlPressed', control = 'TOP', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name, __resource = GetCurrentResourceName(), __module = 'menu' })
             menus.timer = GetGameTimer()
         end
 
         if (menus.currentMenu ~= nil and IsControlPressed(0, 173) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
-            SendNUIMessage({ action = 'controlPressed', control = 'DOWN', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+            SendNUIMessage({ action = 'controlPressed', control = 'DOWN', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name, __resource = GetCurrentResourceName(), __module = 'menu' })
             menus.timer = GetGameTimer()
         end
 
         if (menus.currentMenu ~= nil and IsControlPressed(0, 174) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
-            SendNUIMessage({ action = 'controlPressed', control = 'LEFT', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+            SendNUIMessage({ action = 'controlPressed', control = 'LEFT', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name, __resource = GetCurrentResourceName(), __module = 'menu' })
             menus.timer = GetGameTimer()
         end
 
         if (menus.currentMenu ~= nil and IsControlPressed(0, 175) and IsInputDisabled(0) and (GetGameTimer() - menus.timer) > 150) then
-            SendNUIMessage({ action = 'controlPressed', control = 'RIGHT', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name })
+            SendNUIMessage({ action = 'controlPressed', control = 'RIGHT', __namespace = menus.currentMenu.namespace, __name = menus.currentMenu.name, __resource = GetCurrentResourceName(), __module = 'menu' })
             menus.timer = GetGameTimer()
         end
     end

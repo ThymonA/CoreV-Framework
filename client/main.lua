@@ -20,6 +20,11 @@ Citizen.CreateThread(function()
     print(('============= [ ^5Core^4V^7 ] =============\n^2All framework executables are loaded ^7\n=====================================\n-> ^1External Resources: ^7%s ^7\n-> ^1Internal Resources: ^7%s ^7\n-> ^1Internal Modules:   ^7%s ^7\n=====================================\n^3VERSION: ^71.0.0\n============= [ ^5Core^4V^7 ] =============')
         :format(resource:countAllLoaded()))
 
+    SendNUIMessage({
+        __resource = GetCurrentResourceName(),
+        __module = 'loaded'
+    })
+
     return
 end)
 

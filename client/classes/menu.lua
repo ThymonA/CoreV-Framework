@@ -178,13 +178,15 @@ CoreV.CreateAMenu = function(namespace, name, info)
         if (isFromMenus and isFromMenus == true) then
             if (self.isOpen) then
                 self.isOpen = false
-    
+
                 SendNUIMessage({
                     action = 'closeMenu',
                     __namespace = self.namespace,
-                    __name = self.name
+                    __name = self.name,
+                    __resource = GetCurrentResourceName(),
+                    __module = 'menu'
                 })
-    
+
                 if (menus.currentMenu ~= nil and menus.currentMenu.namespace == self.namespace and menus.currentMenu.name == self.name) then
                     menus.currentMenu = nil
                 end

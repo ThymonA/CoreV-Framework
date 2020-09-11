@@ -95,16 +95,12 @@ end)
 
 --- Request all markers
 Citizen.CreateThread(function()
-    print('MARKERS TRIGGERD!!!')
-
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
     end
 
     triggerServerCallback('corev:markers:receive', function(_markers)
         markers.markers = _markers or {}
-
-        print(json.encode(markers.markers))
     end)
 end)
 

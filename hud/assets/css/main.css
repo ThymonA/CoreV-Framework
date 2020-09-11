@@ -1221,7 +1221,7 @@ div.separator {
     left: 0px;
 }
 
-.core-chat-container input {
+.core-chat-container textarea {
     padding: 7px;
     width: calc(100% - 30px);
     left: 10px;
@@ -1232,11 +1232,11 @@ div.separator {
     color: white;
 }
 
-.core-chat-container input::placeholder {
+.core-chat-container textarea::placeholder {
     color: white;
 }
 
-.core-chat-container input:focus {
+.core-chat-container textarea:focus {
     color: white;
     outline: 0;
 }

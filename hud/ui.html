@@ -14,16 +14,19 @@
 
 	<link rel="stylesheet" type="text/css" href="./assets/css/main.css">
 	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.12/vue.min.js" type=""></script>
 	<script src="nui://game/ui/jquery.js" type="text/javascript"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/4.0.1/mustache.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/gh/cferdinandi/saferInnerHTML@1/dist/saferInnerHTML.polyfills.min.js"></script>	
 	<script src="./assets/js/wrapper.js"></script>
+	<script src="./assets/js/menu.js"></script>
 	<script src="./assets/js/app.js"></script>
 
 	<title>CoreV Framework</title>
 </head>
 
 <body style="font-family: 'Sarabun', sans-serif; letter-spacing: 1px;text-transform: uppercase;">
+	<div id="app"></div>
 	<div class="core-chat-container">
 		<div class="core-chat-chatbox">
 			<div class="core-chat-middle">
@@ -155,13 +158,99 @@
 			</div>
 		</div>
 	</template>
-	<template id="message-template">
-		<div class="core-chat-bubble core-chat-{{type}}">
-			<div class="core-chat-time">{{time}}</div>
-			<i class="fas fa-{{icon}}"></i>
-			<span class="core-chat-sender">{{sender}}:</span>
-			{{message}}
+	
+	<!-- App Template -->
+	<script type="text/x-template" id="app_template">
+		<div id="app">
+			<div class="core-chat-container" :style="this.style">
+				<div class="core-chat-chatbox" :class="{ 'fadeOut animated': !showWindow, 'hidden': shouldHide }">
+					<div class="core-chat-middle">
+						<div class="core-chat-voldemort">
+							<div class="core-chat-inner-messages">
+								<message v-for="msg in messages"
+									:templates="templates"
+									:multiline="msg.multiline"
+									:args="msg.args"
+									:color="msg.color"
+									:template="msg.template"
+									:template-id="msg.templateId"
+									:key="msg">
+								</message>
+							</div>
+						</div>
+					</div>
+					<div class="core-chat-bottom-bar" v-show="showInput">
+						<div class="core-chat-chat">
+							<textarea v-model="message"
+									ref="input"
+									type="text"
+									autofocus
+									spellcheck="false"
+									@keyup.esc="hideInput"
+									@keyup="keyUp"
+									@keydown="keyDown"
+									@keypress.enter.prevent="send">
+							</textarea>
+							<suggestions :message="message" :suggestions="suggestions">
+							</suggestions>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
-	</template>
+	</script>
+	
+	  <!-- Message Template -->
+	<script type="text/x-template" id="message_template">
+		<div class="msg" :class="{ multiline }">
+			<span v-html="textEscaped"></span>
+		</div>
+	</script>
+	
+	<!-- Suggestions Template -->
+	<script type="text/x-template" id="suggestions_template">
+		<div class="suggestions-wrap" v-show="currentSuggestions.length > 0">
+			<ul class="suggestions">
+				<li class="suggestion" v-for="s in currentSuggestions">
+					<p>
+						<span :class="{ 'disabled': s.disabled }">
+							{{s.name}}
+						</span>
+						<span class="param"
+								v-for="(p, index) in s.params"
+								:class="{ 'disabled': p.disabled }">
+							[{{p.name}}]
+						</span>
+					</p>
+					<small class="help">
+						<template v-if="!s.disabled">
+							{{s.help}}
+						</template>
+						<template v-for="p in s.params" v-if="!p.disabled">
+							{{p.help}}
+						</template>
+					</small>
+				</li>
+			</ul>
+		</div>
+	</script>	
+
+	<script type="text/javascript" src="./assets/js/chat/config.js"></script>
+	<script type="text/javascript" src="./assets/js/chat/suggestions.js"></script>
+	<script type="text/javascript" src="./assets/js/chat/message.js"></script>
+	<script type="text/javascript" src="./assets/js/chat.js"></script>
+	<script type="text/javascript">
+		const instance = new Vue({
+			el: '#app',
+			render: h => h(APP),
+		});
+		
+		window.emulate = (type, detail = {}) => {
+			detail.type = type;
+			window.dispatchEvent(new CustomEvent('message', {
+			detail,
+			}));
+		};
+	</script>
 </body>
 </html>

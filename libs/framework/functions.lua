@@ -98,20 +98,6 @@ local function split(str, delim)
     return t
 end
 
---- Trigger client event
---- @param name string Trigger client event
---- @param source int Player ID
-local function triggerClientEvent(name, source, ...)
-    if (type(source) == 'string') then source = tonumber(source) end
-    if (type(source) ~= 'number') then source = 0 end
-
-    if (SERVER and source == 0) then
-        TriggerEvent(name, ...)
-    elseif(SERVER) then
-        TriggerClientEvent(name, source, ...)
-    end
-end
-
 --- Round up a value
 --- @param value int Value to round up
 --- @param numDecimalPlaces int Number of decimals
@@ -239,12 +225,30 @@ _G.os.currentTimeInMilliseconds = function(self)
     return os_currentTimeInMilliseconds()
 end
 
-if (CLIENT) then
-    _ENV.TSE = TriggerServerEvent
-    _G.TSE = TriggerServerEvent
+local function triggerServerEvent(name, ...)
+    if (CLIENT) then
+        TriggerServerEvent(name, ...)
+    else
+        TriggerEvent(name, ...)
+    end
 end
 
-if (SERVER) then
-    _ENV.TCE = triggerClientEvent
-    _G.TCE = triggerClientEvent
+local function triggerClientEvent(name, param1, ...)
+    if (CLIENT) then
+        TriggerEvent(name, param1, ...)
+    else
+        if (type(param1) == 'string') then param1 = tonumber(param1) end
+        if (type(param1) ~= 'number') then param1 = 0 end
+
+        if (param1 == 0) then
+            TriggerEvent(name, ...)
+        else
+            TriggerClientEvent(name, param1, ...)
+        end
+    end
 end
+
+_ENV.TSE = triggerServerEvent
+_G.TSE = triggerServerEvent
+_ENV.TCE = triggerClientEvent
+_G.TCE = triggerClientEvent

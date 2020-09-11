@@ -37,7 +37,7 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
         error:print(_(CR(), 'commands', 'command_already_registered', name))
 
         if (commands.commands[name].suggestion ~= nil) then
-            TCE('core:chat:removeSuggestion', -1, ('/%s'):format(name))
+            TCE('corev:chat:removeSuggestion', -1, ('/%s'):format(name))
         end
     end
 
@@ -45,7 +45,7 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
         if (not suggestion.arguments) then suggestion.arguments = {} end
         if (not suggestion.help) then suggestion.help = '' end
 
-        TCE('core:chat:addSuggestion', -1, ('/%s'):format(name), suggestion.help, suggestion.arguments)
+        TCE('corev:chat:addSuggestion', -1, ('/%s'):format(name), suggestion.help, suggestion.arguments)
     end
 
     commands.commands[name] = {
@@ -78,7 +78,7 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
 
         if (cmd.suggestion and #cmd.suggestion > 0) then
             if (cmd.suggestion.validate and #args ~= #cmd.suggestion.arguments) then
-                TCE('core:chat:addError', source, _(CR(), 'commands', 'command_mismatch_arguemnts', #cmd.suggestion.arguments, #args))
+                TCE('corev:chat:addError', source, _(CR(), 'commands', 'command_mismatch_arguemnts', #cmd.suggestion.arguments, #args))
                 return
             end
         end
@@ -94,7 +94,7 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
                         if (newArgument) then
                             newArguments[argument.name] = newArgument
                         else
-                            TCE('core:chat:addError', source, _(CR(), 'commands', 'command_argument_number_error', i))
+                            TCE('corev:chat:addError', source, _(CR(), 'commands', 'command_argument_number_error', i))
                             return
                         end
                     elseif (string.lower(argument.type) == 'string') then
@@ -123,18 +123,41 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
 
         cmd.callback(source, args, function(msg)
             if (msg ~= nil and type(msg) == 'string') then
-                TCE('core:chat:addError', source, msg)
+                TCE('corev:chat:addError', source, msg)
             end
         end)
     end, true)
 
     if (groups and type(groups) == 'string') then
-        ExecuteCommand(('add_ace group.%s command.%s allow'):format(tostring(groups), name))
+        ExecuteCommand(('add_ace group.%s command.%s allow'):format(groups, name))
     elseif (groups and type(groups) == 'table') then
         for _, group in pairs(groups or {}) do
             ExecuteCommand(('add_ace group.%s command.%s allow'):format(tostring(group), name))
         end
     end
+end
+
+--- Returns a list of commands available for player
+--- @param playerId number Player ID (source)
+function commands:getPlayerCommands(playerId)
+    if (playerId == nil or type(playerId) ~= 'number') then return {} end
+
+    if (playerId ~= 0) then
+        local _commands = {}
+
+        for name, command in pairs(self.commands or {}) do
+            if (IsPlayerAceAllowed(playerId, ('commands.%s'):format(name))) then
+                table.insert(_commands, {
+                    name = name,
+                    suggestion = command.suggestion or {}
+                })
+            end
+        end
+
+        return _commands
+    end
+
+    return {}
 end
 
 addModule('commands', commands)

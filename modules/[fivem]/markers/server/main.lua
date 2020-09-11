@@ -45,7 +45,7 @@ function markers:add(name, event, whitelist, mType, pos, info, hex, addon)
     local position = nil
     local size = nil
     local red, green, blue = 255, 255, 255
-    
+
     if (name == nil or type(name) ~= 'string' or name == '' or event == nil or type(event) ~= 'string' or event == '') then
         return
     end
@@ -110,7 +110,7 @@ end
 function markers:getPlayerMarkers(source)
     local _markers = {}
 
-    for i, marker in pairs(markers.markers or {}) do
+    for _, marker in pairs(markers.markers or {}) do
         if (marker:playerAllowed(source)) then
             table.insert(_markers, {
                 name = marker.name,
