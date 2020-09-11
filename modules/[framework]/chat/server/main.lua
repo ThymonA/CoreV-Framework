@@ -51,6 +51,16 @@ chat:set {
             icon = 'crown',
             type = 'adminmessage',
             lib = 'fas'
+        },
+        ['command'] = {
+            icon = 'terminal',
+            type = 'command',
+            lib = 'fas'
+        },
+        ['cmd'] = {
+            icon = 'terminal',
+            type = 'command',
+            lib = 'fas'
         }
     }
 }
@@ -116,6 +126,17 @@ onClientTrigger('__cfx_internal:commandFallback', function(command)
             sender = name,
             time = os.currentTimeAsString(),
             message = ('/%s'):format(command),
+            iconlib = msgTypeInfo.lib,
+            icon = msgTypeInfo.icon,
+            type = msgTypeInfo.type
+        })
+    else
+        local msgTypeInfo = chat:getTypeInfo('command')
+
+        TCE('corev:chat:addMessage', source, {
+            sender = 'Console',
+            time = os.currentTimeAsString(),
+            message = _(CR(), 'chat', 'command_used', command),
             iconlib = msgTypeInfo.lib,
             icon = msgTypeInfo.icon,
             type = msgTypeInfo.type

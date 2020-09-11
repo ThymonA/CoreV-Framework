@@ -105,6 +105,23 @@ RegisterNUICallback('chat_results', function(data, cb)
         local id = PlayerId()
 
         if data.message:sub(1, 1) == '/' then
+            local commandParts = split(data.message, ' ')
+            local command = (commandParts[1] or '/unknown'):sub(2)
+
+            SendNUIMessage({
+                action = 'ADD_MESSAGE',
+                message = {
+                    sender = 'Console',
+                    time = nil,
+                    message = _(CR(), 'chat', 'command_used', command),
+                    iconlib = 'fas',
+                    icon = 'fa-terminal',
+                    type = 'core-chat-command'
+                },
+                __resource = GetCurrentResourceName(),
+                __module = 'chat'
+            })
+
             ExecuteCommand(data.message:sub(2))
         else
             TSE('corev:chat:messageEntered', GetPlayerName(id), data.message)

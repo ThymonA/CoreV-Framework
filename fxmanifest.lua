@@ -141,7 +141,8 @@ corevmodules {
     'players',
     'streaming',
     'markers',
-    'game'
+    'game',
+    'chat'
 }
 
 ---

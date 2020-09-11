@@ -26,13 +26,11 @@ window.APP = {
             this.showWindow = true;
             this.resetShowWindowTimer();
 
-            const messagesObj = this.$refs.messages;
+            const messagesObj = this.$el.querySelector('.core-chat-inner-messages');
 
-            if (messagesObj != undefined) {
-                this.$nextTick(() => {
-                    messagesObj.scrollTop = messagesObj.scrollHeight;
-                });
-            }
+            this.$nextTick(() => {
+                messagesObj.scrollTop = messagesObj.scrollHeight;
+            });
         },
     },
     computed: {
@@ -115,10 +113,10 @@ window.APP = {
                 e.preventDefault();
                 this.moveOldMessageIndex(e.which === 38);
             } else if (e.which == 33) {
-                var buf = document.getElementsByClassName('chat-messages')[0];
+                var buf = document.getElementsByClassName('core-chat-inner-messages')[0];
                 buf.scrollTop = buf.scrollTop - 100;
             } else if (e.which == 34) {
-                var buf = document.getElementsByClassName('chat-messages')[0];
+                var buf = document.getElementsByClassName('core-chat-inner-messages')[0];
                 buf.scrollTop = buf.scrollTop + 100;
             }
         },
