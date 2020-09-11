@@ -155,6 +155,10 @@ local function os_currentTimeInMilliseconds()
     return currentLocalTime
 end
 
+local function os_currentTimeAsString()
+    return os.date('%H:%M', os.time())
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
@@ -224,6 +228,9 @@ end
 _G.os.currentTimeInMilliseconds = function(self)
     return os_currentTimeInMilliseconds()
 end
+
+_ENV.os.currentTimeAsString = os_currentTimeAsString
+_G.os.currentTimeAsString = os_currentTimeAsString
 
 local function triggerServerEvent(name, ...)
     if (CLIENT) then

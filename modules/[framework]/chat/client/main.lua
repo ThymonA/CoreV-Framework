@@ -30,7 +30,32 @@ onServerTrigger('corev:chat:addSuggestion', function(name, help, params)
     })
 end)
 
-onServerTrigger('corev:chat:addMessage', function(message)
+onServerTrigger('corev:chat:addMessage', function(rawMessage)
+    local message = {
+        type = 'core-chat-' .. (rawMessage.type or 'ooc'),
+        time = rawMessage.time or nil,
+        icon = 'fa-' .. (rawMessage.icon or 'globe-europe'),
+        sender = rawMessage.sender or 'Anoniem',
+        message = rawMessage.message or ''
+    }
+
+    SendNUIMessage({
+        action = 'ADD_MESSAGE',
+        message = message,
+        __resource = GetCurrentResourceName(),
+        __module = 'chat'
+    })
+end)
+
+onServerTrigger('corev:chat:addError', function(msg)
+    local message = {
+        type = 'core-chat-error',
+        time = nil,
+        icon = 'fa-exclamation-triangle',
+        sender = 'ERROR',
+        message = msg or ''
+    }
+
     SendNUIMessage({
         action = 'ADD_MESSAGE',
         message = message,

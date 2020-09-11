@@ -158,8 +158,6 @@
 			</div>
 		</div>
 	</template>
-	
-	<!-- App Template -->
 	<script type="text/x-template" id="app_template">
 		<div id="app">
 			<div class="core-chat-container" :style="this.style">
@@ -168,13 +166,12 @@
 						<div class="core-chat-voldemort">
 							<div class="core-chat-inner-messages">
 								<message v-for="msg in messages"
-									:templates="templates"
-									:multiline="msg.multiline"
-									:args="msg.args"
-									:color="msg.color"
-									:template="msg.template"
-									:template-id="msg.templateId"
-									:key="msg">
+									:type="msg.type"
+									:time="msg.time"
+									:icon="msg.icon"
+									:iconlib="msg.iconlib"
+									:sender="msg.sender"
+									:message="msg.message">
 								</message>
 							</div>
 						</div>
@@ -199,15 +196,14 @@
 			</div>
 		</div>
 	</script>
-	
-	  <!-- Message Template -->
 	<script type="text/x-template" id="message_template">
-		<div class="msg" :class="{ multiline }">
-			<span v-html="textEscaped"></span>
+		<div class="core-chat-bubble" :class="type">
+			<div class="core-chat-time">{{time}}</div>
+			<i :class="[iconlib, icon]"></i>
+			<span class="core-chat-sender">{{sender}}:</span>
+			{{message}}
 		</div>
 	</script>
-	
-	<!-- Suggestions Template -->
 	<script type="text/x-template" id="suggestions_template">
 		<div class="suggestions-wrap" v-show="currentSuggestions.length > 0">
 			<ul class="suggestions">

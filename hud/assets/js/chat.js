@@ -42,7 +42,6 @@ window.APP = {
     },
     methods: {
         CHANGE_STATE({ shouldHide }) {
-            console.log('STATE HAS BEEN CHANGED TO ' + shouldHide)
             this.shouldHide = shouldHide
         },
         OPEN_CHAT() {
