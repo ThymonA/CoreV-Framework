@@ -18,6 +18,12 @@
     font-family: 'K2D', sans-serif;
 }
 
+body.hidden,
+body .hidden {
+    display: none !important;
+    opacity: 0.0 !important;
+}
+
 .fab,
 .fab:before,
 .fab:after {

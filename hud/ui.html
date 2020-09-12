@@ -26,27 +26,12 @@
 </head>
 
 <body style="font-family: 'Sarabun', sans-serif; letter-spacing: 1px;text-transform: uppercase;">
-	<div id="app"></div>
-	<div class="core-chat-container">
-		<div class="core-chat-chatbox">
-			<div class="core-chat-middle">
-				<div class="core-chat-voldemort">
-					<div class="core-chat-inner-messages">
-						
-					</div>
-				</div>
-			</div>
-			<div class="core-chat-bottom-bar" style="display: none;">
-				<div class="core-chat-chat">
-					<input type="text" placeholder="Type a message..." />
-				</div>
-			</div>
-		</div>
-	</div>
+	<div id="chat"></div>
 	<div id="hud"></div>
-	<div id="menus">
-	</div>
-	<template id="menu-template">
+	<div id="menus"></div>
+
+	<!-- HTML TEMPLATES -->
+	<script type="text/x-template" id="menu-template">
 		<div class="corev-menu align-center-left" data-name="{{__name}}" data-namespace="{{__namespace}}">
 			<div class="corev-menu-head" style="{{#image}}background-image: url('./assets/images/{{image}}');{{/image}}">
 				<h1>{{title}}</h1>
@@ -74,9 +59,9 @@
 				</div>
 			</div>
 		</div>
-	</template>
-	<script type="text/x-template" id="app_template">
-		<div id="app">
+	</script>
+	<script type="text/x-template" id="chat_template">
+		<div id="chat">
 			<div class="core-chat-container" :style="this.style">
 				<div class="core-chat-chatbox" :class="{ 'fadeOut animated': !showWindow, 'hidden': shouldHide }">
 					<div class="core-chat-middle">
@@ -224,8 +209,8 @@
 	<script type="text/javascript" src="./assets/js/hud.js"></script>
 	<script type="text/javascript">
 		const chat = new Vue({
-			el: '#app',
-			render: h => h(APP),
+			el: '#chat',
+			render: h => h(CHAT),
 		});
 		
 		window.emulate = (type, detail = {}) => {

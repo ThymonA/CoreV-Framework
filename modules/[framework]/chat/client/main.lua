@@ -171,15 +171,19 @@ Citizen.CreateThread(function()
                 shouldBeHidden = true
             end
 
-            if ((shouldBeHidden and not chat.hidden) or (not shouldBeHidden and chat.hidden)) then
+            if (shouldBeHidden ~= chat.hidden) then
                 chat.hidden = shouldBeHidden
 
                 SendNUIMessage({
-                    type = 'CHANGE_STATE',
-                    shouldHide = shouldBeHidden,
+                    action = 'CHANGE_STATE',
+                    shouldHide = chat.hidden,
                     __resource = GetCurrentResourceName(),
                     __module = 'chat'
                 })
+
+                if (chat.hidden) then
+                    SetNuiFocus(false)
+                end
             end
         end
     end

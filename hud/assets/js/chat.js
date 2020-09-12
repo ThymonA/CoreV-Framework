@@ -1,11 +1,11 @@
-window.APP = {
-    template: '#app_template',
-    name: 'APP',
+window.CHAT = {
+    template: '#chat_template',
+    name: 'CHAT',
     data() {
         return {
             showInput: false,
             showWindow: false,
-            shouldHide: true,
+            shouldHide: false,
             message: '',
             messages: [],
             backingSuggestions: [],
