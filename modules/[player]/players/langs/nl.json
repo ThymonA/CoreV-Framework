@@ -1,3 +1,5 @@
 {
-    "player_created": "[CoreV][Players] Nieuwe spelers gejoined, account aangemaakt voor %s"
+    "player_created": "[CoreV][Players] Nieuwe spelers gejoined, account aangemaakt voor %s",
+    "job_empty_error": "U heeft een niet bestaande job opgegeven",
+    "grade_empty_error": "U heeft een niet bestaande grade opgegeven"
 }

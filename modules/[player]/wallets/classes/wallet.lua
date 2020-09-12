@@ -24,7 +24,7 @@ function wallets:getDefaultWallet(name)
 end
 
 --- Create a wallet object
---- @param source int Player ID
+--- @param source number Player ID
 --- @param name string Wallet Name
 function wallets:createWallet(identifier, name, balance)
     --- Create a wallet object
@@ -58,14 +58,14 @@ function wallets:createWallet(identifier, name, balance)
             ['@name'] = walletName,
             ['@player_id'] = playerId
         })
-    
+
         if (walletBalance == nil) then
             db:execute('INSERT INTO `wallets` (`player_id`, `name`, `balance`) VALUES (@player_id, @name, @balance)', {
                 ['@player_id'] = playerId,
                 ['@name'] = walletName,
                 ['@balance'] = walletDefaultBalance
             })
-    
+
             walletBalance = walletDefaultBalance
         end
 
@@ -78,7 +78,7 @@ function wallets:createWallet(identifier, name, balance)
     end
 
     --- Add money to wallet balance
-    --- @param money int Amount of money
+    --- @param money number Amount of money
     function wallet:addMoney(money)
         if (money == nil) then money = 0 end
         if (type(money) == 'string') then money = tonumber(money) end
@@ -104,7 +104,7 @@ function wallets:createWallet(identifier, name, balance)
     end
 
     --- Remove money from wallet balance
-    --- @param money int Amount of money
+    --- @param money number Amount of money
     function wallet:removeMoney(money)
         if (money == nil) then money = 0 end
         if (type(money) == 'string') then money = tonumber(money) end
@@ -130,7 +130,7 @@ function wallets:createWallet(identifier, name, balance)
     end
 
     --- Set wallet balance
-    --- @param money int Amount to set balance
+    --- @param money number Amount to set balance
     function wallet:setBalance(money)
         if (money == nil) then money = 0 end
         if (type(money) == 'string') then money = tonumber(money) end
@@ -168,7 +168,7 @@ function wallets:createWallet(identifier, name, balance)
 
     if (wallets.players == nil) then wallets.players = {} end
     if (wallets.players[identifier] == nil) then wallets.players[identifier] = {} end
-    
+
     wallets.players[identifier][walletName] = wallet
 
     return wallet

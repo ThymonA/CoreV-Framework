@@ -63,7 +63,7 @@ function players:createPlayer(_player)
     local job = jobs:getJob(playerData.job)
     local grade = job:getGrade(playerData.grade)
     local job2 = jobs:getJob(playerData.job2)
-    local grade2 = job:getGrade(playerData.grade2)
+    local grade2 = job2:getGrade(playerData.grade2)
 
     if (type(_player) ~= 'number') then
         playerName = playerData.name
@@ -106,11 +106,11 @@ function players:createPlayer(_player)
 
     --- Set money for player wallet
     --- @param name string wallet name
-    --- @param money int balace of wallet
+    --- @param money number balace of wallet
     function player:setWallet(name, money)
         if (name == nil or type(name) ~= 'string') then name = 'unknown' end
         if (money == nil or type(money) ~= 'number') then money = tonumber(money) or 0 end
-    
+
         name = string.lower(name)
 
         if (self.wallets ~= nil and self.wallets[name] ~= nil) then
@@ -120,11 +120,11 @@ function players:createPlayer(_player)
 
     --- Remove money from player wallet
     --- @param name string wallet name
-    --- @param money int amount of money to remove
+    --- @param money number amount of money to remove
     function player:removeMoney(name, money)
         if (name == nil or type(name) ~= 'string') then name = 'unknown' end
         if (money == nil or type(money) ~= 'number') then money = tonumber(money) or 0 end
-    
+
         name = string.lower(name)
 
         if (self.wallets ~= nil and self.wallets[name] ~= nil) then
@@ -134,16 +134,86 @@ function players:createPlayer(_player)
 
     --- Add money to player wallet
     --- @param name string wallet name
-    --- @param money int amount of money to add
+    --- @param money number amount of money to add
     function player:addMoney(name, money)
         if (name == nil or type(name) ~= 'string') then name = 'unknown' end
         if (money == nil or type(money) ~= 'number') then money = tonumber(money) or 0 end
-    
+
         name = string.lower(name)
 
         if (self.wallets ~= nil and self.wallets[name] ~= nil) then
             self.wallets[name]:addMoney(money)
         end
+    end
+
+    --- Change player's primary job
+    --- @param name string Job name
+    --- @param grade number Grade
+    function player:setJob(name, grade, cb)
+        if (name == nil or type(name) ~= 'string') then name = 'unknown' end
+        if (grade == nil or type(grade) ~= 'number') then grade = tonumber(grade) or 0 end
+
+        local jobs = m('jobs')
+        local job = jobs:getJobByName(name)
+
+        if (job == nil) then
+            if (cb ~= nil) then cb(false, _(CR(), 'players', 'job_empty_error')) end
+            return
+        end
+
+        local jobGrade = job:getGrade(grade)
+
+        if (jobGrade == nil) then
+            if (cb ~= nil) then cb(false, _(CR(), 'players', 'grade_empty_error')) end
+            return
+        end
+
+        self.job = job
+        self.grade = jobGrade
+
+        if (self.id ~= nil and self.id > 0) then
+            TCE('corev:players:setJob', self.id, self.job, self.grade)
+        end
+
+        TSE('corev:players:setJob', self.identifier, self.job, self.grade)
+
+        self:save()
+
+        if (cb ~= nil) then cb(true, '') end
+    end
+
+    --- Change player's secondary job
+    --- @param name string Job name
+    --- @param grade number Grade
+    function player:setJob2(name, grade)
+        if (name == nil or type(name) ~= 'string') then name = 'unknown' end
+        if (grade == nil or type(grade) ~= 'number') then grade = tonumber(grade) or 0 end
+
+        local jobs = m('jobs')
+        if (job == nil) then
+            if (cb ~= nil) then cb(false, _(CR(), 'players', 'job_empty_error')) end
+            return
+        end
+
+        local jobGrade = job:getGrade(grade)
+
+        if (jobGrade == nil) then
+            if (cb ~= nil) then cb(false, _(CR(), 'players', 'grade_empty_error')) end
+            return
+        end
+
+        self.job2 = job
+        self.grade2 = jobGrade
+
+        if (self.id ~= nil and self.id > 0) then
+            TCE('corev:players:setJob2', self.id, self.job, self.grade)
+        end
+
+        TSE('corev:players:setJob2', self.identifier, self.job, self.grade)
+
+        self:save()
+
+        if (cb ~= nil) then cb(true, '') end
     end
 
     player:save()

@@ -30,6 +30,13 @@ $(function(){
 
                 window.dispatchEvent(chatEvent)
                 break;
+            case 'hud':
+                const hudEvent = new CustomEvent('hud_message', {
+                    detail: item
+                });
+
+                window.dispatchEvent(hudEvent)
+                break;
             case 'loaded':
                 window.frameworkLoaded = true;
                 break;

@@ -43,90 +43,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="ui">
-		<div class="info player" style="top: 15px; right: 15px;">
-			<div class="icon text" id="job" style="display:block;margin-top: 10px;">
-				<div class="job_logo">
-					<span class="job_logo">1</span>
-				</div>
-				<div class="job_details">
-					<span id="job2_name">DobberdamRP</span>
-					<span id="job2_grade">staff</span>
-				</div>
-			</div>
-			<div class="icon text" id="job2" style="display:block;margin-top: 35px;">
-				<div class="job_logo">
-					<span class="job_logo">2</span>
-				</div>
-				<div class="job_details">
-					<span id="job2_name">Maffia</span>
-					<span id="job2_grade">godfather</span>
-				</div>
-			</div>
-		</div>
-
-		<div class="info status status-bar" style="margin-left: 5px;">
-			<div id="status">
-				<ul>
-					<li class="icon" id="health">
-						<i>100</i>
-						<span></span>
-					</li>
-					<li class="icon" id="thirst">
-						<i>100</i>
-						<span></span>
-					</li>
-					<li class="icon" id="hunger">
-						<i>100</i>
-						<span></span>
-					</li>
-					<li class="icon" id="armor">
-						<i>100</i>
-						<span></span>
-					</li>
-				</ul>
-			</div>
-		</div>
-		<div class="info status" style="margin-left: 5px;">
-			<div id="status">
-				<ul>
-					<li class="icon" id="health">
-						<i class="fas fa-heart"></i>
-						<span></span>
-					</li>
-					<li class="icon" id="thirst">
-						<i class="fas fa-tint"></i>
-						<span></span>
-					</li>
-					<li class="icon" id="hunger">
-						<i class="fas fa-utensils"></i>
-						<span></span>
-					</li>
-					<li class="icon" id="armor">
-						<i class="fas fa-shield-alt"></i>
-						<span></span>
-					</li>
-				</ul>
-			</div>
-		</div>
-
-		<div class="info weapon animated faster unarmed" id="weapon" style="display:block;">
-			<div id="weapon_image">
-				<img src="img/weapons/pistol.png" alt="">
-			</div>
-
-			<div id="weapon_bullets">
-				<div id="weapon_clip" class="clip"><span>999</span></div>
-				<div id="weapon_ammo" class="ammo"><span>999</span></div>
-			</div>
-			
-			<div class="icon" id="bullets">
-				<i><img src="img/weapon-bullets.png" alt=""></i>
-				<i class="clone"><img src="img/weapon-bullets.png" alt=""></i>
-				<span></span>
-			</div>
-		</div>
-	</div>
+	<div id="hud"></div>
 	<div id="menus">
 	</div>
 	<template id="menu-template">
@@ -230,13 +147,83 @@
 			</ul>
 		</div>
 	</script>	
+	<script type="text/x-template" id="hud_template">
+		<div id="hud" :class="{ 'hidden': shouldHide }">
+			<div class="info player" style="top: 15px; right: 15px;">
+				<div class="icon text" id="job" style="display:block;margin-top: 10px;">
+					<div class="job_logo">
+						<span class="job_logo">1</span>
+					</div>
+					<div class="job_details">
+						<span id="job2_name">{{job_name}}</span>
+						<span id="job2_grade">{{job_grade}}</span>
+					</div>
+				</div>
+				<div class="icon text" id="job2" style="display:block;margin-top: 35px;">
+					<div class="job_logo">
+						<span class="job_logo">2</span>
+					</div>
+					<div class="job_details">
+						<span id="job2_name">{{job2_name}}</span>
+						<span id="job2_grade">{{job2_grade}}</span>
+					</div>
+				</div>
+			</div>
+	
+			<div class="info status status-bar" style="margin-left: 5px;">
+				<div id="status">
+					<ul>
+						<li class="icon" id="health">
+							<i>{{status.health}}</i>
+							<span></span>
+						</li>
+						<li class="icon" id="thirst">
+							<i>{{status.thirst}}</i>
+							<span></span>
+						</li>
+						<li class="icon" id="hunger">
+							<i>{{status.hunger}}</i>
+							<span></span>
+						</li>
+						<li class="icon" id="armor">
+							<i>{{status.armor}}</i>
+							<span></span>
+						</li>
+					</ul>
+				</div>
+			</div>
+			<div class="info status" style="margin-left: 5px;">
+				<div id="status">
+					<ul>
+						<li class="icon" id="health">
+							<i class="fas fa-heart"></i>
+							<span></span>
+						</li>
+						<li class="icon" id="thirst">
+							<i class="fas fa-tint"></i>
+							<span></span>
+						</li>
+						<li class="icon" id="hunger">
+							<i class="fas fa-utensils"></i>
+							<span></span>
+						</li>
+						<li class="icon" id="armor">
+							<i class="fas fa-shield-alt"></i>
+							<span></span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</script>
 
 	<script type="text/javascript" src="./assets/js/chat/config.js"></script>
 	<script type="text/javascript" src="./assets/js/chat/suggestions.js"></script>
 	<script type="text/javascript" src="./assets/js/chat/message.js"></script>
 	<script type="text/javascript" src="./assets/js/chat.js"></script>
+	<script type="text/javascript" src="./assets/js/hud.js"></script>
 	<script type="text/javascript">
-		const instance = new Vue({
+		const chat = new Vue({
 			el: '#app',
 			render: h => h(APP),
 		});
@@ -247,6 +234,12 @@
 			detail,
 			}));
 		};
+	</script>
+	<script type="text/javascript">
+		const hud = new Vue({
+			el: '#hud',
+			render: h => h(HUD),
+		});
 	</script>
 </body>
 </html>

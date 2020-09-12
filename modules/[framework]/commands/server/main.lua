@@ -23,7 +23,7 @@ commands:set {
 function commands:register(name, groups, callback, consoleAllowed, suggestion)
     if (type(name) == 'table') then
         for _, _name in pairs(name or {}) do
-            self:register(_name, groups, callback, consoleAllowed)
+            self:register(_name, groups, callback, consoleAllowed, suggestion)
         end
 
         return
@@ -76,14 +76,14 @@ function commands:register(name, groups, callback, consoleAllowed, suggestion)
             end
         end
 
-        if (cmd.suggestion and #cmd.suggestion > 0) then
+        if (cmd.suggestion and #cmd.suggestion.arguments > 0) then
             if (cmd.suggestion.validate and #args ~= #cmd.suggestion.arguments) then
                 TCE('corev:chat:addError', source, _(CR(), 'commands', 'command_mismatch_arguemnts', #cmd.suggestion.arguments, #args))
                 return
             end
         end
 
-        if (cmd.suggestion and cmd.suggestion.arguments) then
+        if (cmd.suggestion and #(cmd.suggestion.arguments or {}) > 0) then
             local newArguments = {}
 
             for i, argument in pairs(cmd.suggestion.arguments or {}) do

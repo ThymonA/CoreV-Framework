@@ -1,3 +1,9 @@
 {
-    "console_not_allowed": "Console is niet toegestaan om deze commando uit te voeren"
+    "console_not_allowed": "Console is niet toegestaan om deze commando uit te voeren",
+    "help_setjob": "1ste baan van een speler veranderen",
+    "help_setjob2": "2de baan van een speler veranderen",
+    "help_playerId": "ID van speler die je wilt aanpassen",
+    "help_jobName": "Welke baan wil je speler geven?",
+    "help_jobGrade": "Welke rank wil je geven? (getal)",
+    "player_not_found_error": "Speler met ID: \"%s\" is niet gevonden"
 }

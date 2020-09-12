@@ -74,8 +74,8 @@ function jobs:loadJobs()
     end
 end
 
---- Get job by name
---- @param jobName string Job Name
+--- Get job by id
+--- @param id number Job ID
 function jobs:getJob(id)
     for _, job in pairs(self.jobs or {}) do
         if (job.id == id) then

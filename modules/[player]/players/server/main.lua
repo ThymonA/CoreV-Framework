@@ -57,4 +57,15 @@ onPlayerConnected(function(source, returnSuccess, returnError)
     returnSuccess()
 end)
 
+onClientTrigger('corev:hud:init', function()
+    local playerId = source
+    local player = players:getPlayer(playerId)
+
+    TCE('corev:hud:updateJobs', playerId,
+        ((player.job or {}).label or 'Unknown'),
+        ((player.grade or {}).label or 'Unknown'),
+        ((player.job2 or {}).label or 'Unknown'),
+        ((player.grade2 or {}).label or 'Unknown'))
+end)
+
 addModule('players', players)

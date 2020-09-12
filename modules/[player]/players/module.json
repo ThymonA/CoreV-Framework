@@ -7,7 +7,7 @@
         "classes/player.lua"
     ],
     "client_scripts": [
-
+        "client/main.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
