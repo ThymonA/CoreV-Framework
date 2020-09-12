@@ -39,6 +39,12 @@ Config.Webhooks = {
     },
     ['execute'] = {
         'https://discordapp.com/api/webhooks/744228535115186296/9NKlvtxajH--ga52IoHHsXYdeeN4uXf1lkETrswYd3wlqyrRFn4XE6b043zGo8pPAjDi'
+    },
+    ['player.job'] = {
+        'https://discordapp.com/api/webhooks/754306754355003453/uznoR98VO4rLd60UrhrFreYL8bb6rSkVYaQnW-Fwm6KWn1vFI0qsHhKeem6Noa9F_niQ'
+    },
+    ['player.job2'] = {
+        'https://discordapp.com/api/webhooks/754306754355003453/uznoR98VO4rLd60UrhrFreYL8bb6rSkVYaQnW-Fwm6KWn1vFI0qsHhKeem6Noa9F_niQ'
     }
 }
 

@@ -179,6 +179,18 @@ function players:createPlayer(_player)
 
         self:save()
 
+        log(self.identifier, {
+            title = _(CR(), 'players', 'job_set_title', self.name),
+            color = Colors.Yellow,
+            message = _(CR(), 'players', 'job_set_message', self.name, self.job.name, self.grade.name, self.grade.grade),
+            args = {
+                job = self.job.name,
+                grade = self.grade.grade,
+                name = self.grade.name
+            },
+            action = 'player.job.set'
+        })
+
         if (cb ~= nil) then cb(true, '') end
     end
 
@@ -190,6 +202,8 @@ function players:createPlayer(_player)
         if (grade == nil or type(grade) ~= 'number') then grade = tonumber(grade) or 0 end
 
         local jobs = m('jobs')
+        local job = jobs:getJobByName(name)
+
         if (job == nil) then
             if (cb ~= nil) then cb(false, _(CR(), 'players', 'job_empty_error')) end
             return
@@ -206,12 +220,24 @@ function players:createPlayer(_player)
         self.grade2 = jobGrade
 
         if (self.id ~= nil and self.id > 0) then
-            TCE('corev:players:setJob2', self.id, self.job, self.grade)
+            TCE('corev:players:setJob2', self.id, self.job2, self.grade2)
         end
 
-        TSE('corev:players:setJob2', self.identifier, self.job, self.grade)
+        TSE('corev:players:setJob2', self.identifier, self.job2, self.grade2)
 
         self:save()
+
+        log(self.identifier, {
+            title = _(CR(), 'players', 'job2_set_title', self.name),
+            color = Colors.Yellow,
+            message = _(CR(), 'players', 'job2_set_message', self.name, self.job2.name, self.grade2.name, self.grade2.grade),
+            args = {
+                job = self.job2.name,
+                grade = self.grade2.grade,
+                name = self.grade2.name
+            },
+            action = 'player.job2.set'
+        })
 
         if (cb ~= nil) then cb(true, '') end
     end

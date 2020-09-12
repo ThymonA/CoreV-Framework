@@ -1,5 +1,9 @@
 {
     "player_created": "[CoreV][Players] Nieuwe spelers gejoined, account aangemaakt voor %s",
     "job_empty_error": "U heeft een niet bestaande job opgegeven",
-    "grade_empty_error": "U heeft een niet bestaande grade opgegeven"
+    "grade_empty_error": "U heeft een niet bestaande grade opgegeven",
+    "job_set_title": "(1ste) Baan van %s is aangepast",
+    "job_set_message": "```SPELER: %s\n(1ste) BAAN: %s\nGRADE: %s(%s)```",
+    "job2_set_title": "(2de) Baan van %s is aangepast",
+    "job2_set_message": "```SPELER: %s\n(2de) BAAN: %s\nGRADE: %s(%s)```"
 }

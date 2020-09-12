@@ -24,7 +24,7 @@ function logs:get(player)
                 return playerLog
             end
         end
-        
+
         return logs:createLog(player)
     end
 
