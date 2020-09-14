@@ -142,7 +142,9 @@ corevmodules {
     'streaming',
     'markers',
     'game',
-    'chat'
+    'utils',
+    'chat',
+    'raycast'
 }
 
 ---
