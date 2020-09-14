@@ -106,7 +106,7 @@ function raycast:getAllWordEntities(flag)
     elseif (self:flagExists(4, flag) or self:flagExists(8, flag)) then
         worldEntities = self:getPeds(worldEntities)
     elseif (self:flagExists(16, flag)) then
-        worldEntities = self:getPeds(worldEntities)
+        worldEntities = self:getObjects(worldEntities)
     end
 
     return worldEntities
