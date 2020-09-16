@@ -665,6 +665,8 @@ end
 
 --- Reload all client files
 function compiler:reloadClientFiles()
+    resource:regenerateFiles()
+
     local clientResourceName = ('%s_client'):format(GetCurrentResourceName())
 
     local frameworkManifest = self:loadCurrentResourceManifest()

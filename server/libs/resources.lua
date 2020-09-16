@@ -499,7 +499,11 @@ end
 
 --- Save and returns generated executable
 --- @object Any Executable Resource/Module
-function resource:saveExecutable(object)
+function resource:saveExecutable(object, clientsOnly)
+    clientsOnly = clientsOnly or false
+
+    if (clientsOnly == nil or type(clientsOnly) ~= 'boolean') then clientsOnly = false end
+
     local script = nil
     local path = 'unknown'
 
@@ -527,6 +531,10 @@ function resource:saveExecutable(object)
 
     if (script ~= nil) then
         SaveResourceFile(GetCurrentResourceName(), ('debug/%s/client/%s_%s.lua'):format(path, object.name, 'client'), script)
+    end
+
+    if (clientsOnly) then
+        return script
     end
 
     script = nil
@@ -749,6 +757,31 @@ function resource:countAllLoaded()
     end
 
     return externalResources, internalResources, internalModules
+end
+
+function resource:regenerateFiles()
+    --- Load and execute all internal modules
+    for i, internalModule in pairs(self.internalModules or {}) do
+        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+        _ENV.CurrentFrameworkModule = internalModule.name
+        _G.CurrentFrameworkResource = GetCurrentResourceName()
+        _G.CurrentFrameworkModule = internalModule.name
+
+        local script = self:saveExecutable(internalModule, true)
+    end
+
+    --- Load and execute all internal resources
+    for i, internalResource in pairs(self.internalResources or {}) do
+        _ENV.CurrentFrameworkResource = GetCurrentResourceName()
+        _ENV.CurrentFrameworkModule = internalResource.name
+        _G.CurrentFrameworkResource = GetCurrentResourceName()
+        _G.CurrentFrameworkModule = internalResource.name
+
+        local script = self:saveExecutable(internalResource, true)
+    end
+
+    _ENV.CurrentFrameworkModule = nil
+    _G.CurrentFrameworkModule = nil
 end
 
 --- Sent internal structures to client

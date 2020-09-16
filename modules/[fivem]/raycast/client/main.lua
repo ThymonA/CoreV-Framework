@@ -12,6 +12,9 @@ local raycast = class('raycast')
 
 -- Set default values
 raycast:set {
+    latestMouseState = false,
+    showMouse = false,
+    entities = {}
 }
 
 --- Transform a enumerator to a table
@@ -28,7 +31,8 @@ function raycast:toTable(enumerator, entityType, table)
         output[tostring(entity)] = {
             entity = entity,
             type = entityType,
-            coords = nil
+            coords = nil,
+            screenCoords = nil
         }
     end
 
@@ -82,6 +86,15 @@ function raycast:xor(x, y)
     return z
 end
 
+function raycast:getCursor()
+    local screenX, screenY = GetActiveScreenResolution()
+    local cursorX, cursorY = GetNuiCursorPosition()
+
+    local cursorPosX, cursorPosY = round(cursorX / screenX + 0.008, 3), round(cursorY / screenY + 0.027, 3)
+
+    return vector2(cursorPosX, cursorPosY)
+  end
+
 --- Checks if flagType exists in flag
 --- @param flagType number Flag type like: 1,2,4,8,16,32...
 --- @param flag number Flag like 3,5,6,7,9,10....
@@ -127,12 +140,13 @@ function raycast:GetEntitiesOnScreen(distance, flag)
         local entityInDistance, entityCoords = EnumerateEntityWithinDistance(entityInfo.entity, playerCoords, 4)
 
         if (entityInDistance) then
-            local onScreen = GetScreenCoordFromWorldCoord(entityCoords.x, entityCoords.y, entityCoords.z)
+            local onScreen, screenX, screenY = GetScreenCoordFromWorldCoord(entityCoords.x, entityCoords.y, entityCoords.z)
 
             if (onScreen) then
                 anyEntityFound = true
 
                 entityInfo.coords = entityCoords
+                entityInfo.screenCoords = vector2(screenX, screenY)
 
                 entitiesInSide[k] = entityInfo
             end
@@ -141,6 +155,63 @@ function raycast:GetEntitiesOnScreen(distance, flag)
 
     return anyEntityFound, entitiesInSide
 end
+
+--- Convert 2D coords to real world coords (vector3)
+--- @param coords table|vector2 2D coords
+function raycast:getClosestEntity(coords)
+    local anyEntityFound, closestEntity, closestDistance, entityCoords, entityType = false, nil, -1, nil, 'unknown'
+
+    for k, entityInfo in pairs(self.entities or {}) do
+        if (entityInfo.screenCoords ~= nil) then
+            local currentEntityDistance = #(entityInfo.screenCoords - coords)
+
+            if ((closestDistance == -1 or closestDistance > currentEntityDistance) and currentEntityDistance < 0.5) then
+                anyEntityFound = true
+                closestEntity = entityInfo.entity
+                closestDistance = currentEntityDistance
+                entityCoords = entityInfo.coords
+                entityType = entityInfo.type
+            end
+        end
+    end
+
+    return anyEntityFound, closestEntity, closestDistance, entityCoords, entityType
+end
+
+Citizen.CreateThread(function()
+    while true do
+        if (IsDisabledControlJustPressed(0, 238) and not raycast.showMouse) then
+            raycast.showMouse = true
+        end
+
+        if (latestMouseState ~= raycast.showMouse) then
+            latestMouseState = raycast.showMouse
+            SetNuiFocus(false, raycast.showMouse)
+            SetNuiFocusKeepInput(raycast.showMouse)
+        end
+
+        if (raycast.showMouse) then
+            DisableControlAction(0,24, true) -- disable attack
+            DisableControlAction(0,25, true) -- disable aim
+            DisableControlAction(0, 1, true) -- LookLeftRight
+            DisableControlAction(0, 2, true) -- LookUpDown
+
+            if (IsDisabledControlJustPressed(0, 237)) then
+                raycast.showMouse = false
+
+                local mousePosition = raycast:getCursor()
+                local anyEntityFound, closestEntity, entityDistance, entityCoords, entityType = raycast:getClosestEntity(mousePosition)
+
+                if (anyEntityFound) then
+                    triggerEntityEvent(closestEntity, closestEntity, entityCoords)
+                    triggerEntityTypeEvent(entityType, closestEntity, entityCoords)
+                end
+            end
+        end
+
+        Citizen.Wait(0)
+    end
+end)
 
 --- Thread to look for entities on screen
 Citizen.CreateThread(function()
@@ -153,11 +224,9 @@ Citizen.CreateThread(function()
             local anyEntityFound, entities = raycast:GetEntitiesOnScreen(10.0, 2)
 
             if (anyEntityFound) then
-                for _, entity in pairs(entities or {}) do
-                    if (entity.type == 'vehicle') then
-                        print(GetVehicleNumberPlateText(entity.entity))
-                    end
-                end
+                raycast.entities = entities
+            else
+                raycast.entities = {}
             end
         end
     end

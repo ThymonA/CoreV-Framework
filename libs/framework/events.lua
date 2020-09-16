@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-events = {
+local events = {
     onPlayerConnecting = {
         server = {}
     },
@@ -22,6 +22,12 @@ events = {
         client = {}
     },
     onMarkerLeave = {
+        client = {}
+    },
+    onEntityEvent = {
+        client = {}
+    },
+    onEntityTypeEvent = {
         client = {}
     }
 }
@@ -69,6 +75,63 @@ if (CLIENT) then
         })
     end
 
+    --- Trigger func when entity has been clicked on screen
+    --- @param entity string|number entity name
+    --- @param func function Callback function
+    onEntityEvent = function(entity, func)
+        if (entity == nil) then return end
+        if (type(entity) == 'number') then entity = tostring(entity) end
+        if (type(entity) ~= 'string') then return end
+
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onEntityEvent.client == nil) then
+            events.onEntityEvent.client = {}
+        end
+
+        if (events.onEntityEvent.client[entity] == nil) then
+            events.onEntityEvent.client[entity] = {}
+        end
+
+        table.insert(events.onEntityEvent.client[entity], {
+            module = module,
+            entity = tonumber(entity),
+            func = func
+        })
+    end
+
+    --- Trigger func when entity type has been clicked on screen
+    --- @param entityType string|number entity type
+    --- @param func function Callback function
+    onEntityTypeEvent = function(entityType, func)
+        if (entityType == nil) then return end
+        if (type(entityType) == 'number') then entityType = tostring(entityType) end
+        if (type(entityType) ~= 'string') then return end
+
+        if (entityType == '0') then return end
+        if (entityType == '1' or string.lower(entityType) == 'ped') then entityType = 'ped' end
+        if (entityType == '2' or string.lower(entityType) == 'vehicle') then entityType = 'vehicle' end
+        if (entityType == '3' or string.lower(entityType) == 'object') then entityType = 'object' end
+
+        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object') then return end
+
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onEntityTypeEvent.client == nil) then
+            events.onEntityTypeEvent.client = {}
+        end
+
+        if (events.onEntityTypeEvent.client[entityType] == nil) then
+            events.onEntityTypeEvent.client[entityType] = {}
+        end
+
+        table.insert(events.onEntityTypeEvent.client[entityType], {
+            module = module,
+            type = entityType,
+            func = func
+        })
+    end
+
     --- Trigger all player enter a marker events
     --- @param event string Event name
     --- @param marker marker Marker that current is triggerd
@@ -76,9 +139,9 @@ if (CLIENT) then
         if (event == nil or type(event) ~= 'string') then return end
         if (events.onMarkerEvent.client == nil or #(events.onMarkerEvent.client[event] or {}) <= 0) then return end
 
-        for i, markerEvent in pairs(events.onMarkerEvent.client[event] or {}) do
+        for _, markerEvent in pairs(events.onMarkerEvent.client[event] or {}) do
             Citizen.CreateThread(function()
-                try(function()                
+                try(function()
                     markerEvent.func(marker)
                 end, function(err) end)
                 return
@@ -93,10 +156,56 @@ if (CLIENT) then
         if (event == nil or type(event) ~= 'string') then return end
         if (events.onMarkerLeave.client == nil or #(events.onMarkerLeave.client[event] or {}) <= 0) then return end
 
-        for i, markerEvent in pairs(events.onMarkerLeave.client[event] or {}) do
+        for _, markerEvent in pairs(events.onMarkerLeave.client[event] or {}) do
             Citizen.CreateThread(function()
-                try(function()                
+                try(function()
                     markerEvent.func(marker)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all event click on screen events
+    --- @param entity string|number Entity
+    --- @param rawEntity entity Raw triggerd entity
+    triggerEntityEvent = function(entity, rawEntity, entityCoords)
+        if (entity == nil) then return end
+        if (type(entity) == 'number') then entity = tostring(entity) end
+        if (type(entity) ~= 'string') then return end
+
+        if (events.onEntityEvent.client == nil or #(events.onEntityEvent.client[entity] or {}) <= 0) then return end
+
+        for _, entityEvent in pairs(events.onEntityEvent.client[entity] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    entityEvent.func(rawEntity, entityCoords)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all event click on screen events
+    --- @param entityType string|number Entity type
+    --- @param rawEntity entity Raw triggerd entity
+    triggerEntityTypeEvent = function(entityType, rawEntity, entityCoords)
+        if (entityType == nil) then return end
+        if (type(entityType) == 'number') then entityType = tostring(entityType) end
+        if (type(entityType) ~= 'string') then return end
+
+        if (entityType == '0') then return end
+        if (entityType == '1' or string.lower(entityType) == 'ped') then entityType = 'ped' end
+        if (entityType == '2' or string.lower(entityType) == 'vehicle') then entityType = 'vehicle' end
+        if (entityType == '3' or string.lower(entityType) == 'object') then entityType = 'object' end
+
+        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object') then return end
+        if (events.onEntityTypeEvent.client == nil or #(events.onEntityTypeEvent.client[entityType] or {}) <= 0) then return end
+
+        for _, entityTypeEvent in pairs(events.onEntityTypeEvent.client[entityType] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    entityTypeEvent.func(rawEntity, entityCoords)
                 end, function(err) end)
                 return
             end)
@@ -123,10 +232,18 @@ if (CLIENT) then
     _G.onMarkerEvent = onMarkerEvent
     _ENV.onMarkerLeave = onMarkerLeave
     _G.onMarkerLeave = onMarkerLeave
+    _ENV.onEntityEvent = onEntityEvent
+    _G.onEntityEvent = onEntityEvent
+    _ENV.onEntityTypeEvent = onEntityTypeEvent
+    _G.onEntityTypeEvent = onEntityTypeEvent
     _ENV.triggerMarkerEvent = triggerMarkerEvent
     _G.triggerMarkerEvent = triggerMarkerEvent
     _ENV.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
     _G.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
+    _ENV.triggerEntityEvent = triggerEntityEvent
+    _G.triggerEntityEvent = triggerEntityEvent
+    _ENV.triggerEntityTypeEvent = triggerEntityTypeEvent
+    _G.triggerEntityTypeEvent = triggerEntityTypeEvent
     _ENV.onServerTrigger = onServerTrigger
     _G.onServerTrigger = onServerTrigger
     _ENV.onClientTrigger = onClientTrigger
