@@ -214,7 +214,7 @@ end
 function database:ready(func)
     Citizen.CreateThread(function()
         repeat Citizen.Wait(0) until database.isReady == true
-    
+
         func()
     end)
 end
@@ -225,7 +225,7 @@ end
 --- @param name string Migration Name
 function database:applyMigration(object, _migration)
     local queryDone = false
-    
+
     self:ready(function()
         local content = getFrameworkFile(object.name, object.type, ('migrations/%s'):format(_migration))
 
@@ -239,7 +239,7 @@ function database:applyMigration(object, _migration)
         if (string.lower(object.type) == string.lower(ResourceTypes.ExternalResource)) then
             resourceName = object.name
         end
-    
+
         if (string.lower(object.type) == string.lower(ResourceTypes.InternalResource) or
             string.lower(object.type) == string.lower(ResourceTypes.InternalModule)) then
             resourceName = GetCurrentResourceName()

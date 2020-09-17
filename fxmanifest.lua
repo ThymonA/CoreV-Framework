@@ -132,6 +132,7 @@ corevuipage 'hud/ui.html'
 ---
 corevmodules {
     'spawnmanager',
+    'keybinds',
     'database',
     'identifiers',
     'logs',

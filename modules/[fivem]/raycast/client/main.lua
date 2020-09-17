@@ -14,7 +14,8 @@ local raycast = class('raycast')
 raycast:set {
     latestMouseState = false,
     showMouse = false,
-    entities = {}
+    entities = {},
+    keybinds = m('keybinds')
 }
 
 --- Transform a enumerator to a table
@@ -180,7 +181,7 @@ end
 
 Citizen.CreateThread(function()
     while true do
-        if (IsDisabledControlJustPressed(0, 238) and not raycast.showMouse) then
+        if (raycast.keybinds:isControlPressed('raycast_select') and not raycast.showMouse) then
             raycast.showMouse = true
         end
 
@@ -196,7 +197,7 @@ Citizen.CreateThread(function()
             DisableControlAction(0, 1, true) -- LookLeftRight
             DisableControlAction(0, 2, true) -- LookUpDown
 
-            if (IsDisabledControlJustPressed(0, 237)) then
+            if (raycast.keybinds:isControlPressed('raycast_click')) then
                 raycast.showMouse = false
 
                 local mousePosition = raycast:getCursor()
@@ -230,4 +231,9 @@ Citizen.CreateThread(function()
             end
         end
     end
+end)
+
+onFrameworkStarted(function()
+    raycast.keybinds:registerKey('raycast_select', _(CR(), 'raycast', 'keybind_raycast_select'), 'mouse', 'mouse_right')
+    raycast.keybinds:registerKey('raycast_click', _(CR(), 'raycast', 'keybind_raycast_click'), 'mouse', 'mouse_left')
 end)

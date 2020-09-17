@@ -17,7 +17,8 @@ resource_parking:set {
     currentEvent = nil,
     currentMarker = nil,
     currentSelectedVehicle = nil,
-    vehicles = {}
+    vehicles = {},
+    keybinds = m('keybinds')
 }
 
 onMarkerEvent('parking:spawn:cars', function(marker)
@@ -51,7 +52,7 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
 
         if (resource_parking.inMarker and resource_parking.currentEvent == nil) then
-            if (IsControlJustPressed(0, 38)) then
+            if (resource_parking.keybinds:isControlPressed('marker_trigger')) then
                 if (resource_parking.inMarkerEvent == 'spawn:cars') then
                     resource_parking:openParkingMenu()
                 end

@@ -402,3 +402,17 @@ if (SERVER) then
     _ENV.onServerTrigger = onServerTrigger
     _G.onServerTrigger = onServerTrigger
 end
+
+onFrameworkStarted = function(cb)
+    if (cb ~= nil and type(cb) == 'function') then
+        Citizen.CreateThread(function()
+            repeat Citizen.Wait(0) until resource.tasks.loadingFramework == true
+
+            cb()
+        end)
+    end
+end
+
+-- FiveM maniplulation
+_ENV.onFrameworkStarted = onFrameworkStarted
+_G.onFrameworkStarted = onFrameworkStarted

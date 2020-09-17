@@ -3,7 +3,7 @@
     "select_vehicle": "Selecteer een %s",
     "parking": "Garage",
     "brand_description": "Je hebt %s %s",
-    "press_e_to_spawn_vehicle": "Druk op ~INPUT_PICKUP~ om een voertuig uit je garage te halen",
+    "press_e_to_spawn_vehicle": "Druk op ~INPUT_48D10012~ om een voertuig uit je garage te halen",
     "vehicle_blocking": "U kunt uw voertuig niet pakken aangezien een auto de weg aan het blokkeren is",
     "spawn_not_available": "U kunt deze locatie niet gebruiken om uw voertuig te pakken"
 }
