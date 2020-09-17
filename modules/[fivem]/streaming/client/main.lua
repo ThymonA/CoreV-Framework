@@ -30,4 +30,29 @@ function streaming:requestModel(hash, cb)
     end
 end
 
+--- Load a texture dictonary and trigger callback when loaded
+--- @param textureDictionary string Name of texture dictonary
+--- @param cb function Callback
+function streaming:requestTextureDictionary(textureDictionary, cb)
+    if (textureDictionary == nil or type(textureDictionary) ~= 'string') then return end
+
+    if (not HasStreamedTextureDictLoaded(textureDictionary)) then
+        Citizen.CreateThread(function()
+            RequestStreamedTextureDict(textureDictionary, true)
+
+            while (not HasStreamedTextureDictLoaded(textureDictionary)) do
+                Citizen.Wait(0)
+            end
+
+            if (cb ~= nil and type(cb) == 'function') then
+                cb()
+            end
+        end)
+    else
+        if (cb ~= nil and type(cb) == 'function') then
+            cb()
+        end
+    end
+end
+
 addModule('streaming', streaming)

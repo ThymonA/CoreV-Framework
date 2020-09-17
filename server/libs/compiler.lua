@@ -71,6 +71,7 @@ function compiler:loadCurrentResourceManifest()
             _file = string.replace(_file, '\\', '/')
             _file = string.replace(_file, '//', '/')
             _file = string.replace(_file, '**', '.*')
+            _file = string.replace(_file, '/*.', '.*/*.')
 
             table.insert(manifest.clients, _file)
         end
@@ -86,6 +87,7 @@ function compiler:loadCurrentResourceManifest()
             _file = string.replace(_file, '\\', '/')
             _file = string.replace(_file, '//', '/')
             _file = string.replace(_file, '**', '.*')
+            _file = string.replace(_file, '/*.', '.*/*.')
 
             table.insert(manifest.files, _file)
         end
@@ -331,6 +333,8 @@ function compiler:generateResource()
         repeat Citizen.Wait(0) until asyncTaskDone == true
 
         self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles)
+        self:generateStreamFolder(frameworkPath, frameworkClientPath, fileStructure)
+        self:refreshClientResource()
 
         done = true
     end)
@@ -338,6 +342,112 @@ function compiler:generateResource()
     repeat Wait(0) until done == true
 
     resource.tasks.compileFramework = true
+end
+
+function compiler:matchStreamFolder(streamFiles, prefix, name, streamFileStructure, fileStructures)
+    if (streamFileStructure ~= nil and #streamFileStructure > 0) then
+        local allStreamFiles = {}
+
+        for _, structure in pairs(fileStructures.structures or {}) do
+            local _hasMatch = false
+
+            for _, streamFile in pairs(streamFileStructure or {}) do
+                local file = ('**/%s/%s'):format(name, streamFile)
+
+                file = string.replace(file, '\\', '/')
+                file = string.replace(file, '//', '/')
+                file = string.replace(file, '**', '.*')
+                file = string.replace(file, '/*.', '.*/*.')
+
+                local _match = string.find(structure, file)
+
+                if (_match ~= nil and _match == 1) then
+                    _hasMatch = true
+                    break
+                end
+            end
+
+            if (_hasMatch) then
+                table.insert(allStreamFiles, structure)
+            end
+        end
+
+        streamFiles[('%s_%s'):format(prefix, name)] = allStreamFiles
+    end
+
+    return streamFiles or {}
+end
+
+function compiler:generateStreamFolder(frameworkPath, clientPath, fileStructures)
+    self:createDirectoryIfNotExists(('%s/stream'):format(clientPath))
+
+    local streamFiles, taskDone, async = {}, false, m('async')
+
+    for _, internalModule in pairs(resource.internalModules or {}) do
+        if (internalModule.enabled and internalModule.manifest ~= nil and type(internalModule.manifest) == 'manifest') then
+            local streamFileStructure = internalModule.manifest:getValue('streams') or {}
+
+            streamFiles = self:matchStreamFolder(streamFiles, '01', internalModule.name, streamFileStructure, fileStructures)
+        end
+    end
+
+    for _, internalResource in pairs(resource.internalResources or {}) do
+        if (internalResource.enabled and internalResource.manifest ~= nil and type(internalResource.manifest) == 'manifest') then
+            local streamFileStructure = internalResource.manifest:getValue('streams') or {}
+
+            streamFiles = self:matchStreamFolder(streamFiles, '02', internalResource.name, streamFileStructure, fileStructures)
+        end
+    end
+
+    for _, externalResource in pairs(resource.externalResources or {}) do
+        if (externalResource.enabled and externalResource.manifest ~= nil and type(externalResource.manifest) == 'manifest') then
+            local streamFileStructure = externalResource.manifest:getValue('streams') or {}
+
+            streamFiles = self:matchStreamFolder(streamFiles, '03', externalResource.name, streamFileStructure, fileStructures)
+        end
+    end
+
+    async:parallel(function(files, cb, folderName)
+        for _, file in pairs(files or {}) do
+            local frameworkFilePath = ('%s/%s'):format(frameworkPath, file)
+
+            local filePath = string.split(file, '/') or {}
+
+            if (#filePath <= 0) then cb() break; end
+
+            local filename = filePath[#filePath]
+            local frameworkClientFilePath = ('%s/stream/%s/%s'):format(clientPath, folderName, filename)
+            local frameworkClientPath = ('%s/stream/%s'):format(clientPath, folderName)
+
+            self:createDirectoryIfNotExists(frameworkClientPath)
+
+            if (string.lower(OperatingSystem) == 'win' or string.lower(OperatingSystem) == 'windows') then
+                frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+                frameworkFilePath = string.replace(frameworkFilePath, '/', '\\')
+                frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+                frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+                frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
+                frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+
+                os.execute(('echo Y|COPY /-y "%s" "%s"'):format(frameworkFilePath, frameworkClientFilePath))
+            elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
+                frameworkFilePath = string.replace(frameworkFilePath, '\\\\', '\\')
+                frameworkFilePath = string.replace(frameworkFilePath, '\\', '/')
+                frameworkFilePath = string.replace(frameworkFilePath, '//', '/')
+                frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
+                frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\', '/')
+                frameworkClientFilePath = string.replace(frameworkClientFilePath, '//', '/')
+
+                os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
+            end
+        end
+
+        cb()
+    end, streamFiles, function()
+        taskDone = true
+    end)
+
+    repeat Wait(0) until taskDone == true
 end
 
 --- Generate executables for corev_client
@@ -389,7 +499,7 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles)
             frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
             frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
 
-            os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
+            os.execute(('echo Y|COPY /-y "%s" "%s"'):format(frameworkFilePath, frameworkClientFilePath))
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             local frameworkFilePath = ('%s/debug/internal_modules/client/%s_client.lua'):format(frameworkPath, internalModuleName)
             local frameworkClientFilePath = ('%s/client/%s_module_client.lua'):format(clientPath, internalModuleName)
@@ -431,7 +541,7 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles)
             frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
             frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
 
-            os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
+            os.execute(('echo Y|COPY /-y "%s" "%s"'):format(frameworkFilePath, frameworkClientFilePath))
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             local frameworkFilePath = ('%s/debug/internal_resources/client/%s_client.lua'):format(frameworkPath, internalResourceName)
             local frameworkClientFilePath = ('%s/client/%s_resource_client.lua'):format(clientPath, internalResourceName)
@@ -467,7 +577,7 @@ function compiler:generateExecutables(frameworkPath, clientPath, publicFiles)
             frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
             frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
 
-            os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
+            os.execute(('echo Y|COPY /-y "%s" "%s"'):format(frameworkFilePath, frameworkClientFilePath))
         elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
             local frameworkFilePath = ('%s/%s'):format(frameworkPath, publicFile)
             local frameworkClientFilePath = ('%s/%s'):format(clientPath, publicFile)
@@ -603,7 +713,7 @@ resources {
         frameworkClientFilePath = string.replace(frameworkClientFilePath, '/', '\\')
         frameworkClientFilePath = string.replace(frameworkClientFilePath, '\\\\', '\\')
 
-        os.execute(('echo Y|COPY /-y "%s" "%s'):format(frameworkFilePath, frameworkClientFilePath))
+        os.execute(('echo Y|COPY /-y "%s" "%s"'):format(frameworkFilePath, frameworkClientFilePath))
     elseif (string.lower(OperatingSystem) == 'lux' or string.lower(OperatingSystem) == 'linux') then
         local frameworkFilePath = ('%s/debug/__fxmanifest.lua'):format(frameworkPath)
         local frameworkClientFilePath = ('%s/fxmanifest.lua'):format(clientPath)
@@ -617,7 +727,9 @@ resources {
 
         os.execute(('cp -r %s %s'):format(frameworkFilePath, frameworkClientFilePath))
     end
+end
 
+function compiler:refreshClientResource()
     print('[^5Core^4V^7] ' .. _(CR(), 'core', 'corev_command_stop', GetCurrentResourceName() .. '_client'))
     ExecuteCommand(('stop %s_client'):format(GetCurrentResourceName()))
 
@@ -682,6 +794,8 @@ function compiler:reloadClientFiles()
     if (not string.endswith(frameworkClientPath, '/')) then frameworkClientPath = frameworkClientPath .. '/' end
 
     self:generateExecutables(frameworkPath, frameworkClientPath, publicFiles)
+    self:generateStreamFolder(frameworkPath, frameworkClientPath, fileStructure)
+    self:refreshClientResource()
 end
 
 --- Register commands to CoreV framework

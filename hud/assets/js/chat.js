@@ -178,10 +178,14 @@ window.CHAT = {
 
             this.backingSuggestions.push(suggestion);
 
-            const removedSuggestionIndex = this.removedSuggestions.findIndex(removedSuggestion == name);
+            if (typeof this.removedSuggestions != 'undefined' && typeof removedSuggestion != 'undefined') {
+                const removedSuggestionIndex = this.removedSuggestions.findIndex(removedSuggestion == name);
 
-            if (removedSuggestionIndex >= 0) {
-                this.removedSuggestions = this.removedSuggestions.splice(removedSuggestionIndex, 1);
+                if (removedSuggestionIndex >= 0) {
+                    this.removedSuggestions = this.removedSuggestions.splice(removedSuggestionIndex, 1);
+                }
+            } else {
+                this.removedSuggestions = [];
             }
         },
         mountedCallback() {

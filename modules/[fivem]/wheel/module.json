@@ -5,6 +5,9 @@
     "client_scripts": [
         "client/main.lua"
     ],
+    "streams": [
+        "stream/*.ytd"
+    ],
     "languages": {
         "nl": "langs/nl.json"
     },

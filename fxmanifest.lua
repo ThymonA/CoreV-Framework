@@ -145,7 +145,8 @@ corevmodules {
     'game',
     'utils',
     'chat',
-    'raycast'
+    'raycast',
+    'wheel'
 }
 
 ---

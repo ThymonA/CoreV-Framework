@@ -33,18 +33,22 @@ function async:parallel(func, params, cb)
         end
     end
 
-    for _, param in pairs(params or {}) do
-        self.createThread(function()
-            func(param, function(result)
-                table.insert(results, result)
+    if (remaining == 0) then
+        if (cb ~= nil) then cb(results) end
+    else
+        for _, param in pairs(params or {}) do
+            self.createThread(function()
+                func(param, function(result)
+                    table.insert(results, result)
 
-                remaining = remaining - 1;
+                    remaining = remaining - 1;
 
-                if (remaining == 0) then
-                    if (cb ~= nil) then cb(results) end
-                end
+                    if (remaining == 0) then
+                        if (cb ~= nil) then cb(results) end
+                    end
+                end, _)
             end)
-        end)
+        end
     end
 end
 

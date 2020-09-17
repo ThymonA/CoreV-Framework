@@ -9,3 +9,6 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 local wheel = class('wheel')
+
+function wheel:draw()
+end
