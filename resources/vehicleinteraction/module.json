@@ -1,0 +1,12 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV vehicleinteraction resource",
+    "client_scripts": [
+        "client/main.lua"
+    ],
+    "languages": {
+        "nl": "langs/nl.json"
+    },
+    "resource": "vehicleinteraction"
+}

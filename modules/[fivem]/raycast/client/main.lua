@@ -94,7 +94,7 @@ function raycast:getCursor()
     local cursorPosX, cursorPosY = round(cursorX / screenX + 0.008, 3), round(cursorY / screenY + 0.027, 3)
 
     return vector2(cursorPosX, cursorPosY)
-  end
+end
 
 --- Checks if flagType exists in flag
 --- @param flagType number Flag type like: 1,2,4,8,16,32...
@@ -185,8 +185,8 @@ Citizen.CreateThread(function()
             raycast.showMouse = true
         end
 
-        if (latestMouseState ~= raycast.showMouse) then
-            latestMouseState = raycast.showMouse
+        if (raycast.latestMouseState ~= raycast.showMouse) then
+            raycast.latestMouseState = raycast.showMouse
             SetNuiFocus(false, raycast.showMouse)
             SetNuiFocusKeepInput(raycast.showMouse)
         end
@@ -230,6 +230,18 @@ Citizen.CreateThread(function()
                 raycast.entities = {}
             end
         end
+    end
+end)
+
+--- Add raycast as module when available
+Citizen.CreateThread(function()
+    while true do
+        if (addModule ~= nil and type(addModule) == 'function') then
+            addModule('raycast', raycast)
+            return
+        end
+
+        Citizen.Wait(0)
     end
 end)
 

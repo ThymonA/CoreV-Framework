@@ -155,5 +155,6 @@ corevmodules {
 --- resources not listed will be loaded after this list in a random order.
 ---
 corevresources {
-    'parking'
+    'parking',
+    'vehicleinteraction'
 }

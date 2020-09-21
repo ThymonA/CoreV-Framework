@@ -14,15 +14,19 @@ wheels:set {
     currentWheel = nil,
     wheels = {},
     timer = GetGameTimer(),
-    chunks = {}
+    chunks = {},
+    mouseStatus = false,
+    keybinds = m('keybinds'),
+    canSelect = false
 }
 
 --- Open a wheel object
 --- @param namespace string Wheel's namespace
 --- @param name string Wheel's name
-function wheels:open(namespace, name)
+function wheels:open(namespace, name, onCursor)
     if (namespace == nil or type(namespace) ~= 'string') then return end
     if (name == nil or type(name) ~= 'string') then return end
+    if (onCursor == nil or type(onCursor) ~= 'boolean') then onCursor = false end
 
     if (self.wheels ~= nil and self.wheels[namespace] ~= nil and self.wheels[namespace][name] ~= nil) then
         local anyWheelOpen, currentOpenWheel = self:anyWheelOpen()
@@ -32,6 +36,18 @@ function wheels:open(namespace, name)
         end
 
         self.wheels[namespace][name]:open(true)
+
+        local wheelX, wheelY = 0, 0
+
+        if (onCursor) then
+            local mouseX, mouseY = GetNuiCursorPosition()
+
+            wheelX, wheelY = round(mouseX or 0, 0), round(mouseY or 0, 0)
+        else
+            local screenX, screenY = GetActiveScreenResolution()
+
+            wheelX, wheelY = round((screenX or 0) / 2, 0), round((screenY or 0) / 2, 0)
+        end
 
         SendNUIMessage({
             action = 'SET_NAMESPACE',
@@ -56,6 +72,8 @@ function wheels:open(namespace, name)
         SendNUIMessage({
             action = 'CHANGE_STATE',
             shouldHide = false,
+            x = wheelX,
+            y = wheelY,
             __namespace = self.wheels[namespace][name].namespace,
             __name = self.wheels[namespace][name].name,
             __resource = GetCurrentResourceName(),
@@ -88,7 +106,9 @@ function wheels:close(namespace, name)
 
             SendNUIMessage({
                 action = 'CHANGE_STATE',
-                shouldHide = false,
+                shouldHide = true,
+                x = 0,
+                y = 0,
                 __namespace = self.wheels[namespace][name].namespace,
                 __name = self.wheels[namespace][name].name,
                 __resource = GetCurrentResourceName(),
@@ -176,7 +196,7 @@ Citizen.CreateThread(function()
     end
 end)
 
-RegisterNUICallback('wheel_result', function(data, cb)
+RegisterNUICallback('wheel_results', function(data, cb)
     local namespace = data.__namespace or 'unknown'
     local name = data.__name or 'unknown'
 
@@ -189,44 +209,78 @@ RegisterNUICallback('wheel_result', function(data, cb)
 
     local wheel = wheels.wheels[namespace][name]
 
-    if (data.__type ~= nil and data.__type == 'close') then
-        wheels:close(namespace, name)
-    end
+    if (wheel ~= nil) then
+        local currentSelected = data.selected or 0
 
-    if (data) then
-        wheel:triggerEvents(data.__type, wheel, data)
+        if (type(currentSelected) == 'string') then currentSelected = tonumber(currentSelected) end
+        if (type(currentSelected) ~= 'number') then cb('ok') return end
+
+        for _, item in pairs(wheel.items or {}) do
+            if (item.id == currentSelected) then
+                wheel:triggerEvents('submit', wheel, item)
+                cb('ok')
+                return
+            end
+        end
     end
 
     cb('ok')
 end)
 
 Citizen.CreateThread(function()
-    local __wheel = nil
-
     while true do
-        if IsControlPressed(1, 246) then
-            if (__wheel == nil) then
-                __wheel = wheels:create('demo', 'demo')
+        if (wheels.mouseStatus ~= (wheels.currentWheel or {}).isOpen) then
+            wheels.mouseStatus = (wheels.currentWheel or {}).isOpen
 
-                __wheel:addItem({
-                    title = 'Demo 1',
-                    description = 'Dit is een desc van DEMO 1',
-                    icon = 'fa-video',
-                    lib = 'fad',
-                    addon = {
-                        demo = 1
-                    }
-                })
+            SetNuiFocus(wheels.mouseStatus, wheels.mouseStatus)
+            SetNuiFocusKeepInput(wheels.mouseStatus)
+        end
 
-                __wheel:open()
-            elseif (not __wheel.isOpen) then
-                __wheel:open()
+        if (wheels.mouseStatus) then
+            DisableControlAction(0,24, true) -- disable attack
+            DisableControlAction(0,25, true) -- disable aim
+            DisableControlAction(0, 1, true) -- LookLeftRight
+            DisableControlAction(0, 2, true) -- LookUpDown
+        end
+
+        Citizen.Wait(0)
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        if ((wheels.currentWheel or {}).isOpen and not wheels.canSelect) then
+            Citizen.Wait(50)
+
+            if ((wheels.currentWheel or {}).isOpen) then
+                wheels.canSelect = true
             end
-        else if (__wheel ~= nil) then
-                __wheel:close()
+        elseif (not ((wheels.currentWheel or {}).isOpen or false)) then
+            wheels.canSelect = false
+        end
+
+        Citizen.Wait(0)
+    end
+end)
+
+Citizen.CreateThread(function()
+    while true do
+        if (wheels.canSelect and not wheels.mouseStatus) then
+            wheels.mouseStatus = wheels.canSelect or false
+        end
+
+        if (wheels.canSelect and wheels.keybinds:isControlPressed('wheel_select')) then
+            wheels.mouseStatus = false
+
+            if ((wheels.currentWheel or {}).isOpen) then
+                wheels:close((wheels.currentWheel or {}).namespace or 'unknown', (wheels.currentWheel or {}).name or 'unknown')
             end
         end
 
         Citizen.Wait(0)
     end
+end)
+
+onFrameworkStarted(function()
+    wheels.keybinds:registerKey('wheel_select', _(CR(), 'wheels', 'keybind_wheel_select'), 'mouse', 'mouse_left')
 end)

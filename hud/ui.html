@@ -223,137 +223,12 @@
 		</div>
 	</script>
 	<script type="text/x-template" id="wheel-template">
-		<div class="cs" id="wheelmenu" :class="{ 'hidden': shouldHide }" :data-namespace="namespace" :data-name="name">
-            <div class="intro">
-                <div class="center">
-                    <div class="core"></div>
-                    <div class="outer_one" style="transform: scale(0.5, 0.5) translateX(-9em) translateY(-5em);">
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                        <div class="outer_one__piece"></div>
-                    </div>
-                    <div class="outer_two" style="transform: scale(0.5, 0.5) translateX(-19em) translateY(-5em);">
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                        <div class="outer_two__piece"></div>
-                    </div>
-                    <div class="outer_three" style="transform: scale(0.5, 0.5) translateX(-29em) translateY(-6em);">
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                        <div class="outer_three__piece"></div>
-                    </div>
-                    <div class="pieces">
-                        <wheelitem v-for="wheelitem in items"
-							:show="wheelitem.show"
-							:class="wheelitem.class"
-							:lib="wheelitem.lib"
-							:icon="wheelitem.icon"
-							:title="wheelitem.title"
-							:description="wheelitem.description"
-							:id="wheelitem.id">
-						</wheelitem>
-                    </div>
-                </div>
-            </div>
+		<div id="wheelmenu" :class="{ 'hidden': shouldHide }" :data-namespace="namespace" :data-name="name">
+			<div class="wheel">
+				<div v-for="wheelitem in getItems" class="arc" :class="[wheelitem.class]" :data-id="wheelitem.id">
+					<i :class="[wheelitem.lib, wheelitem.icon]"></i>
+				</div>
+			</div>
         </div>
 	</script>
 
@@ -362,6 +237,7 @@
 	<script type="text/javascript" src="./assets/js/chat/message.js"></script>
 	<script type="text/javascript" src="./assets/js/chat.js"></script>
 	<script type="text/javascript" src="./assets/js/hud.js"></script>
+	<script type="text/javascript" src="./assets/js/wheel/item.js"></script>
 	<script type="text/javascript" src="./assets/js/wheel.js"></script>
 	<script type="text/javascript">
 		const chat = new Vue({

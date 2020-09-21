@@ -15,6 +15,7 @@ function wheels:createWheel(namespace, name)
         namespace = namespace,
         name = name,
         items = {},
+        addon = {},
         events = {
             latest = '',
             open = {},
@@ -95,14 +96,11 @@ function wheels:createWheel(namespace, name)
     --- Trigger all submit callbacks
     --- @param wheel wheel Wheel that has been triggerd
     --- @param data table Information about trigger
-    function wheel:triggerSubmitEvents(wheel, data)
-        local selectedIndex = data.index or 0
-        local selectedItem = self.items[(selectedIndex + 1)] or false
-
+    function wheel:triggerSubmitEvents(wheel, selectedItem)
         for _, event in pairs(self.events.submit or {}) do
             if (event ~= nil and type(event) == 'function') then
                 try(function()
-                    event(self, selectedItem, data)
+                    event(self, selectedItem)
                 end, function(e)
                     error:print(e)
                 end)
@@ -165,14 +163,6 @@ function wheels:createWheel(namespace, name)
 
         local data = {}
 
-        if (item.title ~= nil and type(item.title) == 'string') then
-            data.title = item.title
-        end
-
-        if (item.description ~= nil and type(item.description) == 'string') then
-            data.description = item.description
-        end
-
         if (item.icon ~= nil and type(item.icon) == 'string') then
             data.icon = item.icon
         end
@@ -207,6 +197,23 @@ function wheels:createWheel(namespace, name)
     --- Clear all wheel items
     function wheel:clearItems()
         self.items = {}
+    end
+
+    --- Set custom addon on wheel instead of item
+    --- @param addon table Addon information
+    function wheel:setAddon(addon)
+        if (addon ~= nil and type(addon) == 'table') then
+            self.addon = addon or {}
+        end
+    end
+
+    --- Returns addon of current wheel
+    function wheel:getAddon()
+        if (self.addon ~= nil and type(self.addon) == 'table') then
+            return self.addon or {}
+        end
+
+        return {}
     end
 
     return wheel

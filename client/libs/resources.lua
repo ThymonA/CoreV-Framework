@@ -256,7 +256,7 @@ function resource:loadFrameworkExecutables()
 end
 
 --- Load all translations for 
---- @object Any Executable Resource/Module
+--- @param object module|resource|table Executable Resource/Module
 function resource:loadTranslations(object)
     if (object.enabled and object.manifest ~= nil and type(object.manifest) == 'manifest') then
         local languages = object.manifest:getValue('languages') or {}
