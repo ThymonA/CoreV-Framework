@@ -159,6 +159,25 @@ local function os_currentTimeAsString()
     return os.date('%H:%M', os.time())
 end
 
+--- Hex to RGB
+--- @param hex string Hex as #FFF or #FFFFFF
+local function hex2rgb(hex)
+    if (hex == nil or type(hex) ~= 'string') then return 255, 255, 255 end
+    if (hex:startswith('#')) then hex = hex:gsub('#', '') end
+
+    if (string.len(hex) == 3) then
+        return tonumber(('0x%s'):format(hex:sub(1,1))), 
+            tonumber(('0x%s'):format(hex:sub(2,2))),
+            tonumber(('0x%s'):format(hex:sub(3,3)))
+    elseif (string.len(hex) == 6) then
+        return tonumber(('0x%s'):format(hex:sub(1,2))), 
+            tonumber(('0x%s'):format(hex:sub(3,4))),
+            tonumber(('0x%s'):format(hex:sub(5,6)))
+    end
+
+    return 255, 255, 255
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
@@ -178,6 +197,8 @@ _ENV.split = split
 _G.split = split
 _ENV.round = round
 _G.round = round
+_ENV.hex2rgb = hex2rgb
+_G.hex2rgb = hex2rgb
 _ENV.updateFilePath = updateFilePath
 _G.updateFilePath = updateFilePath
 

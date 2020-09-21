@@ -81,8 +81,6 @@ corevclients {
 
     'client/libs/callbacks.lua',
     'client/libs/resources.lua',
-    'client/classes/menu.lua',
-    'client/libs/menus.lua',
 
     'client/main.lua'
 }
@@ -114,6 +112,8 @@ corevfiles {
     'hud/**/*.css',
     'hud/**/*.png',
     'hud/**/*.js',
+    'hud/**/*.woff',
+    'hud/**/*.woff2',
     'hud/ui.html',
     'hud/assets/css/*.css',
     'hud/assets/images/*.png',
@@ -143,6 +143,7 @@ corevmodules {
     'streaming',
     'markers',
     'game',
+    'menus',
     'utils',
     'chat',
     'raycast',

@@ -1,15 +1,13 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV wheel module",
+    "description": "CoreV menus module",
     "client_scripts": [
-        "client/main.lua"
-    ],
-    "streams": [
-        "stream/*.ytd"
+        "client/main.lua",
+        "classes/menu.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "wheel"
+    "module": "menus"
 }

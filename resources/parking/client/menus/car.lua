@@ -1,5 +1,7 @@
 --- Open car menu
-function resource_parking:openParkingMenu()    
+function resource_parking:openParkingMenu()
+    local menus = m('menus')
+
     local menu, isNew = menus:create(('%s_parking'):format(CR()), 'spawn_cars', {
         title = _(CR(), 'parking', 'parking'),
         subtitle = _(CR(), 'parking', 'select_category')
@@ -43,6 +45,7 @@ end
 --- @param previousMenu menu Previous menu
 function resource_parking:openParkingSpawnMenu(selectedItem, previousMenu)
     if (selectedItem and resource_parking.currentMarker ~= nil) then
+        local menus = m('menus')
         local selectedBrand = Config.Brands[selectedItem.addon.brand] or {}
         local selectVehicleMenu, selectVehicleNew = menus:create(('%s_parking_select_%s'):format(CR(), selectedBrand.brand), 'select_spawn_cars', {
             title = _(CR(), 'parking', 'parking'),

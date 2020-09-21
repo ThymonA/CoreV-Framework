@@ -37,6 +37,13 @@ $(function(){
 
                 window.dispatchEvent(hudEvent)
                 break;
+            case 'wheel':
+                const wheelEvent = new CustomEvent('wheel_message', {
+                    detail: item
+                });
+
+                window.dispatchEvent(wheelEvent)
+                break;
             case 'loaded':
                 window.frameworkLoaded = true;
                 break;

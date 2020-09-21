@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-CoreV.CreateAMenu = function(namespace, name, info)
+function menus:createAMenu(namespace, name, info)
     local menu = class('menu')
 
     --- Default values
@@ -250,7 +250,7 @@ CoreV.CreateAMenu = function(namespace, name, info)
             return
         end
 
-        for key, value in pairs(items or {}) do
+        for _, value in pairs(items or {}) do
             self:addItem(value)
         end
     end

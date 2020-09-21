@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-menus = class('menus')
+local menus = class('menus')
 
 --- Set default values
 menus:set {
@@ -31,7 +31,6 @@ function menus:open(namespace, name)
         end
 
         local anyMenuOpen, currentOpenMenu = self:anyMenuOpen()
-        local menuClossed = false
 
         if (anyMenuOpen) then
             self.menus[currentOpenMenu.namespace][currentOpenMenu.name].isOpen = false
@@ -89,7 +88,7 @@ function menus:create(namespace, name, info)
     if (self.menus[namespace] == nil) then self.menus[namespace] = {} end
     if (self.menus[namespace][name] ~= nil) then return self.menus[namespace][name], false end
 
-    local menu = CoreV.CreateAMenu(namespace, name, info)
+    local menu = self:createAMenu(namespace, name, info)
 
     self.menus[namespace][name] = menu
 
@@ -132,7 +131,7 @@ function menus:anyMenuOpen()
 
     for namespace, namespaceMenus in pairs(self.menus or {}) do
         if (namespace ~= nil and namespaceMenus ~= nil and type(namespace) == 'string' and type(namespaceMenus) == 'table') then
-            for name, menu in pairs(self.menus[namespace] or {}) do
+            for _, menu in pairs(self.menus[namespace] or {}) do
                 if (menu.isOpen) then
                     return true, menu
                 end

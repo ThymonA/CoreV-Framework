@@ -15,25 +15,6 @@ markers:set {
     markers = {}
 }
 
---- Hex to RGB
---- @param hex string Hex as #FFF or #FFFFFF
-function markers:hex2rgb(hex)
-    if (hex == nil or type(hex) ~= 'string') then return 255, 255, 255 end
-    if (hex:startswith('#')) then hex = hex:gsub('#', '') end
-
-    if (string.len(hex) == 3) then
-        return tonumber(('0x%s'):format(hex:sub(1,1))), 
-            tonumber(('0x%s'):format(hex:sub(2,2))),
-            tonumber(('0x%s'):format(hex:sub(3,3)))
-    elseif (string.len(hex) == 6) then
-        return tonumber(('0x%s'):format(hex:sub(1,2))), 
-            tonumber(('0x%s'):format(hex:sub(3,4))),
-            tonumber(('0x%s'):format(hex:sub(5,6)))
-    end
-
-    return 255, 255, 255
-end
-
 --- Add a marker to global framework
 --- @param name string name of marker
 --- @param whitelist array whitelist
@@ -73,7 +54,7 @@ function markers:add(name, event, whitelist, mType, pos, info, hex, addon)
     end
 
     --- transform hex to rgb color
-    red, green, blue = self:hex2rgb(hex)
+    red, green, blue = hex2rgb(hex)
 
     --- define marker type
     if (mType == nil or (type(mType) == 'number' and (mType < 0 or mType > 43))) then
