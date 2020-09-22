@@ -1,0 +1,15 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV jobs resource",
+    "client_scripts": [
+        "client/main.lua"
+    ],
+    "server_scripts": [
+
+    ],
+    "languages": {
+        "nl": "langs/nl.json"
+    },
+    "resource": "jobs"
+}

@@ -10,6 +10,7 @@
 ----------------------- [ CoreV ] -----------------------
 local wheels = class('wheels')
 
+--- Set default values
 wheels:set {
     currentWheel = nil,
     wheels = {},

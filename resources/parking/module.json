@@ -14,5 +14,5 @@
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "parking"
+    "resource": "parking"
 }

@@ -210,18 +210,6 @@
 			{{message}}
 		</div>
 	</script>
-	<script type="text/x-template" id="wheel-item-template">
-		<div class="future_ui__piece" :class="class" :data-id="id">
-			<span v-show="show">
-				<i :class="[lib, icon]"></i>
-				{{title}}
-			</span>
-			<div class="line" v-show="show"></div>
-			<div class="tip" v-show="show">
-				{{description}}
-			</div>
-		</div>
-	</script>
 	<script type="text/x-template" id="wheel-template">
 		<div id="wheelmenu" :class="{ 'hidden': shouldHide }" :data-namespace="namespace" :data-name="name">
 			<div class="wheel">

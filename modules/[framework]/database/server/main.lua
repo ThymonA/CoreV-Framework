@@ -228,13 +228,19 @@ function database:applyMigration(object, _migration)
 
     self:ready(function()
         local content = getFrameworkFile(object.name, object.type, ('migrations/%s'):format(_migration))
+        local objectType = object.type or nil
 
-        if (content == nil) then
-            queryDone = true
-            return
-        end
+        if (objectType == nil or type(objectType) ~= 'string') then queryDone = true return end
+        if (content == nil) then queryDone = true return end
 
-        local resourceName = 'none'
+        local resourceName, resourceType = 'none', nil
+
+        if (string.lower(objectType) == 'ir') then resourceType = 'resource' end
+        if (string.lower(objectType) == 'er') then resourceType = 'resource' end
+        if (string.lower(objectType) == 'im') then resourceType = 'module' end
+        if (string.lower(objectType) == 'em') then resourceType = 'module' end
+
+        if (resourceType == nil) then queryDone = true return end
 
         if (string.lower(object.type) == string.lower(ResourceTypes.ExternalResource)) then
             resourceName = object.name
@@ -245,7 +251,7 @@ function database:applyMigration(object, _migration)
             resourceName = GetCurrentResourceName()
         end
 
-        local migrations = (database.migrations[resourceName] or {})[object.name] or {}
+        local migrations = ((database.migrations[resourceName] or {})[resourceType] or {})[object.name] or {}
 
         for _, migration in pairs(migrations or {}) do
             if (string.lower(migration.version) == string.lower(_migration)) then
@@ -255,9 +261,10 @@ function database:applyMigration(object, _migration)
         end
 
         database:execute(content, {})
-        database:execute('INSERT INTO `migrations` (`resource`, `module`, `version`) VALUES (@resource, @module, @version)', {
+        database:execute('INSERT INTO `migrations` (`resource`, `type`, `name`, `version`) VALUES (@resource, @type, @name, @version)', {
             ['@resource'] = resourceName,
-            ['@module'] = object.name,
+            ['@type'] = resourceType,
+            ['@name'] = object.name,
             ['@version'] = _migration
         })
 
@@ -298,11 +305,15 @@ Citizen.CreateThread(function()
             database.migrations[migration.resource] = {}
         end
 
-        if (database.migrations[migration.resource][migration.module] == nil) then
-            database.migrations[migration.resource][migration.module] = {}
+        if (database.migrations[migration.resource][migration.type] == nil) then
+            database.migrations[migration.resource][migration.type] = {}
         end
 
-        table.insert(database.migrations[migration.resource][migration.module], migration)
+        if (database.migrations[migration.resource][migration.type][migration.name] == nil) then
+            database.migrations[migration.resource][migration.type][migration.name] = {}
+        end
+
+        table.insert(database.migrations[migration.resource][migration.type][migration.name], migration)
     end
 
     database.isReady = true

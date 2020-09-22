@@ -1,0 +1,11 @@
+INSERT INTO `jobs` (`name`, `label`, `whitelisted`) VALUES ('politie', 'Politie', 1);
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 0 AS `grade`, 'aspirant' AS `name`, 'Aspirant' AS `label`, 500 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 1 AS `grade`, 'surveillant' AS `name`, 'Surveillant' AS `label`, 750 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 2 AS `grade`, 'agent' AS `name`, 'Agent' AS `label`, 1000 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 3 AS `grade`, 'hoofdagent' AS `name`, 'Hoofdagent' AS `label`, 1100 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 4 AS `grade`, 'brigadier' AS `name`, 'Brigadier' AS `label`, 1200 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 5 AS `grade`, 'inspecteur' AS `name`, 'Inspecteur' AS `label`, 1300 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 6 AS `grade`, 'hoofdinspecteur' AS `name`, 'Hoofdinspecteur' AS `label`, 1400 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 7 AS `grade`, 'commissaris' AS `name`, 'Commissaris' AS `label`, 1500 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 8 AS `grade`, 'hoofdcommissaris' AS `name`, 'Hoofdcommissaris' AS `label`, 1750 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;
+INSERT INTO `job_grades` SELECT `id` AS `job_id`, 9 AS `grade`, 'boss' AS `name`, 'Eerste Hoofdcommissaris' AS `label`, 2000 AS `salary` FROM `jobs` WHERE `name` = 'politie' LIMIT 1;

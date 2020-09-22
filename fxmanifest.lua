@@ -156,5 +156,6 @@ corevmodules {
 ---
 corevresources {
     'parking',
-    'vehicleinteraction'
+    'vehicleinteraction',
+    'jobs'
 }
