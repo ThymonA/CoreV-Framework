@@ -1,0 +1,18 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV lock module",
+    "server_scripts": [
+        "config/server_config.lua",
+        "server/main.lua",
+        "classes/door.lua",
+        "classes/lock.lua"
+    ],
+    "client_scripts": [
+        "client/main.lua"
+    ],
+    "languages": {
+        "nl": "langs/nl.json"
+    },
+    "module": "lock"
+}

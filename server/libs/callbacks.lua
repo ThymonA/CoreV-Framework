@@ -35,6 +35,7 @@ end
 --- When client trigger this event
 onClientTrigger('corev:triggerServerCallback', function(name, requestId, ...)
     local source = source or -1
+    local params = table.pack(...)
 
     Citizen.CreateThread(function()
         if (type(source) == 'string') then source = tostring(source) end
@@ -42,7 +43,7 @@ onClientTrigger('corev:triggerServerCallback', function(name, requestId, ...)
 
         callbacks:triggerCallback(name, source, function(...)
             TCE('corev:triggerCallback', source, requestId, ...)
-        end)
+        end, table.unpack(params))
     end)
 end)
 

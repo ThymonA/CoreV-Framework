@@ -27,7 +27,7 @@ commands:register({ 'setjob', 'sj', 'setprimaryjob' }, { 'superadmin' }, functio
         if (not done) then
             showError(message)
         else
-            TCE('corev:players:setJob', arguments.playerId, player.job.label, player.grade.label)
+            TCE('corev:players:setJob', arguments.playerId, player.job, player.grade)
         end
     end)
 end, true, {
@@ -57,7 +57,7 @@ commands:register({ 'setjob2', 'sj2', 'setsecondjob' }, { 'superadmin' }, functi
         if (not done) then
             showError(message)
         else
-            TCE('corev:players:setJob2', arguments.playerId, player.job2.label, player.grade2.label)
+            TCE('corev:players:setJob2', arguments.playerId, player.job2, player.grade2)
         end
     end)
 end, true, {

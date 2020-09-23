@@ -15,7 +15,8 @@ raycast:set {
     latestMouseState = false,
     showMouse = false,
     entities = {},
-    keybinds = m('keybinds')
+    keybinds = m('keybinds'),
+    flag = 2
 }
 
 --- Transform a enumerator to a table
@@ -117,9 +118,13 @@ function raycast:getAllWordEntities(flag)
 
     if (self:flagExists(2, flag)) then
         worldEntities = self:getVehicles(worldEntities)
-    elseif (self:flagExists(4, flag) or self:flagExists(8, flag)) then
+    end
+
+    if (self:flagExists(4, flag) or self:flagExists(8, flag)) then
         worldEntities = self:getPeds(worldEntities)
-    elseif (self:flagExists(16, flag)) then
+    end
+
+    if (self:flagExists(16, flag)) then
         worldEntities = self:getObjects(worldEntities)
     end
 
@@ -130,7 +135,7 @@ end
 --- @param distance number Max distance from camera
 --- @param flag number Flag to search entities for
 function raycast:GetEntitiesOnScreen(distance, flag)
-    if (flag == nil or type(flag) ~= 'number') then flag = 30 end
+    if (flag == nil or type(flag) ~= 'number') then flag = raycast.flag or 30 end
     if (distance == nil or type(distance) ~= 'number') then distance = 10 end
 
     local playerPed = PlayerPedId()
@@ -166,7 +171,7 @@ function raycast:getClosestEntity(coords)
         if (entityInfo.screenCoords ~= nil) then
             local currentEntityDistance = #(entityInfo.screenCoords - coords)
 
-            if ((closestDistance == -1 or closestDistance > currentEntityDistance) and currentEntityDistance < 0.5) then
+            if (closestDistance == -1 or closestDistance > currentEntityDistance) then
                 anyEntityFound = true
                 closestEntity = entityInfo.entity
                 closestDistance = currentEntityDistance
@@ -177,6 +182,24 @@ function raycast:getClosestEntity(coords)
     end
 
     return anyEntityFound, closestEntity, closestDistance, entityCoords, entityType
+end
+
+function raycast:enableFlag(flag)
+    if (flag == nil or (type(flag) ~= 'number' and type(flag) ~= 'string')) then return end
+    if (type(flag) == 'string') then flag = tonumber(flag) end
+
+    if (self:flagExists(flag, self.flag)) then return end
+
+    self.flag = self.flag + flag
+end
+
+function raycast:disableFlag(flag)
+    if (flag == nil or (type(flag) ~= 'number' and type(flag) ~= 'string')) then return end
+    if (type(flag) == 'string') then flag = tonumber(flag) end
+
+    if (not self:flagExists(flag, self.flag)) then return end
+
+    self.flag = self.flag - flag
 end
 
 Citizen.CreateThread(function()
@@ -217,12 +240,12 @@ end)
 --- Thread to look for entities on screen
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(250)
+        Citizen.Wait(500)
 
         local playerPed = PlayerPedId()
 
         if (not IsPedInAnyVehicle(playerPed)) then
-            local anyEntityFound, entities = raycast:GetEntitiesOnScreen(10.0, 2)
+            local anyEntityFound, entities = raycast:GetEntitiesOnScreen(10.0, raycast.flag or 30)
 
             if (anyEntityFound) then
                 raycast.entities = entities
@@ -233,17 +256,7 @@ Citizen.CreateThread(function()
     end
 end)
 
---- Add raycast as module when available
-Citizen.CreateThread(function()
-    while true do
-        if (addModule ~= nil and type(addModule) == 'function') then
-            addModule('raycast', raycast)
-            return
-        end
-
-        Citizen.Wait(0)
-    end
-end)
+addModule('raycast', raycast)
 
 onFrameworkStarted(function()
     raycast.keybinds:registerKey('raycast_select', _(CR(), 'raycast', 'keybind_raycast_select'), 'mouse', 'mouse_right')

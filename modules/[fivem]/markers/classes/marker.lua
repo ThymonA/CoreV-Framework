@@ -73,11 +73,11 @@ function markers:createMarker(name, event, whitelist, markerType, position, size
 
         if (player == nil) then return false end
 
-        for i, job in pairs((markers.markers[name].jobs or {}).groups or {}) do
+        for i, job in pairs((markers.markers[self.name].whitelist or {}).jobs or {}) do
             if (job ~= nil and type(job) == 'string') then
                 return string.lower(job) == string.lower(player.job.name) or string.lower(job) == string.lower(player.job2.name)
             elseif (job ~= nil and type(job) == 'table') then
-                if (job.name ~= nil and type(job) == 'string') then
+                if (job.name ~= nil and type(job.name) == 'string') then
                     if (string.lower(job.name) == string.lower(player.job.name)) then
                         for _i, _grade in pairs(job.grades or {}) do
                             if (_grade ~= nil and type(_grade) == 'string' and string.lower(_grade) == string.lower(player.grade.name)) then

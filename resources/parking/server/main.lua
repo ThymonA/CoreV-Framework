@@ -48,7 +48,7 @@ for parkingName, parkingInfo in pairs(Config.Locations or {}) do
 
     --- Make sure that spawn has a location
     if (parkingInfo.spawn ~= nil and type(parkingInfo.spawn) == 'vector3') then
-        parkingInfo.spawn = { 
+        parkingInfo.spawn = {
             x = parkingInfo.location.x,
             y = parkingInfo.location.y,
             z = parkingInfo.location.z,

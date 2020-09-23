@@ -11,12 +11,12 @@
 Citizen.CreateThread(function()
     while true do
         if (NetworkIsPlayerActive(PlayerId())) then
-            if (GetEntityModel(PlayerPedId()) == GetHashKey('s_m_y_swat_01')) then
+            if (GetEntityModel(PlayerPedId()) == GetHashKey('a_f_y_epsilon_01')) then
                 return;
             end
 
             if (GetEntityModel(PlayerPedId()) == GetHashKey('PLAYER_ZERO')) then
-                local defaultModel = GetHashKey('s_m_y_swat_01')
+                local defaultModel = GetHashKey('a_f_y_epsilon_01')
 
                 RequestModel(defaultModel)
 

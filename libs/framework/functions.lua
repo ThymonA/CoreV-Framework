@@ -178,6 +178,71 @@ local function hex2rgb(hex)
     return 255, 255, 255
 end
 
+--- Get a file from stream folder
+--- @param resource string Resource Name
+--- @param module string Module Name
+--- @param file string Filename
+local function getStreamFile(resource, module, file)
+    if (resource == nil or type(resource) ~= 'string') then return nil end
+    if (module == nil or type(module) ~= 'string') then return nil end
+    if (file == nil or type(file) ~= 'string') then return nil end
+
+    local isInternal = string.lower(resource) == string.lower(GetCurrentResourceName())
+
+    if (isInternal) then
+        local internalModuleData = LoadResourceFile(GetCurrentResourceName(), ('stream/01_%s/%s'):format(module, file))
+
+        if (internalModuleData ~= nil and internalModuleData) then
+            return internalModuleData
+        end
+
+        local internalResourceData = LoadResourceFile(GetCurrentResourceName(), ('stream/02_%s/%s'):format(module, file))
+
+        if (internalResourceData ~= nil and internalResourceData) then
+            return internalResourceData
+        end
+
+        return nil
+    end
+
+    local externalModuleData = LoadResourceFile(GetCurrentResourceName(), ('stream/03_%s/%s'):format(module, file))
+
+    if (externalModuleData ~= nil and externalModuleData) then
+        return externalModuleData
+    end
+
+    local externalResourceData = LoadResourceFile(GetCurrentResourceName(), ('stream/04_%s/%s'):format(module, file))
+
+    if (externalResourceData ~= nil and externalResourceData) then
+        return externalResourceData
+    end
+
+    return nil
+end
+
+local chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+-={}|[]`~'
+local charTable = {}
+
+for c in chars:gmatch"." do
+    table.insert(charTable, c)
+end
+
+--- Returns a random string
+--- @param length number Length of string
+local function getRandomString(length)
+    if (length == nil or type(length) ~= 'number' or length <= 0) then length = 24 end
+
+    local randomString = ''
+
+    if (os ~= nil and os.time ~= nil) then
+        math.randomseed(os.time())
+    end
+
+    for i = 1, length do
+        randomString = randomString .. charTable[math.random(1, #charTable)]
+    end
+end
+
 -- FiveM maniplulation
 _ENV.try = try
 _G.try = try
@@ -201,6 +266,10 @@ _ENV.hex2rgb = hex2rgb
 _G.hex2rgb = hex2rgb
 _ENV.updateFilePath = updateFilePath
 _G.updateFilePath = updateFilePath
+_ENV.getStreamFile = getStreamFile
+_G.getStreamFile = getStreamFile
+_ENV.getRandomString = getRandomString
+_G.getRandomString = getRandomString
 
 _ENV.CR = function()
     if (CurrentFrameworkResource ~= nil and type(CurrentFrameworkResource) == 'string' and CurrentFrameworkResource ~= '') then

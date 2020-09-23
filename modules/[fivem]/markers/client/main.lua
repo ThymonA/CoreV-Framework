@@ -104,4 +104,24 @@ Citizen.CreateThread(function()
     end)
 end)
 
+onServerTrigger('corev:players:setJob', function(job, grade)
+    while not resource.tasks.loadingFramework do
+        Wait(0)
+    end
+
+    triggerServerCallback('corev:markers:receive', function(_markers)
+        markers.markers = _markers or {}
+    end)
+end)
+
+onServerTrigger('corev:players:setJob2', function(job, grade)
+    while not resource.tasks.loadingFramework do
+        Wait(0)
+    end
+
+    triggerServerCallback('corev:markers:receive', function(_markers)
+        markers.markers = _markers or {}
+    end)
+end)
+
 addModule('markers', markers)

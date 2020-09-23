@@ -147,7 +147,9 @@ corevmodules {
     'utils',
     'chat',
     'raycast',
-    'wheel'
+    'wheel',
+    'els',
+    'locks'
 }
 
 ---

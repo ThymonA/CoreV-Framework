@@ -1,16 +1,15 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV jobs resource",
+    "description": "CoreV els module",
     "client_scripts": [
         "client/main.lua"
     ],
     "server_scripts": [
-        "config/server_config.lua",
         "server/main.lua"
     ],
-    "languages": {
-        "nl": "langs/nl.json"
-    },
-    "resource": "jobs"
+    "streams": [
+        "stream/*.xml"
+    ],
+    "module": "els"
 }

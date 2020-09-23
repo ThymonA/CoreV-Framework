@@ -16,29 +16,30 @@ function utils:drawText3Ds(coords, text)
     if (type(coords) ~= 'vector3') then return end
 
     local onScreen, x, y = GetScreenCoordFromWorldCoord((coords.x or 0), (coords.y or 0), (coords.z or 0))
-    local playerX, playerY, playerZ = table.unpack(GetGameplayCamCoord())
-    local distance = GetDistanceBetweenCoords(playerX, playerY, playerZ, (coords.x or 0), (coords.y or 0), (coords.z or 0), 1)
-    local scale = ((1 / distance) * 2) * (1 / GetGameplayCamFov()) * 100
 
     if (onScreen) then
-        SetTextColour(255, 255, 255, 215)
-        SetTextScale(0.0 * scale, 0.35 * scale)
+        local camCoords = GetGameplayCamCoords()
+        local distance = #(coords - camCoords)
+        local scale = (1 / distance) * 2
+        local fov = (1 / GetGameplayCamFov()) * 100
+
+        scale = scale * fov
+
+        SetTextColour(255, 255, 255, 255)
+        SetTextScale(0.0 * scale, 0.55 * scale)
+        SetTextDropshadow(0, 0, 0, 0)
+        SetTextDropShadow()
+        SetTextOutline()
         SetTextFont(0)
         SetTextProportional(1)
         SetTextCentre(true)
 
-        BeginTextCommandWidth("STRING")
-        AddTextComponentString(text)
-
-        local height = GetTextScaleHeight(0.50 * scale, 4)
-        local width = EndTextCommandGetWidth(0)
-
-        SetTextEntry("STRING")
-        AddTextComponentString(text)
-        EndTextCommandDisplayText(x, y)
-
-        DrawRect(x, y + scale / 90, width, height, 0, 0, 0, 100)
+        SetDrawOrigin(coords, 0)
+        BeginTextCommandDisplayText('STRING')
+        AddTextComponentSubstringPlayerName(text)
+        EndTextCommandDisplayText(0.0, 0.0)
+        ClearDrawOrigin()
     end
 end
 
-addModule("utils", utils)
+addModule('utils', utils)
