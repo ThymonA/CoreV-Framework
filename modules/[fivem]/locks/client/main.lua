@@ -158,6 +158,14 @@ Citizen.CreateThread(function()
                     if (lock.doors[i].latest == nil) then lock.doors[i].latest = {} end
 
                     if (lock.doors[i].position ~= nil and lock.doors[i].entity ~= nil) then
+                        if (lock.doors[i].locked and lock.doors[i].resetPosition ~= nil and lock.doors[i].resetPosition) then
+                            if (lock.doors[i].latest.coords == nil or not lock.doors[i].latest.coords) then
+                                lock.doors[i].latest.coords = true
+
+                                SetEntityCoords(lock.doors[i].entity, lock.doors[i].position.x, lock.doors[i].position.y, lock.doors[i].position.z, 1, 1, 1, false)
+                            end
+                        end
+
                         if (#(lock.doors[i].position - coords) <= lock.distance) then
                             if (lock.doors[i].latest.freeze == nil or lock.doors[i].latest.freeze ~= lock.doors[i].locked) then
                                 lock.doors[i].latest.freeze = lock.doors[i].locked

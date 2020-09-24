@@ -17,7 +17,8 @@ function locks:createDoor(doorData)
         heading = 0.000,
         position = nil,
         rotation = nil,
-        locked = false
+        locked = false,
+        resetPosition = false
     }
 
     if (doorData.Name ~= nil and type(doorData.Name) == 'string') then
@@ -48,6 +49,10 @@ function locks:createDoor(doorData)
 
     if (doorData.Locked ~= nil and type(doorData.Locked) == 'boolean') then
         door.locked = doorData.Locked or false
+    end
+
+    if (doorData.ResetPosition ~= nil and type(doorData.ResetPosition) == 'boolean') then
+        door.resetPosition = doorData.ResetPosition or false
     end
 
     if (door.name == nil or door.hash == -1 or door.position == nil) then return nil end

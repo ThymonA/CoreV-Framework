@@ -185,18 +185,6 @@ function wheels:anyWheelOpen()
     return false, nil
 end
 
---- Add wheels as module when available
-Citizen.CreateThread(function()
-    while true do
-        if (addModule ~= nil and type(addModule) == 'function') then
-            addModule('wheels', wheels)
-            return
-        end
-
-        Citizen.Wait(0)
-    end
-end)
-
 RegisterNUICallback('wheel_results', function(data, cb)
     local namespace = data.__namespace or 'unknown'
     local name = data.__name or 'unknown'
@@ -251,7 +239,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         if ((wheels.currentWheel or {}).isOpen and not wheels.canSelect) then
-            Citizen.Wait(50)
+            Citizen.Wait(100)
 
             if ((wheels.currentWheel or {}).isOpen) then
                 wheels.canSelect = true
@@ -281,6 +269,8 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
     end
 end)
+
+addModule('wheels', wheels)
 
 onFrameworkStarted(function()
     wheels.keybinds:registerKey('wheel_select', _(CR(), 'wheels', 'keybind_wheel_select'), 'mouse', 'mouse_left')
