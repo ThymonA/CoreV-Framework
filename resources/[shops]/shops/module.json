@@ -1,13 +1,13 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV raycast module",
+    "description": "CoreV shops module",
     "client_scripts": [
-        "config/shared_config.lua",
-        "client/main.lua"
+    ],
+    "server_scripts": [
     ],
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "raycast"
+    "module": "shops"
 }

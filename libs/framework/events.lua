@@ -29,6 +29,21 @@ local events = {
     },
     onEntityTypeEvent = {
         client = {}
+    },
+    onEntityHashEvent = {
+        client = {}
+    },
+    onItemUseEvent = {
+        client = {},
+        server = {}
+    },
+    onItemDropEvent = {
+        client = {},
+        server = {}
+    },
+    onItemGiveEvent = {
+        client = {},
+        server = {}
     }
 }
 
@@ -112,8 +127,10 @@ if (CLIENT) then
         if (entityType == '1' or string.lower(entityType) == 'ped') then entityType = 'ped' end
         if (entityType == '2' or string.lower(entityType) == 'vehicle') then entityType = 'vehicle' end
         if (entityType == '3' or string.lower(entityType) == 'object') then entityType = 'object' end
+        if (entityType == '4' or string.lower(entityType) == 'self') then entityType = 'self' end
+        if (entityType == '5' or string.lower(entityType) == 'player') then entityType = 'player' end
 
-        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object') then return end
+        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object' and entityType ~= 'self' and entityType ~= 'player') then return end
 
         local module = CurrentFrameworkModule or 'unknown'
 
@@ -128,6 +145,102 @@ if (CLIENT) then
         table.insert(events.onEntityTypeEvent.client[entityType], {
             module = module,
             type = entityType,
+            func = func
+        })
+    end
+
+    --- Trigger func when entity name or hash has been clicked on screen
+    --- @param entityType string|number entity name or entity hash
+    --- @param func function Callback function
+    onEntityHashEvent = function(entityType, func)
+        if (entityType == nil) then return end
+        if (type(entityType) == 'number') then
+            if (hashList == nil) then hashList = m('hashList') end
+
+            local hashFound, hashName = hashList:getName(entityType)
+
+            if (not hashFound) then return end
+
+            entityType = hashName
+        end
+        if (type(entityType) ~= 'string') then return end
+
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onEntityHashEvent.client == nil) then
+            events.onEntityHashEvent.client = {}
+        end
+
+        if (events.onEntityHashEvent.client[entityType] == nil) then
+            events.onEntityHashEvent.client[entityType] = {}
+        end
+
+        table.insert(events.onEntityHashEvent.client[entityType], {
+            module = module,
+            type = entityType,
+            func = func
+        })
+    end
+
+    --- Trigger func when item will be used
+    --- @param item string Name of item
+    --- @param func function Callback function
+    onItemUseEvent = function(item, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onItemUseEvent.client == nil) then
+            events.onItemUseEvent.client = {}
+        end
+
+        if (events.onItemUseEvent.client[item] == nil) then
+            events.onItemUseEvent.client[item] = {}
+        end
+
+        table.insert(events.onItemUseEvent.client[item], {
+            module = module,
+            item = item,
+            func = func
+        })
+    end
+
+    --- Trigger func when item will be dropped
+    --- @param item string Name of item
+    --- @param func function Callback function
+    onItemDropEvent = function(item, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onItemDropEvent.client == nil) then
+            events.onItemDropEvent.client = {}
+        end
+
+        if (events.onItemDropEvent.client[item] == nil) then
+            events.onItemDropEvent.client[item] = {}
+        end
+
+        table.insert(events.onItemDropEvent.client[item], {
+            module = module,
+            item = item,
+            func = func
+        })
+    end
+
+    --- Trigger func when item will be given
+    --- @param item string Name of item
+    --- @param func function Callback function
+    onItemGiveEvent = function(item, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onItemGiveEvent.client == nil) then
+            events.onItemGiveEvent.client = {}
+        end
+
+        if (events.onItemGiveEvent.client[item] == nil) then
+            events.onItemGiveEvent.client[item] = {}
+        end
+
+        table.insert(events.onItemGiveEvent.client[item], {
+            module = module,
+            item = item,
             func = func
         })
     end
@@ -198,14 +311,91 @@ if (CLIENT) then
         if (entityType == '1' or string.lower(entityType) == 'ped') then entityType = 'ped' end
         if (entityType == '2' or string.lower(entityType) == 'vehicle') then entityType = 'vehicle' end
         if (entityType == '3' or string.lower(entityType) == 'object') then entityType = 'object' end
+        if (entityType == '4' or string.lower(entityType) == 'self') then entityType = 'self' end
+        if (entityType == '5' or string.lower(entityType) == 'player') then entityType = 'player' end
 
-        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object') then return end
+        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object' and entityType ~= 'self' and entityType ~= 'player') then return end
         if (events.onEntityTypeEvent.client == nil or #(events.onEntityTypeEvent.client[entityType] or {}) <= 0) then return end
 
         for _, entityTypeEvent in pairs(events.onEntityTypeEvent.client[entityType] or {}) do
             Citizen.CreateThread(function()
                 try(function()
                     entityTypeEvent.func(rawEntity, entityCoords)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all entity hash click events on screen click
+    --- @param hashName string Entity
+    --- @param rawEntity entity Raw triggerd entity
+    triggerEntityHashEvent = function(hashName, rawEntity, entityCoords)
+        if (hashName == nil) then return end
+        if (type(hashName) ~= 'string') then return end
+
+        if (events.onEntityHashEvent.client == nil or #(events.onEntityHashEvent.client[hashName] or {}) <= 0) then return end
+
+        for _, entityEvent in pairs(events.onEntityHashEvent.client[hashName] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    entityEvent.func(rawEntity, entityCoords)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all use item events
+    --- @param item item Item used
+    triggerItemUseEvent = function(item)
+        if (item == nil) then return end
+        if (type(item) ~= 'item') then return end
+
+        if (events.onItemUseEvent.client == nil or #(events.onItemUseEvent.client[item.name] or {}) <= 0) then return end
+
+        for _, itemEvent in pairs(events.onItemUseEvent.client[item.name] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    itemEvent.func(item)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all drop item events
+    --- @param item item Item used
+    triggerItemDropEvent = function(item)
+        if (item == nil) then return end
+        if (type(item) ~= 'item') then return end
+
+        if (events.onItemDropEvent.client == nil or #(events.onItemDropEvent.client[item.name] or {}) <= 0) then return end
+
+        for _, itemEvent in pairs(events.onItemDropEvent.client[item.name] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    itemEvent.func(item)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all give item events
+    --- @param item item Item used
+    --- @param from number|table Who give the item
+    --- @param to number|table Who got the item
+    triggerItemGiveEvent = function(item, from, to)
+        if (item == nil) then return end
+        if (type(item) ~= 'item') then return end
+
+        if (events.onItemGiveEvent.client == nil or #(events.onItemGiveEvent.client[item.name] or {}) <= 0) then return end
+
+        for _, itemEvent in pairs(events.onItemGiveEvent.client[item.name] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    itemEvent.func(item, from, to)
                 end, function(err) end)
                 return
             end)
@@ -236,6 +426,12 @@ if (CLIENT) then
     _G.onEntityEvent = onEntityEvent
     _ENV.onEntityTypeEvent = onEntityTypeEvent
     _G.onEntityTypeEvent = onEntityTypeEvent
+    _ENV.onItemUseEvent = onItemUseEvent
+    _G.onItemUseEvent = onItemUseEvent
+    _ENV.onItemUseEvent = onItemDropEvent
+    _G.onItemUseEvent = onItemDropEvent
+    _ENV.onItemUseEvent = onItemGiveEvent
+    _G.onItemUseEvent = onItemGiveEvent
     _ENV.triggerMarkerEvent = triggerMarkerEvent
     _G.triggerMarkerEvent = triggerMarkerEvent
     _ENV.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
@@ -244,6 +440,12 @@ if (CLIENT) then
     _G.triggerEntityEvent = triggerEntityEvent
     _ENV.triggerEntityTypeEvent = triggerEntityTypeEvent
     _G.triggerEntityTypeEvent = triggerEntityTypeEvent
+    _ENV.triggerItemUseEvent = triggerItemUseEvent
+    _G.triggerItemUseEvent = triggerItemUseEvent
+    _ENV.triggerItemDropEvent = triggerItemDropEvent
+    _G.triggerItemDropEvent = triggerItemDropEvent
+    _ENV.triggerItemGiveEvent = triggerItemGiveEvent
+    _G.triggerItemGiveEvent = triggerItemGiveEvent
     _ENV.onServerTrigger = onServerTrigger
     _G.onServerTrigger = onServerTrigger
     _ENV.onClientTrigger = onClientTrigger
@@ -297,6 +499,69 @@ if (SERVER) then
     ---@param func function Function to trigger
     onServerTrigger = function(name, func)
         AddEventHandler(name, func)
+    end
+
+    --- Trigger func when item will be used
+    --- @param item string Name of item
+    --- @param func function Callback function
+    onItemUseEvent = function(item, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onItemUseEvent.server == nil) then
+            events.onItemUseEvent.server = {}
+        end
+
+        if (events.onItemUseEvent.server[item] == nil) then
+            events.onItemUseEvent.server[item] = {}
+        end
+
+        table.insert(events.onItemUseEvent.server[item], {
+            module = module,
+            item = item,
+            func = func
+        })
+    end
+
+    --- Trigger func when item will be dropped
+    --- @param item string Name of item
+    --- @param func function Callback function
+    onItemDropEvent = function(item, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onItemDropEvent.server == nil) then
+            events.onItemDropEvent.server = {}
+        end
+
+        if (events.onItemDropEvent.server[item] == nil) then
+            events.onItemDropEvent.server[item] = {}
+        end
+
+        table.insert(events.onItemDropEvent.server[item], {
+            module = module,
+            item = item,
+            func = func
+        })
+    end
+
+    --- Trigger func when item will be given
+    --- @param item string Name of item
+    --- @param func function Callback function
+    onItemGiveEvent = function(item, func)
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.onItemGiveEvent.server == nil) then
+            events.onItemGiveEvent.server = {}
+        end
+
+        if (events.onItemGiveEvent.server[item] == nil) then
+            events.onItemGiveEvent.server[item] = {}
+        end
+
+        table.insert(events.onItemGiveEvent.server[item], {
+            module = module,
+            item = item,
+            func = func
+        })
     end
 
     --- Trigger all player connecting events
@@ -384,6 +649,68 @@ if (SERVER) then
         end
     end
 
+    --- Trigger all use item events
+    --- @param item item Item used
+    --- @param source number PlayerID
+    triggerItemUseEvent = function(item, source)
+        if (item == nil) then return end
+        if (type(item) ~= 'item') then return end
+        if (source == nil or type(source) ~= 'number') then return end
+
+        if (events.onItemUseEvent.server == nil or #(events.onItemUseEvent.server[item.name] or {}) <= 0) then return end
+
+        for _, itemEvent in pairs(events.onItemUseEvent.server[item.name] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    itemEvent.func(item, source)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all drop item events
+    --- @param item item Item used
+    --- @param source number PlayerID
+    triggerItemDropEvent = function(item, source)
+        if (item == nil) then return end
+        if (type(item) ~= 'item') then return end
+        if (source == nil or type(source) ~= 'number') then return end
+
+        if (events.onItemDropEvent.server == nil or #(events.onItemDropEvent.server[item.name] or {}) <= 0) then return end
+
+        for _, itemEvent in pairs(events.onItemDropEvent.server[item.name] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    itemEvent.func(item, source)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
+    --- Trigger all give item events
+    --- @param item item Item used
+    --- @param fromSource number PlayerID
+    --- @param toSource number PlayerID
+    triggerItemGiveEvent = function(item, fromSource, toSource)
+        if (item == nil) then return end
+        if (type(item) ~= 'item') then return end
+        if (fromSource == nil or type(fromSource) ~= 'number') then return end
+        if (toSource == nil or type(toSource) ~= 'number') then return end
+
+        if (events.onItemGiveEvent.server == nil or #(events.onItemGiveEvent.server[item.name] or {}) <= 0) then return end
+
+        for _, itemEvent in pairs(events.onItemGiveEvent.server[item.name] or {}) do
+            Citizen.CreateThread(function()
+                try(function()
+                    itemEvent.func(item, fromSource, toSource)
+                end, function(err) end)
+                return
+            end)
+        end
+    end
+
     -- FiveM maniplulation
     _ENV.onPlayerConnecting = onPlayerConnecting
     _G.onPlayerConnecting = onPlayerConnecting
@@ -391,12 +718,24 @@ if (SERVER) then
     _G.onPlayerDisconnect = onPlayerDisconnect
     _ENV.onPlayerConnected = onPlayerConnected
     _G.onPlayerConnected = onPlayerConnected
+    _ENV.onItemUseEvent = onItemUseEvent
+    _G.onItemUseEvent = onItemUseEvent
+    _ENV.onItemUseEvent = onItemDropEvent
+    _G.onItemUseEvent = onItemDropEvent
+    _ENV.onItemUseEvent = onItemGiveEvent
+    _G.onItemUseEvent = onItemGiveEvent
     _ENV.triggerPlayerConnecting = triggerPlayerConnecting
     _G.triggerPlayerConnecting = triggerPlayerConnecting
     _ENV.triggerPlayerDisconnect = triggerPlayerDisconnect
     _G.triggerPlayerDisconnect = triggerPlayerDisconnect
     _ENV.triggerPlayerConnected = triggerPlayerConnected
     _G.triggerPlayerConnected = triggerPlayerConnected
+    _ENV.triggerItemUseEvent = triggerItemUseEvent
+    _G.triggerItemUseEvent = triggerItemUseEvent
+    _ENV.triggerItemDropEvent = triggerItemDropEvent
+    _G.triggerItemDropEvent = triggerItemDropEvent
+    _ENV.triggerItemGiveEvent = triggerItemGiveEvent
+    _G.triggerItemGiveEvent = triggerItemGiveEvent
     _ENV.onClientTrigger = onClientTrigger
     _G.onClientTrigger = onClientTrigger
     _ENV.onServerTrigger = onServerTrigger

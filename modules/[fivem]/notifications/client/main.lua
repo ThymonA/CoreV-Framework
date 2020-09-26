@@ -11,8 +11,8 @@
 local notifications = class('notifications')
 
 --- Show a notifiaction (client side)
---- @param msg notification message
---- @param hudColorIndex int Color index
+--- @param msg string notification message
+--- @param hudColorIndex number Color index
 function notifications:showNotification(msg, hudColorIndex)
     if (hudColorIndex == nil or type(hudColorIndex) ~= 'number') then hudColorIndex = 140 end
 
@@ -24,10 +24,10 @@ function notifications:showNotification(msg, hudColorIndex)
 end
 
 --- Show a help notification
---- @param msg notification message
---- @param thisFrame show only this frame
---- @param beep make a beep sound
---- @param duration duration of message
+--- @param msg string notification message
+--- @param thisFrame number show only this frame
+--- @param beep boolean make a beep sound
+--- @param duration number duration of message
 function notifications:showHelpNotification(msg, thisFrame, beep, duration)
     local name = 'corev:helpNotification'
 

@@ -33,6 +33,7 @@ server_scripts {
     'vendors/class.lua',
     'vendors/async.lua',
     'vendors/mustache.lua',
+    'vendors/hashlist.lua',
 
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',
@@ -63,6 +64,7 @@ corevclients {
     'vendors/class.lua',
     'vendors/entityiter.lua',
     'vendors/mustache.lua',
+    'vendors/hashlist.lua',
 
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',

@@ -38,22 +38,42 @@ local function EnumerateEntities(initFunc, moveFunc, disposeFunc)
     end)
 end
 
-function EnumerateEntityWithinDistance(entity, coords, maxDistance)
-	if coords then
-		coords = vector3(coords.x, coords.y, coords.z)
-	else
-		local playerPed = PlayerPedId()
-		coords = GetEntityCoords(playerPed)
-	end
+function EnumerateEntityWithinDistance(entity, coords, maxDistance, entityType)
+    if (entityType) then
+        if (entityType == 'self') then return true, GetEntityCoords(entity) end
 
-    local entityCoords = GetEntityCoords(entity)
-	local distance = #(coords - entityCoords)
-
-	if distance <= maxDistance then
-		return true, entityCoords
-	end
-
-	return false, nil
+        if coords then
+            coords = vector3(coords.x, coords.y, coords.z)
+        else
+            local playerPed = PlayerPedId()
+            coords = GetEntityCoords(playerPed)
+        end
+    
+        local entityCoords = GetEntityCoords(entity)
+        local distance = #(coords - entityCoords)
+    
+        if distance <= maxDistance then
+            return true, entityCoords
+        end
+    
+        return false, nil
+    else
+        if coords then
+            coords = vector3(coords.x, coords.y, coords.z)
+        else
+            local playerPed = PlayerPedId()
+            coords = GetEntityCoords(playerPed)
+        end
+    
+        local entityCoords = GetEntityCoords(entity)
+        local distance = #(coords - entityCoords)
+    
+        if distance <= maxDistance then
+            return true, entityCoords
+        end
+    
+        return false, nil
+    end
 end
 
 function EnumerateEntitiesWithinDistance(entities, isPlayerEntities, coords, maxDistance)
