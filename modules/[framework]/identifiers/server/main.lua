@@ -74,8 +74,8 @@ function identifiers:getIdentifier(source)
     return 'none'
 end
 
--- Trigger when player is connecting
-onPlayerConnecting(function(source, returnSuccess, returnError)
+--- Trigger when player is connecting
+on('playerConnecting', function(source, returnSuccess, returnError)
     if (source == nil or type(source) ~= 'number') then
         returnError(_(CR(), 'identifiers', 'source_error'))
         return
@@ -135,8 +135,8 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
     returnSuccess()
 end)
 
--- Trigger when player is fully connected
-onPlayerConnected(function(source, returnSuccess, returnError)
+--- Trigger when player is fully connected
+on('playerConnected', function(source, returnSuccess, returnError)
     if (source == nil or type(source) ~= 'number') then
         returnError(_(CR(), 'identifiers', 'source_error'))
         return
@@ -147,7 +147,8 @@ onPlayerConnected(function(source, returnSuccess, returnError)
     returnSuccess()
 end)
 
-onPlayerDisconnect(function(source, returnSuccess, returnError)
+--- Trigger when player is disconnecting
+on('playerDisconnect', function(source, returnSuccess, returnError)
     if (source == nil or type(source) ~= 'number') then return end
 
     for _identifier, _identifiers in pairs(identifiers.players or {}) do

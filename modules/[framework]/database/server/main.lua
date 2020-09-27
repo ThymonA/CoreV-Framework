@@ -320,7 +320,7 @@ Citizen.CreateThread(function()
 end)
 
 --- Trigger when player is connecting
-onPlayerConnecting(function(source, returnSuccess, returnError, deferrals)
+on('playerConnecting', function(source, returnSuccess, returnError, deferrals)
     local textUpdated = false
 
     while not database.isReady do

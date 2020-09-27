@@ -80,12 +80,12 @@ Citizen.CreateThread(function()
                 markers.currentMarker = marker
                 markers.lastMarker = marker
 
-                triggerMarkerEvent(marker.event, marker)
+                triggerOnEvent('marker:enter', marker.event, marker)
             end
         end
 
         if (markers.currentMarker == nil and markers.lastMarker ~= nil) then
-            triggerMarkerLeaveEvent(markers.lastMarker.event, markers.lastMarker)
+            triggerOnEvent('marker:leave', markers.lastMarker.event, markers.lastMarker)
             markers.lastMarker = nil
         end
 

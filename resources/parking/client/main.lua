@@ -21,7 +21,7 @@ resource_parking:set {
     keybinds = m('keybinds')
 }
 
-onMarkerEvent('parking:spawn:cars', function(marker)
+on('marker:enter', 'parking:spawn:cars', function(marker)
     local notifications = m('notifications')
 
     if (notifications ~= nil and resource_parking.currentEvent == nil) then
@@ -33,7 +33,7 @@ onMarkerEvent('parking:spawn:cars', function(marker)
     resource_parking.inMarkerEvent = 'spawn:cars'
 end)
 
-onMarkerLeave('parking:spawn:cars', function()
+on('marker:leave', 'parking:spawn:cars', function()
     resource_parking.inMarker = false
     resource_parking.currentMarker = nil
     resource_parking.inMarkerEvent = nil

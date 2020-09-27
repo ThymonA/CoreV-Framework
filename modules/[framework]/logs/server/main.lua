@@ -40,7 +40,7 @@ function logs:get(player)
 end
 
 --- Trigger when player is connecting
-onPlayerConnecting(function(source, returnSuccess, returnError)
+on('playerConnecting', function(source, returnSuccess, returnError)
     local playerLog = logs:createLog(source)
 
     playerLog:log({
@@ -54,7 +54,7 @@ onPlayerConnecting(function(source, returnSuccess, returnError)
 end)
 
 --- Trigger when player is fully connected
-onPlayerConnected(function(source, returnSuccess, returnError)
+on('playerConnected', function(source, returnSuccess, returnError)
     local playerLog = logs:createLog(source)
 
     playerLog:log({
@@ -68,7 +68,7 @@ onPlayerConnected(function(source, returnSuccess, returnError)
 end)
 
 --- Trigger when player is disconnected
-onPlayerDisconnect(function(source, returnSuccess, returnError)
+on('playerDisconnect', function(source, returnSuccess, returnError)
     if (source == nil or type(source) ~= 'number') then return end
 
     local identifiers = m('identifiers')

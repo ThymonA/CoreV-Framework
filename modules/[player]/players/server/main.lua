@@ -41,14 +41,14 @@ function players:getPlayer(player)
 end
 
 --- Trigger when player is connecting
-onPlayerConnecting(function(source, returnSuccess, returnError)
+on('playerConnecting', function(source, returnSuccess, returnError)
     players:getPlayer(source)
 
     returnSuccess()
 end)
 
 --- Trigger when player is connecting
-onPlayerConnected(function(source, returnSuccess, returnError)
+on('playerConnected', function(source, returnSuccess, returnError)
     local found, identifiers = false, m('identifiers')
     local identifier = identifiers:getIdentifier(source)
 

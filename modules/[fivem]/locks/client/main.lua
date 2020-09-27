@@ -185,7 +185,7 @@ Citizen.CreateThread(function()
                         if (lock.allowed and (locks.entityEvents ~= nil and locks.entityEvents[tostring(lock.doors[i].entity)] == nil)) then
                             locks.entityEvents[tostring(lock.doors[i].entity)] = true
 
-                            onEntityEvent(lock.doors[i].entity, function(entity, coords)
+                            on('raycast:entity', lock.doors[i].entity, function(entity, coords)
                                 if (lock.allowed) then
                                     if (wheels == nil) then wheels = m('wheels') end
 

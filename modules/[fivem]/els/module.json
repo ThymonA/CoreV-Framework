@@ -8,8 +8,5 @@
     "server_scripts": [
         "server/main.lua"
     ],
-    "streams": [
-        "stream/*.xml"
-    ],
     "module": "els"
 }

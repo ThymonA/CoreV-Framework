@@ -16,7 +16,7 @@ raycast:set {
     showMouse = false,
     keybinds = m('keybinds'),
     hashList = hashList or m('hashList'),
-    flag = 2,
+    flag = Config.EnableCustomFilter == true and 2 or 30,
     flags = {
         [1] = 'self',       --- Player's own entity
         [2] = 'vehicle',    --- Vehicles in world
@@ -204,6 +204,7 @@ function raycast:flagExists(flagType, flag)
 end
 
 function raycast:enableFlag(flag)
+    if (not Config.EnableCustomFilter) then return end
     if (flag == nil or (type(flag) ~= 'number' and type(flag) ~= 'string')) then return end
     if (type(flag) == 'string') then flag = tonumber(flag) end
 
@@ -213,6 +214,7 @@ function raycast:enableFlag(flag)
 end
 
 function raycast:disableFlag(flag)
+    if (not Config.EnableCustomFilter) then return end
     if (flag == nil or (type(flag) ~= 'number' and type(flag) ~= 'string')) then return end
     if (type(flag) == 'string') then flag = tonumber(flag) end
 
@@ -258,11 +260,22 @@ Citizen.CreateThread(function()
                     local hashFound, hashName = raycast.hashList:getName(entityHash)
 
                     if (hashFound) then
-                        triggerEntityHashEvent(hashName, entityHit, entityCoords)
+                        triggerOnEvent('raycast:hash', hashName, entityHit, entityCoords)
                     end
 
-                    triggerEntityEvent(entityHit, entityHit, entityCoords)
-                    triggerEntityTypeEvent(entityType, entityHit, entityCoords)
+                    triggerOnEvent('raycast:entity', entityHit, entityHit, entityCoords)
+
+                    if (entityType == 1 or entityType == '1') then
+                        triggerOnEvent('raycast:type', 'ped', entityHit, entityCoords)
+                    elseif (entityType == 2 or entityType == '2') then
+                        triggerOnEvent('raycast:type', 'vehicle', entityHit, entityCoords)
+                    elseif (entityType == 3 or entityType == '3') then
+                        triggerOnEvent('raycast:type', 'object', entityHit, entityCoords)
+                    elseif (entityType == 4 or entityType == '4') then
+                        triggerOnEvent('raycast:type', 'self', entityHit, entityCoords)
+                    elseif (entityType == 5 or entityType == '5') then
+                        triggerOnEvent('raycast:type', 'player', entityHit, entityCoords)
+                    end
                 end
             end
         end

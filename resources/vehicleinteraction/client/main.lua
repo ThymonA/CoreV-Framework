@@ -1,7 +1,7 @@
 onFrameworkStarted(function()
     local wheels, vehicleSelectionWheel, wheelCreated = m('wheels'), nil, false
 
-    onEntityTypeEvent('vehicle', function(entity, coords)
+    on('raycast:type', 'vehicle', function(entity, coords)
         vehicleSelectionWheel, wheelCreated = wheels:create('interaction', 'vehicle')
 
         if (wheelCreated) then

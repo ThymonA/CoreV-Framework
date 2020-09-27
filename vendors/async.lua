@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-local async = class('async')
+async = class('async')
 
 --- Set default values
 async:set {

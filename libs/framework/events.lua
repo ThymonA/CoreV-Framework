@@ -9,403 +9,163 @@
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
 local events = {
-    onPlayerConnecting = {
-        server = {}
-    },
-    onPlayerConnected = {
-        server = {}
-    },
-    onPlayerDisconnect = {
-        server = {}
-    },
-    onMarkerEvent = {
-        client = {}
-    },
-    onMarkerLeave = {
-        client = {}
-    },
-    onEntityEvent = {
-        client = {}
-    },
-    onEntityTypeEvent = {
-        client = {}
-    },
-    onEntityHashEvent = {
-        client = {}
-    },
-    onItemUseEvent = {
-        client = {},
-        server = {}
-    },
-    onItemDropEvent = {
-        client = {},
-        server = {}
-    },
-    onItemGiveEvent = {
-        client = {},
-        server = {}
-    }
+    client = {},
+    server = {}
 }
 
+events.__onEvent = function(event, name, func, ...)
+    if (event == nil or type(event) ~= 'string') then return end
+    if (name ~= nil and (type(name) ~= 'string' and type(name) ~= 'table')) then name = tostring(name) end
+    if (func == nil or type(func) ~= 'function') then func = function() end end
+
+    if (type(name) == 'table') then
+        for _, _name in pairs(name or {}) do
+            if (type(_name) == 'string') then
+                events.__onEvent(event, _name, func, ...)
+            end
+        end
+
+        return
+    end
+
+    if (event ~= nil) then event = string.lower(event) end
+    if (name ~= nil) then name = string.lower(name) end
+
+    if (CLIENT) then
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.client == nil) then events.client = {} end
+        if (events.client[event] == nil) then events.client[event] = {} end
+        if (name ~= nil and events.client[event][name] == nil) then events.client[event][name] = {} end
+
+        local params = table.pack(...)
+
+        if (name ~= nil) then
+            table.insert(events.client[event][name], {
+                module = module,
+                name = name,
+                func = func,
+                params = params
+            })
+        else
+            table.insert(events.client[event], {
+                module = module,
+                name = name,
+                func = func,
+                params = params
+            })
+        end
+    else
+        local module = CurrentFrameworkModule or 'unknown'
+
+        if (events.server == nil) then events.server = {} end
+        if (events.server[event] == nil) then events.server[event] = {} end
+        if (name ~= nil and events.server[event][name] == nil) then events.server[event][name] = {} end
+
+        local params = table.pack(...)
+
+        if (name ~= nil) then
+            table.insert(events.server[event][name], {
+                module = module,
+                name = name,
+                func = func,
+                params = params
+            })
+        else
+            table.insert(events.server[event], {
+                module = module,
+                name = name,
+                func = func,
+                params = params
+            })
+        end
+    end
+end
+
+--- Register a new on event
+--- @param event string Name of event example 'PlayerConnecting'
+events.onEvent = function(event, ...)
+    if (event == nil or type(event) ~= 'string') then return end
+
+    local name = nil
+    local nameIndex = 999
+    local names = nil
+    local namesIndex = 999
+    local callback = nil
+    local callbackIndex = 999
+    local params = table.pack(...)
+
+    for i, param in pairs(params or {}) do
+        if (type(param) == 'function' and callback == nil) then
+            callback = param
+            callbackIndex = type(i) == 'number' and i or tonumber(i) or 0
+            break
+        elseif (type(param) == 'table' and names == nil) then
+            for _, _name in pairs(param or {}) do
+                if (type(_name) == 'string') then
+                if (names == nil) then names = {} end
+                table.insert(names, _name)
+                namesIndex = type(i) == 'number' and i or tonumber(i) or 0
+                end
+            end
+        elseif (name == nil) then
+            local _name = tostring(param) or ''
+
+            if (_name ~= '' and _name ~= 'nil') then
+                name = _name
+                nameIndex = type(i) == 'number' and i or tonumber(i) or 0
+            end
+        end
+    end
+
+    if (name ~= nil and callback ~= nil and nameIndex < namesIndex) then
+        table.remove(params, nameIndex)
+        table.remove(params, callbackIndex)
+
+        events.__onEvent(event, name, callback, table.unpack(params))
+    elseif (names ~= nil and callback ~= nil and namesIndex < nameIndex) then
+        table.remove(params, namesIndex)
+        table.remove(params, callbackIndex)
+
+        events.__onEvent(event, names, callback, table.unpack(params))
+    elseif (callback ~= nil) then
+        table.remove(params, callbackIndex)
+
+        events.__onEvent(event, nil, callback, table.unpack(params))
+    end
+end
+
 if (CLIENT) then
-    --- Trigger func when event has been triggerd by marker
-    --- @param event string Event name
-    --- @param func function Callback function
-    onMarkerEvent = function(event, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onMarkerEvent.client == nil) then
-            events.onMarkerEvent.client = {}
-        end
-
-        if (events.onMarkerEvent.client[event] == nil) then
-            events.onMarkerEvent.client[event] = {}
-        end
-
-        table.insert(events.onMarkerEvent.client[event], {
-            module = module,
-            event = event,
-            func = func
-        })
-    end
-
-    --- Trigger func when event has been triggerd by leaving a marker
-    --- @param event string Event name
-    --- @param func function Callback function
-    onMarkerLeave = function(event, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onMarkerLeave.client == nil) then
-            events.onMarkerLeave.client = {}
-        end
-
-        if (events.onMarkerLeave.client[event] == nil) then
-            events.onMarkerLeave.client[event] = {}
-        end
-
-        table.insert(events.onMarkerLeave.client[event], {
-            module = module,
-            event = event,
-            func = func
-        })
-    end
-
-    --- Trigger func when entity has been clicked on screen
-    --- @param entity string|number entity name
-    --- @param func function Callback function
-    onEntityEvent = function(entity, func)
-        if (entity == nil) then return end
-        if (type(entity) == 'number') then entity = tostring(entity) end
-        if (type(entity) ~= 'string') then return end
-
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onEntityEvent.client == nil) then
-            events.onEntityEvent.client = {}
-        end
-
-        if (events.onEntityEvent.client[entity] == nil) then
-            events.onEntityEvent.client[entity] = {}
-        end
-
-        table.insert(events.onEntityEvent.client[entity], {
-            module = module,
-            entity = tonumber(entity),
-            func = func
-        })
-    end
-
-    --- Trigger func when entity type has been clicked on screen
-    --- @param entityType string|number entity type
-    --- @param func function Callback function
-    onEntityTypeEvent = function(entityType, func)
-        if (entityType == nil) then return end
-        if (type(entityType) == 'number') then entityType = tostring(entityType) end
-        if (type(entityType) ~= 'string') then return end
-
-        if (entityType == '0') then return end
-        if (entityType == '1' or string.lower(entityType) == 'ped') then entityType = 'ped' end
-        if (entityType == '2' or string.lower(entityType) == 'vehicle') then entityType = 'vehicle' end
-        if (entityType == '3' or string.lower(entityType) == 'object') then entityType = 'object' end
-        if (entityType == '4' or string.lower(entityType) == 'self') then entityType = 'self' end
-        if (entityType == '5' or string.lower(entityType) == 'player') then entityType = 'player' end
-
-        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object' and entityType ~= 'self' and entityType ~= 'player') then return end
-
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onEntityTypeEvent.client == nil) then
-            events.onEntityTypeEvent.client = {}
-        end
-
-        if (events.onEntityTypeEvent.client[entityType] == nil) then
-            events.onEntityTypeEvent.client[entityType] = {}
-        end
-
-        table.insert(events.onEntityTypeEvent.client[entityType], {
-            module = module,
-            type = entityType,
-            func = func
-        })
-    end
-
-    --- Trigger func when entity name or hash has been clicked on screen
-    --- @param entityType string|number entity name or entity hash
-    --- @param func function Callback function
-    onEntityHashEvent = function(entityType, func)
-        if (entityType == nil) then return end
-        if (type(entityType) == 'number') then
-            if (hashList == nil) then hashList = m('hashList') end
-
-            local hashFound, hashName = hashList:getName(entityType)
-
-            if (not hashFound) then return end
-
-            entityType = hashName
-        end
-        if (type(entityType) ~= 'string') then return end
-
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onEntityHashEvent.client == nil) then
-            events.onEntityHashEvent.client = {}
-        end
-
-        if (events.onEntityHashEvent.client[entityType] == nil) then
-            events.onEntityHashEvent.client[entityType] = {}
-        end
-
-        table.insert(events.onEntityHashEvent.client[entityType], {
-            module = module,
-            type = entityType,
-            func = func
-        })
-    end
-
-    --- Trigger func when item will be used
-    --- @param item string Name of item
-    --- @param func function Callback function
-    onItemUseEvent = function(item, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onItemUseEvent.client == nil) then
-            events.onItemUseEvent.client = {}
-        end
-
-        if (events.onItemUseEvent.client[item] == nil) then
-            events.onItemUseEvent.client[item] = {}
-        end
-
-        table.insert(events.onItemUseEvent.client[item], {
-            module = module,
-            item = item,
-            func = func
-        })
-    end
-
-    --- Trigger func when item will be dropped
-    --- @param item string Name of item
-    --- @param func function Callback function
-    onItemDropEvent = function(item, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onItemDropEvent.client == nil) then
-            events.onItemDropEvent.client = {}
-        end
-
-        if (events.onItemDropEvent.client[item] == nil) then
-            events.onItemDropEvent.client[item] = {}
-        end
-
-        table.insert(events.onItemDropEvent.client[item], {
-            module = module,
-            item = item,
-            func = func
-        })
-    end
-
-    --- Trigger func when item will be given
-    --- @param item string Name of item
-    --- @param func function Callback function
-    onItemGiveEvent = function(item, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onItemGiveEvent.client == nil) then
-            events.onItemGiveEvent.client = {}
-        end
-
-        if (events.onItemGiveEvent.client[item] == nil) then
-            events.onItemGiveEvent.client[item] = {}
-        end
-
-        table.insert(events.onItemGiveEvent.client[item], {
-            module = module,
-            item = item,
-            func = func
-        })
-    end
-
-    --- Trigger all player enter a marker events
-    --- @param event string Event name
-    --- @param marker marker Marker that current is triggerd
-    triggerMarkerEvent = function(event, marker)
+    local triggerOnEvent = function(event, name, ...)
         if (event == nil or type(event) ~= 'string') then return end
-        if (events.onMarkerEvent.client == nil or #(events.onMarkerEvent.client[event] or {}) <= 0) then return end
+        if (name ~= nil and type(name) ~= 'string') then name = tostring(name) end
+        if (event ~= nil) then event = string.lower(event) end
+        if (name ~= nil) then name = string.lower(name) end
 
-        for _, markerEvent in pairs(events.onMarkerEvent.client[event] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    markerEvent.func(marker)
-                end, function(err) end)
-                return
-            end)
+        local clientEvents = (events.client or {})[event] or {}
+
+        if (name ~= nil and type(name) == 'string') then
+            clientEvents = clientEvents[name] or {}
         end
-    end
 
-    --- Trigger all player leave a marker events
-    --- @param event string Event name
-    --- @param marker marker Marker that current is triggerd
-    triggerMarkerLeaveEvent = function(event, marker)
-        if (event == nil or type(event) ~= 'string') then return end
-        if (events.onMarkerLeave.client == nil or #(events.onMarkerLeave.client[event] or {}) <= 0) then return end
+        local params = table.pack(...)
 
-        for _, markerEvent in pairs(events.onMarkerLeave.client[event] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    markerEvent.func(marker)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all event click on screen events
-    --- @param entity string|number Entity
-    --- @param rawEntity entity Raw triggerd entity
-    triggerEntityEvent = function(entity, rawEntity, entityCoords)
-        if (entity == nil) then return end
-        if (type(entity) == 'number') then entity = tostring(entity) end
-        if (type(entity) ~= 'string') then return end
-
-        if (events.onEntityEvent.client == nil or #(events.onEntityEvent.client[entity] or {}) <= 0) then return end
-
-        for _, entityEvent in pairs(events.onEntityEvent.client[entity] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    entityEvent.func(rawEntity, entityCoords)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all event click on screen events
-    --- @param entityType string|number Entity type
-    --- @param rawEntity entity Raw triggerd entity
-    triggerEntityTypeEvent = function(entityType, rawEntity, entityCoords)
-        if (entityType == nil) then return end
-        if (type(entityType) == 'number') then entityType = tostring(entityType) end
-        if (type(entityType) ~= 'string') then return end
-
-        if (entityType == '0') then return end
-        if (entityType == '1' or string.lower(entityType) == 'ped') then entityType = 'ped' end
-        if (entityType == '2' or string.lower(entityType) == 'vehicle') then entityType = 'vehicle' end
-        if (entityType == '3' or string.lower(entityType) == 'object') then entityType = 'object' end
-        if (entityType == '4' or string.lower(entityType) == 'self') then entityType = 'self' end
-        if (entityType == '5' or string.lower(entityType) == 'player') then entityType = 'player' end
-
-        if (entityType ~= 'ped' and entityType ~= 'vehicle' and entityType ~= 'object' and entityType ~= 'self' and entityType ~= 'player') then return end
-        if (events.onEntityTypeEvent.client == nil or #(events.onEntityTypeEvent.client[entityType] or {}) <= 0) then return end
-
-        for _, entityTypeEvent in pairs(events.onEntityTypeEvent.client[entityType] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    entityTypeEvent.func(rawEntity, entityCoords)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all entity hash click events on screen click
-    --- @param hashName string Entity
-    --- @param rawEntity entity Raw triggerd entity
-    triggerEntityHashEvent = function(hashName, rawEntity, entityCoords)
-        if (hashName == nil) then return end
-        if (type(hashName) ~= 'string') then return end
-
-        if (events.onEntityHashEvent.client == nil or #(events.onEntityHashEvent.client[hashName] or {}) <= 0) then return end
-
-        for _, entityEvent in pairs(events.onEntityHashEvent.client[hashName] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    entityEvent.func(rawEntity, entityCoords)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all use item events
-    --- @param item item Item used
-    triggerItemUseEvent = function(item)
-        if (item == nil) then return end
-        if (type(item) ~= 'item') then return end
-
-        if (events.onItemUseEvent.client == nil or #(events.onItemUseEvent.client[item.name] or {}) <= 0) then return end
-
-        for _, itemEvent in pairs(events.onItemUseEvent.client[item.name] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    itemEvent.func(item)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all drop item events
-    --- @param item item Item used
-    triggerItemDropEvent = function(item)
-        if (item == nil) then return end
-        if (type(item) ~= 'item') then return end
-
-        if (events.onItemDropEvent.client == nil or #(events.onItemDropEvent.client[item.name] or {}) <= 0) then return end
-
-        for _, itemEvent in pairs(events.onItemDropEvent.client[item.name] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    itemEvent.func(item)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all give item events
-    --- @param item item Item used
-    --- @param from number|table Who give the item
-    --- @param to number|table Who got the item
-    triggerItemGiveEvent = function(item, from, to)
-        if (item == nil) then return end
-        if (type(item) ~= 'item') then return end
-
-        if (events.onItemGiveEvent.client == nil or #(events.onItemGiveEvent.client[item.name] or {}) <= 0) then return end
-
-        for _, itemEvent in pairs(events.onItemGiveEvent.client[item.name] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    itemEvent.func(item, from, to)
-                end, function(err) end)
-                return
-            end)
+        for _, _event in pairs(clientEvents or {}) do
+            if (_event ~= nil and _event.func ~= nil) then
+                Citizen.CreateThread(function()
+                    try(function()
+                        _event.func(table.unpack(params))
+                    end, function(err) end)
+                    return
+                end)
+            end
         end
     end
 
     --- Trigger func by server
     ---@param name string Trigger name
     ---@param func function Function to trigger
-    onServerTrigger = function(name, func)
+    local onServerTrigger = function(name, func)
         RegisterNetEvent(name)
         AddEventHandler(name, func)
     end
@@ -413,39 +173,13 @@ if (CLIENT) then
     --- Trigger func by client
     ---@param name string Trigger name
     ---@param func function Function to trigger
-    onClientTrigger = function(name, func)
+    local onClientTrigger = function(name, func)
         AddEventHandler(name, func)
     end
 
     -- FiveM maniplulation
-    _ENV.onMarkerEvent = onMarkerEvent
-    _G.onMarkerEvent = onMarkerEvent
-    _ENV.onMarkerLeave = onMarkerLeave
-    _G.onMarkerLeave = onMarkerLeave
-    _ENV.onEntityEvent = onEntityEvent
-    _G.onEntityEvent = onEntityEvent
-    _ENV.onEntityTypeEvent = onEntityTypeEvent
-    _G.onEntityTypeEvent = onEntityTypeEvent
-    _ENV.onItemUseEvent = onItemUseEvent
-    _G.onItemUseEvent = onItemUseEvent
-    _ENV.onItemUseEvent = onItemDropEvent
-    _G.onItemUseEvent = onItemDropEvent
-    _ENV.onItemUseEvent = onItemGiveEvent
-    _G.onItemUseEvent = onItemGiveEvent
-    _ENV.triggerMarkerEvent = triggerMarkerEvent
-    _G.triggerMarkerEvent = triggerMarkerEvent
-    _ENV.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
-    _G.triggerMarkerLeaveEvent = triggerMarkerLeaveEvent
-    _ENV.triggerEntityEvent = triggerEntityEvent
-    _G.triggerEntityEvent = triggerEntityEvent
-    _ENV.triggerEntityTypeEvent = triggerEntityTypeEvent
-    _G.triggerEntityTypeEvent = triggerEntityTypeEvent
-    _ENV.triggerItemUseEvent = triggerItemUseEvent
-    _G.triggerItemUseEvent = triggerItemUseEvent
-    _ENV.triggerItemDropEvent = triggerItemDropEvent
-    _G.triggerItemDropEvent = triggerItemDropEvent
-    _ENV.triggerItemGiveEvent = triggerItemGiveEvent
-    _G.triggerItemGiveEvent = triggerItemGiveEvent
+    _ENV.triggerOnEvent = triggerOnEvent
+    _G.triggerOnEvent = triggerOnEvent
     _ENV.onServerTrigger = onServerTrigger
     _G.onServerTrigger = onServerTrigger
     _ENV.onClientTrigger = onClientTrigger
@@ -453,143 +187,63 @@ if (CLIENT) then
 end
 
 if (SERVER) then
-    --- Trigger func when player is connecting
-    --- @param func function Function to execute
-    onPlayerConnecting = function(func)
-        local module = CurrentFrameworkModule or 'unknown'
+    local triggerOnEvent = function(event, name, _source, ...)
+        if (event == nil or type(event) ~= 'string') then return end
+        if (name ~= nil and type(name) ~= 'string') then name = tostring(name) end
+        if (_source == nil or type(_source) ~= 'number') then _source = source or -1 end
+        if (event ~= nil) then event = string.lower(event) end
+        if (name ~= nil) then name = string.lower(name) end
 
-        table.insert(events.onPlayerConnecting.server, {
-            module = module,
-            func = func
-        })
-    end
+        local serverEvents = (events.server or {})[event] or {}
 
-    --- Trigger func when player is fully connected
-    --- @param func function Function to execute
-    onPlayerConnected = function(func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        table.insert(events.onPlayerConnected.server, {
-            module = module,
-            func = func
-        })
-    end
-
-    --- Trigger func when player is disconnecting
-    --- @param func function Function to execute
-    onPlayerDisconnect = function(func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        table.insert(events.onPlayerDisconnect.server, {
-            module = module,
-            func = func
-        })
-    end
-
-    --- Trigger func by client
-    ---@param name string Trigger name
-    ---@param func function Function to trigger
-    onClientTrigger = function(name, func)
-        RegisterServerEvent(name)
-        AddEventHandler(name, func)
-    end
-
-    --- Trigger func by server
-    ---@param name string Trigger name
-    ---@param func function Function to trigger
-    onServerTrigger = function(name, func)
-        AddEventHandler(name, func)
-    end
-
-    --- Trigger func when item will be used
-    --- @param item string Name of item
-    --- @param func function Callback function
-    onItemUseEvent = function(item, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onItemUseEvent.server == nil) then
-            events.onItemUseEvent.server = {}
+        if (name ~= nil and type(name) == 'string') then
+            serverEvents = serverEvents[name] or {}
         end
 
-        if (events.onItemUseEvent.server[item] == nil) then
-            events.onItemUseEvent.server[item] = {}
+        local params = table.pack(...)
+
+        for _, _event in pairs(serverEvents or {}) do
+            if (_event ~= nil and _event.func ~= nil) then
+                Citizen.CreateThread(function()
+                    try(function()
+                        _event.func(_source, table.unpack(params))
+                    end, function(err) end)
+                    return
+                end)
+            end
         end
-
-        table.insert(events.onItemUseEvent.server[item], {
-            module = module,
-            item = item,
-            func = func
-        })
-    end
-
-    --- Trigger func when item will be dropped
-    --- @param item string Name of item
-    --- @param func function Callback function
-    onItemDropEvent = function(item, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onItemDropEvent.server == nil) then
-            events.onItemDropEvent.server = {}
-        end
-
-        if (events.onItemDropEvent.server[item] == nil) then
-            events.onItemDropEvent.server[item] = {}
-        end
-
-        table.insert(events.onItemDropEvent.server[item], {
-            module = module,
-            item = item,
-            func = func
-        })
-    end
-
-    --- Trigger func when item will be given
-    --- @param item string Name of item
-    --- @param func function Callback function
-    onItemGiveEvent = function(item, func)
-        local module = CurrentFrameworkModule or 'unknown'
-
-        if (events.onItemGiveEvent.server == nil) then
-            events.onItemGiveEvent.server = {}
-        end
-
-        if (events.onItemGiveEvent.server[item] == nil) then
-            events.onItemGiveEvent.server[item] = {}
-        end
-
-        table.insert(events.onItemGiveEvent.server[item], {
-            module = module,
-            item = item,
-            func = func
-        })
     end
 
     --- Trigger all player connecting events
     --- @param source int PlayerId
-    triggerPlayerConnecting = function(source, deferrals)
-        for _, playerConnectingEvent in pairs(events.onPlayerConnecting.server or {}) do
-            try(function()
-                local continue, error, error_message = false, false, ''
+    local triggerPlayerConnecting = function(source, deferrals)
+        local serverEvents = (events.server or {})['playerconnecting'] or {}
 
-                playerConnectingEvent.func(source, function()
-                    continue = true
-                end, function(err_message)
-                    continue = true
-                    error = true
-                    error_message = err_message or 'Unknown Error'
-                end, deferrals)
+        for _, playerConnectingEvent in pairs(serverEvents) do
+            if (playerConnectingEvent ~= nil and playerConnectingEvent.func ~= nil) then
+                try(function()
+                    local continue, error, error_message = false, false, ''
 
-                while not continue do
-                    Citizen.Wait(0)
-                end
+                    playerConnectingEvent.func(source, function()
+                        continue = true
+                    end, function(err_message)
+                        continue = true
+                        error = true
+                        error_message = err_message or 'Unknown Error'
+                    end, deferrals)
 
-                if (error) then
-                    deferrals.done(error_message)
-                    return
-                end
-            end, function(err)
-                deferrals.done('[SCRIPT ERROR]: ' .. err)
-            end)
+                    while not continue do
+                        Citizen.Wait(0)
+                    end
+
+                    if (error) then
+                        deferrals.done(error_message)
+                        return
+                    end
+                end, function(err)
+                    deferrals.done('[SCRIPT ERROR]: ' .. err)
+                end)
+            end
         end
 
         deferrals.done()
@@ -597,152 +251,97 @@ if (SERVER) then
 
     --- Trigger all player connected events
     --- @param source int PlayerId
-    triggerPlayerConnected = function(source)
-        for _, playerConnectedEvent in pairs(events.onPlayerConnected.server or {}) do
-            try(function()
-                local continue, error, error_message = false, false, ''
+    local triggerPlayerConnected = function(source)
+        local serverEvents = (events.server or {})['playerconnected'] or {}
 
-                playerConnectedEvent.func(source, function()
-                    continue = true
-                end, function(err_message)
-                    continue = true
-                    error = true
-                    error_message = err_message or 'Unknown Error'
-                end)
+        for _, playerConnectedEvent in pairs(serverEvents) do
+            if (playerConnectedEvent ~= nil and playerConnectedEvent.func ~= nil) then
+                try(function()
+                    local continue, error, error_message = false, false, ''
 
-                while not continue do
-                    Citizen.Wait(0)
-                end
+                    playerConnectedEvent.func(source, function()
+                        continue = true
+                    end, function(err_message)
+                        continue = true
+                        error = true
+                        error_message = err_message or 'Unknown Error'
+                    end)
 
-                if (error) then
-                    error:print(error_message)
-                    return
-                end
-            end, function(err) end)
+                    while not continue do
+                        Citizen.Wait(0)
+                    end
+
+                    if (error) then
+                        error:print(error_message)
+                        return
+                    end
+                end, function(err) end)
+            end
         end
     end
 
     --- Trigger all player disconnect events
     --- @param source int PlayerId
-    triggerPlayerDisconnect = function(source, reason)
-        for _, playerDisconnectEvent in pairs(events.onPlayerDisconnect.server or {}) do
-            try(function()
-                local continue, error, error_message = false, false, ''
+    local triggerPlayerDisconnect = function(source, reason)
+        local serverEvents = (events.server or {})['playerdisconnect'] or {}
 
-                playerDisconnectEvent.func(source, function()
-                    continue = true
-                end, function(err_message)
-                    continue = true
-                    error = true
-                    error_message = err_message or 'Unknown Error'
-                end, reason)
+        for _, playerDisconnectEvent in pairs(serverEvents) do
+            if (playerDisconnectEvent ~= nil and playerDisconnectEvent.func ~= nil) then
+                try(function()
+                    local continue, error, error_message = false, false, ''
 
-                while not continue do
-                    Citizen.Wait(0)
-                end
+                    playerDisconnectEvent.func(source, function()
+                        continue = true
+                    end, function(err_message)
+                        continue = true
+                        error = true
+                        error_message = err_message or 'Unknown Error'
+                    end, reason)
 
-                if (error) then
-                    error:print(error_message)
-                    return
-                end
-            end, function(err) end)
+                    while not continue do
+                        Citizen.Wait(0)
+                    end
+
+                    if (error) then
+                        error:print(error_message)
+                        return
+                    end
+                end, function(err) end)
+            end
         end
     end
 
-    --- Trigger all use item events
-    --- @param item item Item used
-    --- @param source number PlayerID
-    triggerItemUseEvent = function(item, source)
-        if (item == nil) then return end
-        if (type(item) ~= 'item') then return end
-        if (source == nil or type(source) ~= 'number') then return end
-
-        if (events.onItemUseEvent.server == nil or #(events.onItemUseEvent.server[item.name] or {}) <= 0) then return end
-
-        for _, itemEvent in pairs(events.onItemUseEvent.server[item.name] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    itemEvent.func(item, source)
-                end, function(err) end)
-                return
-            end)
-        end
+    --- Trigger func by client
+    ---@param name string Trigger name
+    ---@param func function Function to trigger
+    local onClientTrigger = function(name, func)
+        RegisterServerEvent(name)
+        AddEventHandler(name, func)
     end
 
-    --- Trigger all drop item events
-    --- @param item item Item used
-    --- @param source number PlayerID
-    triggerItemDropEvent = function(item, source)
-        if (item == nil) then return end
-        if (type(item) ~= 'item') then return end
-        if (source == nil or type(source) ~= 'number') then return end
-
-        if (events.onItemDropEvent.server == nil or #(events.onItemDropEvent.server[item.name] or {}) <= 0) then return end
-
-        for _, itemEvent in pairs(events.onItemDropEvent.server[item.name] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    itemEvent.func(item, source)
-                end, function(err) end)
-                return
-            end)
-        end
-    end
-
-    --- Trigger all give item events
-    --- @param item item Item used
-    --- @param fromSource number PlayerID
-    --- @param toSource number PlayerID
-    triggerItemGiveEvent = function(item, fromSource, toSource)
-        if (item == nil) then return end
-        if (type(item) ~= 'item') then return end
-        if (fromSource == nil or type(fromSource) ~= 'number') then return end
-        if (toSource == nil or type(toSource) ~= 'number') then return end
-
-        if (events.onItemGiveEvent.server == nil or #(events.onItemGiveEvent.server[item.name] or {}) <= 0) then return end
-
-        for _, itemEvent in pairs(events.onItemGiveEvent.server[item.name] or {}) do
-            Citizen.CreateThread(function()
-                try(function()
-                    itemEvent.func(item, fromSource, toSource)
-                end, function(err) end)
-                return
-            end)
-        end
+    --- Trigger func by server
+    ---@param name string Trigger name
+    ---@param func function Function to trigger
+    local onServerTrigger = function(name, func)
+        AddEventHandler(name, func)
     end
 
     -- FiveM maniplulation
-    _ENV.onPlayerConnecting = onPlayerConnecting
-    _G.onPlayerConnecting = onPlayerConnecting
-    _ENV.onPlayerDisconnect = onPlayerDisconnect
-    _G.onPlayerDisconnect = onPlayerDisconnect
-    _ENV.onPlayerConnected = onPlayerConnected
-    _G.onPlayerConnected = onPlayerConnected
-    _ENV.onItemUseEvent = onItemUseEvent
-    _G.onItemUseEvent = onItemUseEvent
-    _ENV.onItemUseEvent = onItemDropEvent
-    _G.onItemUseEvent = onItemDropEvent
-    _ENV.onItemUseEvent = onItemGiveEvent
-    _G.onItemUseEvent = onItemGiveEvent
+    _ENV.triggerOnEvent = triggerOnEvent
+    _G.triggerOnEvent = triggerOnEvent
     _ENV.triggerPlayerConnecting = triggerPlayerConnecting
     _G.triggerPlayerConnecting = triggerPlayerConnecting
-    _ENV.triggerPlayerDisconnect = triggerPlayerDisconnect
-    _G.triggerPlayerDisconnect = triggerPlayerDisconnect
     _ENV.triggerPlayerConnected = triggerPlayerConnected
     _G.triggerPlayerConnected = triggerPlayerConnected
-    _ENV.triggerItemUseEvent = triggerItemUseEvent
-    _G.triggerItemUseEvent = triggerItemUseEvent
-    _ENV.triggerItemDropEvent = triggerItemDropEvent
-    _G.triggerItemDropEvent = triggerItemDropEvent
-    _ENV.triggerItemGiveEvent = triggerItemGiveEvent
-    _G.triggerItemGiveEvent = triggerItemGiveEvent
-    _ENV.onClientTrigger = onClientTrigger
-    _G.onClientTrigger = onClientTrigger
+    _ENV.triggerPlayerDisconnect = triggerPlayerDisconnect
+    _G.triggerPlayerDisconnect = triggerPlayerDisconnect
     _ENV.onServerTrigger = onServerTrigger
     _G.onServerTrigger = onServerTrigger
+    _ENV.onClientTrigger = onClientTrigger
+    _G.onClientTrigger = onClientTrigger
 end
 
-onFrameworkStarted = function(cb)
+local onFrameworkStarted = function(cb)
     if (cb ~= nil and type(cb) == 'function') then
         Citizen.CreateThread(function()
             repeat Citizen.Wait(0) until resource.tasks.loadingFramework == true
@@ -755,3 +354,5 @@ end
 -- FiveM maniplulation
 _ENV.onFrameworkStarted = onFrameworkStarted
 _G.onFrameworkStarted = onFrameworkStarted
+_ENV.on = events.onEvent
+_G.on = events.onEvent
