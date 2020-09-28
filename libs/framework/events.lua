@@ -13,7 +13,7 @@ local events = {
     server = {}
 }
 
-events.__onEvent = function(event, name, func, ...)
+events.__onEvent = function(event, name, module, func, ...)
     if (event == nil or type(event) ~= 'string') then return end
     if (name ~= nil and (type(name) ~= 'string' and type(name) ~= 'table')) then name = tostring(name) end
     if (func == nil or type(func) ~= 'function') then func = function() end end
@@ -32,8 +32,6 @@ events.__onEvent = function(event, name, func, ...)
     if (name ~= nil) then name = string.lower(name) end
 
     if (CLIENT) then
-        local module = CurrentFrameworkModule or 'unknown'
-
         if (events.client == nil) then events.client = {} end
         if (events.client[event] == nil) then events.client[event] = {} end
         if (name ~= nil and events.client[event][name] == nil) then events.client[event][name] = {} end
@@ -56,7 +54,7 @@ events.__onEvent = function(event, name, func, ...)
             })
         end
     else
-        local module = CurrentFrameworkModule or 'unknown'
+        module = CurrentFrameworkModule or 'unknown'
 
         if (events.server == nil) then events.server = {} end
         if (events.server[event] == nil) then events.server[event] = {} end
@@ -118,20 +116,116 @@ events.onEvent = function(event, ...)
         end
     end
 
+    local _module = 'unknown'
+
+    if (CLIENT) then _module = getCurrentModule() or 'unknown' end
+
     if (name ~= nil and callback ~= nil and nameIndex < namesIndex) then
         table.remove(params, nameIndex)
         table.remove(params, callbackIndex)
 
-        events.__onEvent(event, name, callback, table.unpack(params))
+        events.__onEvent(event, name, _module, callback, table.unpack(params))
     elseif (names ~= nil and callback ~= nil and namesIndex < nameIndex) then
         table.remove(params, namesIndex)
         table.remove(params, callbackIndex)
 
-        events.__onEvent(event, names, callback, table.unpack(params))
+        events.__onEvent(event, names, _module, callback, table.unpack(params))
     elseif (callback ~= nil) then
         table.remove(params, callbackIndex)
 
-        events.__onEvent(event, nil, callback, table.unpack(params))
+        events.__onEvent(event, nil, _module, callback, table.unpack(params))
+    end
+end
+
+--- Remove a event from on event trigger
+--- @param event string On event name
+--- @param name string Name of entity etc.
+events.clearOnEvents = function(event, name)
+    if (event == nil or type(event) ~= 'string') then return end
+    if (name ~= nil and (type(name) ~= 'string' and type(name) ~= 'table')) then name = tostring(name) end
+
+    if (name ~= nil and type(name) == 'table') then
+        for _, _name in pairs(name or {}) do
+            if (_name ~= nil and type(_name) == 'string') then
+                events.clearOnEvents(event, _name)
+            end
+        end
+
+        return
+    end
+
+    if (CLIENT) then
+        local moduleName = getCurrentModule() or 'unknown'
+
+        if (name == nil) then
+            local clientEvents = (events.client or {})[event] or nil
+
+            if (clientEvents == nil or type(clientEvents) ~= 'table') then return end
+
+            for i, clientEvent in pairs((events.client or {})[event] or {}) do
+                if (clientEvent.func == nil and type(clientEvent) == 'table') then
+                    for i2, clientSubEvent in pairs(((events.client or {})[event] or {})[i] or {}) do
+                        if (clientSubEvent.func ~= nil and string.lower(clientSubEvent.module) == string.lower(moduleName)) then
+                            table.remove(events.client[event][i], i2)
+                        end
+                    end
+                elseif (clientEvent.func ~= nil and string.lower(clientEvent.module) == string.lower(moduleName)) then
+                    table.remove(events.client[event], i)
+                end
+            end
+        else
+            local clientEvents = ((events.client or {})[event] or {})[name] or nil
+
+            if (clientEvents == nil or type(clientEvents) ~= 'table') then return end
+
+            for i, clientEvent in pairs(((events.client or {})[event] or {})[name] or {}) do
+                if (clientEvent.func == nil and type(clientEvent) == 'table') then
+                    for i2, clientSubEvent in pairs((((events.client or {})[event] or {})[name] or {})[i] or {}) do
+                        if (clientSubEvent.func ~= nil and string.lower(clientSubEvent.module) == string.lower(moduleName)) then
+                            table.remove(events.client[event][name][i], i2)
+                        end
+                    end
+                elseif (clientEvent.func ~= nil and string.lower(clientEvent.module) == string.lower(moduleName)) then
+                    table.remove(events.client[event][name], i)
+                end
+            end
+        end
+    else
+        local moduleName = 'unknown'
+
+        if (name == nil) then
+            local serverEvents = (events.server or {})[event] or nil
+
+            if (serverEvents == nil or type(serverEvents) ~= 'table') then return end
+
+            for i, serverEvent in pairs((events.server or {})[event] or {}) do
+                if (serverEvent.func == nil and type(serverEvent) == 'table') then
+                    for i2, serverSubEvent in pairs(((events.server or {})[event] or {})[i] or {}) do
+                        if (serverSubEvent.func ~= nil and string.lower(serverSubEvent.module) == string.lower(moduleName)) then
+                            table.remove(events.server[event][i], i2)
+                        end
+                    end
+                elseif (serverEvent.func ~= nil and string.lower(serverEvent.module) == string.lower(moduleName)) then
+                    table.remove(events.server[event], i)
+                end
+            end
+        else
+            local serverEvents = ((events.server or {})[event] or {})[name] or nil
+
+            if (serverEvents == nil or type(serverEvents) ~= 'table') then return end
+
+            for i, serverEvent in pairs(((events.server or {})[event] or {})[name] or {}) do
+                if (serverEvent.func == nil and type(serverEvent) == 'table') then
+                    for i2, serverSubEvent in pairs((((events.server or {})[event] or {})[name] or {})[i] or {}) do
+                        if (serverSubEvent.func ~= nil and string.lower(serverSubEvent.module) == string.lower(moduleName)) then
+                            table.remove(events.server[event][name][i], i2)
+                        end
+                    end
+                elseif (serverEvent.func ~= nil and string.lower(serverEvent.module) == string.lower(moduleName)) then
+                    table.remove(events.server[event][name], i)
+                end
+            end
+        end
     end
 end
 
@@ -356,3 +450,5 @@ _ENV.onFrameworkStarted = onFrameworkStarted
 _G.onFrameworkStarted = onFrameworkStarted
 _ENV.on = events.onEvent
 _G.on = events.onEvent
+_ENV.clearOn = events.clearOnEvents
+_G.clearOn = events.clearOnEvents

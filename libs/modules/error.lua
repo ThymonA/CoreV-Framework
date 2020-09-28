@@ -21,10 +21,14 @@ function error:print(msg, resource, module)
         resource = ''
     end
 
+    local currentModule = getCurrentModule() or CurrentFrameworkModule or 'unknown'
+
     if (module ~= nil and type(module) == 'string') then
         module = (' [%s]'):format(tostring(module))
+    elseif (currentModule ~= nil and type(currentModule) == 'string') then
+        module = (' [%s]'):format(currentModule)
     elseif (CurrentFrameworkModule ~= nil and type(CurrentFrameworkModule) == 'string') then
-        module = (' [%s]'):format(tostring(CurrentFrameworkModule))
+        module = (' [%s]'):format(CurrentFrameworkModule)
     else
         module = ''
     end

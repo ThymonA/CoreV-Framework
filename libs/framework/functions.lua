@@ -243,7 +243,43 @@ local function getRandomString(length)
     end
 end
 
+local function getCurrentModule()
+    if (CLIENT) then
+        local debugInfo = debug.getinfo(3)
+        local pathOfModule = debugInfo.short_src or 'unknown'
+        local currentResourceName = GetCurrentResourceName()
+
+        pathOfModule = string.replace(pathOfModule, '@', '')
+
+        local isInternalModule = string.startswith(pathOfModule, currentResourceName)
+
+        if (isInternalModule) then
+            for _, _module in pairs(resource.internalModules or {}) do
+                local generatedPath = ('%s/client/%s_module_client.lua'):format(currentResourceName, _module.name)
+
+                if (string.lower(generatedPath) == pathOfModule) then
+                    return _module.name
+                end
+            end
+
+            for _, _resource in pairs(resource.internalResources or {}) do
+                local generatedPath = ('%s/client/%s_resource_client.lua'):format(currentResourceName, _resource.name)
+
+                if (string.lower(generatedPath) == pathOfModule) then
+                    return _resource.name
+                end
+            end
+
+            return nil
+        end
+    end
+
+    return nil
+end
+
 -- FiveM maniplulation
+_ENV.getCurrentModule = getCurrentModule
+_G.getCurrentModule = getCurrentModule
 _ENV.try = try
 _G.try = try
 _ENV.string.trim = string_trim

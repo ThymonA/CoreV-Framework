@@ -27,6 +27,8 @@ Citizen.CreateThread(function()
         local coords = GetEntityCoords(GetPlayerPed(-1))
         local cachedEntities = {}
 
+        locks.entityEvents = {}
+
         for key, _lock in pairs(locks.closeLocks or {}) do
             for i, door in pairs(_lock.doors or {}) do
                 if (door.entity ~= nil) then
