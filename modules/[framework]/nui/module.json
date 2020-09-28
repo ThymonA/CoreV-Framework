@@ -1,0 +1,9 @@
+{
+    "fx_version": "adamant",
+    "game": [ "gta5" ],
+    "description": "CoreV NUI module",
+    "client_scripts": [
+        "client/main.lua"
+    ],
+    "module": "nui"
+}

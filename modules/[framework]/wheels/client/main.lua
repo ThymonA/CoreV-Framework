@@ -16,9 +16,9 @@ wheels:set {
     wheels = {},
     timer = GetGameTimer(),
     chunks = {},
-    mouseStatus = false,
     keybinds = m('keybinds'),
-    canSelect = false
+    canSelect = false,
+    lastCanSelect = false
 }
 
 --- Open a wheel object
@@ -218,30 +218,10 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        if (wheels.mouseStatus ~= (wheels.currentWheel or {}).isOpen) then
-            wheels.mouseStatus = (wheels.currentWheel or {}).isOpen
+        if ((wheels.currentWheel or {}).isOpen) then
+            if (not wheels.canSelect) then
+                Citizen.Wait(100)
 
-            SetNuiFocus(wheels.mouseStatus, wheels.mouseStatus)
-            SetNuiFocusKeepInput(wheels.mouseStatus)
-        end
-
-        if (wheels.mouseStatus) then
-            DisableControlAction(0,24, true) -- disable attack
-            DisableControlAction(0,25, true) -- disable aim
-            DisableControlAction(0, 1, true) -- LookLeftRight
-            DisableControlAction(0, 2, true) -- LookUpDown
-        end
-
-        Citizen.Wait(0)
-    end
-end)
-
-Citizen.CreateThread(function()
-    while true do
-        if ((wheels.currentWheel or {}).isOpen and not wheels.canSelect) then
-            Citizen.Wait(100)
-
-            if ((wheels.currentWheel or {}).isOpen) then
                 wheels.canSelect = true
             end
         elseif (not ((wheels.currentWheel or {}).isOpen or false)) then
@@ -254,14 +234,25 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        if (wheels.canSelect and not wheels.mouseStatus) then
-            wheels.mouseStatus = wheels.canSelect or false
+        if (wheels.canSelect ~= wheels.lastCanSelect) then
+            wheels.lastCanSelect = wheels.canSelect or false
+
+            --- Update NUI Focus state
+            nui:setNuiFocus(wheels.canSelect, wheels.canSelect, 'wheels')
+
+            --- Update Controls state
+            controls:disableControlAction(0, 1, wheels.canSelect, 'wheels')
+            controls:disableControlAction(0, 2, wheels.canSelect, 'wheels')
+            controls:disableControlAction(0, 24, wheels.canSelect, 'wheels')
+            controls:disableControlAction(0, 25, wheels.canSelect, 'wheels')
+            controls:disableControlAction(0, 142, wheels.canSelect, 'wheels')     -- MeleeAttackAlternate
+            controls:disableControlAction(0, 106, wheels.canSelect, 'wheels')     -- VehicleMouseControlOverride
         end
 
         if (wheels.canSelect and wheels.keybinds:isControlPressed('wheel_select')) then
-            wheels.mouseStatus = false
-
             if ((wheels.currentWheel or {}).isOpen) then
+                wheels.canSelect = false
+
                 wheels:close((wheels.currentWheel or {}).namespace or 'unknown', (wheels.currentWheel or {}).name or 'unknown')
             end
         end

@@ -77,7 +77,3 @@ function keybinds:isControlReleased(name)
 end
 
 addModule('keybinds', keybinds)
-
-onFrameworkStarted(function()
-    keybinds:registerKey('marker_trigger', _(CR(), 'keybinds', 'keybind_markers'), 'keyboard', 'e')
-end)

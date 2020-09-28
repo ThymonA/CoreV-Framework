@@ -13,6 +13,7 @@ local markers = class('markers')
 --- Default values
 markers:set {
     markers = {},
+    anyMarkerDrawed = false,
     drawMarkers = {},
     inMarker = false,
     currentMarker = nil,
@@ -39,7 +40,11 @@ end)
 --- Draw markers from > markers.drawMarkers
 Citizen.CreateThread(function()
     while true do
+        markers.anyMarkerDrawed = false
+
         for i, marker in pairs(markers.drawMarkers or {}) do
+            markers.anyMarkerDrawed = true
+
             DrawMarker(
                 marker.type,
                 marker.position.x,
@@ -72,21 +77,23 @@ Citizen.CreateThread(function()
         markers.inMarker = false
         markers.currentMarker = nil
 
-        local coords = GetEntityCoords(GetPlayerPed(-1))
+        if (markers.anyMarkerDrawed) then
+            local coords = GetEntityCoords(GetPlayerPed(-1))
 
-        for _, marker in pairs(markers.drawMarkers or {}) do
-            if (not markers.inMarker and #(marker.position - coords) < marker.size.x) then
-                markers.inMarker = true
-                markers.currentMarker = marker
-                markers.lastMarker = marker
+            for _, marker in pairs(markers.drawMarkers or {}) do
+                if (not markers.inMarker and #(marker.position - coords) < marker.size.x) then
+                    markers.inMarker = true
+                    markers.currentMarker = marker
+                    markers.lastMarker = marker
 
-                triggerOnEvent('marker:enter', marker.event, marker)
+                    triggerOnEvent('marker:enter', marker.event, marker)
+                end
             end
-        end
 
-        if (markers.currentMarker == nil and markers.lastMarker ~= nil) then
-            triggerOnEvent('marker:leave', markers.lastMarker.event, markers.lastMarker)
-            markers.lastMarker = nil
+            if (markers.currentMarker == nil and markers.lastMarker ~= nil) then
+                triggerOnEvent('marker:leave', markers.lastMarker.event, markers.lastMarker)
+                markers.lastMarker = nil
+            end
         end
 
         Citizen.Wait(0)
@@ -122,6 +129,12 @@ onServerTrigger('corev:players:setJob2', function(job, grade)
     triggerServerCallback('corev:markers:receive', function(_markers)
         markers.markers = _markers or {}
     end)
+end)
+
+onFrameworkStarted(function()
+    local keybinds = m('keybinds')
+
+    keybinds:registerKey('marker_trigger', _(CR(), 'markers', 'keybind_markers'), 'keyboard', 'e')
 end)
 
 addModule('markers', markers)

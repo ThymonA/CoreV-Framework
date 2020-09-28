@@ -14,6 +14,7 @@ local raycast = class('raycast')
 raycast:set {
     latestMouseState = false,
     showMouse = false,
+    lastShowMouseState = false,
     keybinds = m('keybinds'),
     hashList = hashList or m('hashList'),
     flag = Config.EnableCustomFilter == true and 2 or 30,
@@ -229,27 +230,20 @@ Citizen.CreateThread(function()
             raycast.showMouse = true
         end
 
-        if (raycast.latestMouseState ~= raycast.showMouse) then
-            raycast.latestMouseState = raycast.showMouse
-            SetNuiFocus(false, raycast.showMouse)
-            SetNuiFocusKeepInput(raycast.showMouse)
+        if (raycast.showMouse ~= raycast.lastShowMouseState) then
+            raycast.lastShowMouseState = raycast.showMouse or false
 
-            DisableControlAction(0, 1, raycast.showMouse) -- LookLeftRight
-            DisableControlAction(0, 2, raycast.showMouse) -- LookUpDown
-            DisableControlAction(0, 142, raycast.showMouse) -- MeleeAttackAlternate
-            DisableControlAction(0, 18, raycast.showMouse) -- Enter
-            DisableControlAction(0, 322, raycast.showMouse) -- ESC
-            DisableControlAction(0, 106, raycast.showMouse) -- VehicleMouseControlOverride
+            --- Update NUI Focus state
+            nui:setNuiFocus(false, raycast.showMouse, 'raycast')
+
+            --- Update Controls state
+            controls:disableControlAction(0, 1, raycast.showMouse, 'raycast')       -- LookLeftRight
+            controls:disableControlAction(0, 2, raycast.showMouse, 'raycast')       -- LookUpDown
+            controls:disableControlAction(0, 142, raycast.showMouse, 'raycast')     -- MeleeAttackAlternate
+            controls:disableControlAction(0, 106, raycast.showMouse, 'raycast')     -- VehicleMouseControlOverride
         end
 
         if (raycast.showMouse) then
-            DisableControlAction(0, 1, raycast.showMouse) -- LookLeftRight
-            DisableControlAction(0, 2, raycast.showMouse) -- LookUpDown
-            DisableControlAction(0, 142, raycast.showMouse) -- MeleeAttackAlternate
-            DisableControlAction(0, 18, raycast.showMouse) -- Enter
-            DisableControlAction(0, 322, raycast.showMouse) -- ESC
-            DisableControlAction(0, 106, raycast.showMouse) -- VehicleMouseControlOverride
-
             if (raycast.keybinds:isControlPressed('raycast_click')) then
                 raycast.showMouse = false
 
