@@ -4,7 +4,7 @@ Config.Locks = {
         ['POLICE_OFFICE_DOOR'] = {
             Authorized = { Jobs = { 'politie' }, Groups = { } },
             Locked = true,
-            Distance = 5,
+            Distance = 10,
             LabelPosition = vector3(447.23, -980.03, 31.20),
             Door = {
                 Name = 'v_ilev_ph_gendoor002',
@@ -19,7 +19,7 @@ Config.Locks = {
         ['POLICE_HALLWAY_LOCKER_ROOM'] = {
             Authorized = { Jobs = { 'politie' }, Groups = { } },
             Locked = true,
-            Distance = 5,
+            Distance = 10,
             LabelPosition = vector3(449.99, -986.42, 31.20),
             Door = {
                 Name = 'v_ilev_ph_gendoor004',
@@ -34,7 +34,7 @@ Config.Locks = {
         ['POLICE_HALLWAY_STARIS'] = {
             Authorized = { Jobs = { 'politie' }, Groups = { } },
             Locked = true,
-            Distance = 5,
+            Distance = 10,
             LabelPosition = vector3(444.7, -989.39, 31.20),
             Doors = {
                 {
@@ -58,7 +58,7 @@ Config.Locks = {
         --- Entrance police station
         ['POLICE_ENTRANCE_STATION'] = {
             Authorized = { Jobs = { 'politie' }, Groups = { } },
-            Distance = 5,
+            Distance = 10,
             LabelPosition = vector3(434.71, -981.91, 31.20),
             Doors = {
                 {

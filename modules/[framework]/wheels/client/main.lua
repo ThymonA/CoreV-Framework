@@ -219,9 +219,7 @@ end)
 Citizen.CreateThread(function()
     while true do
         if ((wheels.currentWheel or {}).isOpen) then
-            if (not wheels.canSelect) then
-                Citizen.Wait(100)
-
+            if (wheels.keybinds:isControlReleased('raycast_click')) then
                 wheels.canSelect = true
             end
         elseif (not ((wheels.currentWheel or {}).isOpen or false)) then

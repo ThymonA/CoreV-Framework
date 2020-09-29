@@ -73,7 +73,7 @@ function keybinds:isControlReleased(name)
     name = string.replace(name, ' ', '')
     name = string.lower(name)
 
-    return (self.pressed or {})[name] or true
+    return not ((self.pressed or {})[name] or false)
 end
 
 addModule('keybinds', keybinds)
