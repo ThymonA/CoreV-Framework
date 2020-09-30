@@ -229,6 +229,26 @@ events.clearOnEvents = function(event, name)
     end
 end
 
+--- Returns if any event has been registerd based on event and name
+--- @param event string On event name
+--- @param name string Name of entity etc.
+events.anyEventRegistered = function(event, name)
+    if (event == nil or type(event) ~= 'string') then return false end
+    if (name ~= nil and (type(name) ~= 'string' and type(name) ~= 'table')) then name = tostring(name) end
+
+    if (CLIENT and name ~= nil) then
+        return #((events.client or {})[event] or {})[name] or {} > 0
+    elseif (CLIENT) then
+        return #(events.client or {})[event] or {} > 0
+    elseif (SERVER and name ~= nil) then
+        return #((events.server or {})[event] or {})[name] or {} > 0
+    elseif (SERVER) then
+        return #(events.server or {})[event] or {} > 0
+    end
+
+    return false
+end
+
 if (CLIENT) then
     local triggerOnEvent = function(event, name, ...)
         if (event == nil or type(event) ~= 'string') then return end
@@ -452,3 +472,5 @@ _ENV.on = events.onEvent
 _G.on = events.onEvent
 _ENV.clearOn = events.clearOnEvents
 _G.clearOn = events.clearOnEvents
+_ENV.onCount = events.anyEventRegistered
+_G.onCount = events.anyEventRegistered

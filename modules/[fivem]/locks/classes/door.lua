@@ -18,7 +18,8 @@ function locks:createDoor(doorData)
         position = nil,
         rotation = nil,
         locked = false,
-        resetPosition = false
+        resetPosition = false,
+        latest = {}
     }
 
     if (doorData.Name ~= nil and type(doorData.Name) == 'string') then

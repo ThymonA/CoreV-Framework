@@ -17,35 +17,17 @@ locks:set {
     utils = m('utils'),
     raycast = m('raycast'),
     entityEvents = {},
-    anyAuthorizedLock = false,
-    flagState = false
+    flagState = false,
+    anyInRange = false
 }
 
 --- Load locks in > locks.closeLocks
 Citizen.CreateThread(function()
     while true do
         local coords = GetEntityCoords(GetPlayerPed(-1))
-        local cachedEntities = {}
 
-        locks.entityEvents = {}
-
-        for key, _lock in pairs(locks.closeLocks or {}) do
-            for i, door in pairs(_lock.doors or {}) do
-                if (door.entity ~= nil) then
-                    if (cachedEntities[key] == nil) then
-                        cachedEntities[key] = {}
-                    end
-
-                    cachedEntities[key][i] = door.entity
-                end
-
-                door.latest = {}
-            end
-        end
-
-        locks.closeLocks = {}
         locks.drawLocks = {}
-        locks.anyAuthorizedLock = false
+        locks.anyInRange = false
 
         for lockName, lock in pairs(locks.locks or {}) do
             if (lock.numberOfDoors > 0) then
@@ -66,15 +48,10 @@ Citizen.CreateThread(function()
                 end
 
                 if (doorDistance ~= -1 and doorDistance < Config.LockDoorDistance) then
-                    locks.closeLocks[lockName] = lock
-
-                    for i, door in pairs(lock.doors or {}) do
-                        locks.closeLocks[lockName].doors[i].entity = (cachedEntities[lockName] or {})[i] or nil
-                    end
-
-                    if (lock.allowed) then
-                        locks.anyAuthorizedLock = true
-                    end
+                    locks.anyInRange = true
+                    locks.closeLocks[lockName] = locks.closeLocks[lockName] or lock
+                elseif (locks.closeLocks[lockName] ~= nil) then
+                    locks.closeLocks[lockName] = nil
                 end
 
                 if (doorDistance ~= -1 and doorDistance < (lock.distance or -1) and type(lock.labelPosition) == 'vector3' and lock.allowed) then
@@ -94,6 +71,14 @@ Citizen.CreateThread(function()
             end
         end
 
+        if (not locks.anyInRange) then
+            locks.closeLocks = {}
+            locks.drawLocks = {}
+            locks.entityEvents = {}
+
+            clearOn('raycast:entity')
+        end
+
         Citizen.Wait(500)
     end
 end)
@@ -106,23 +91,6 @@ Citizen.CreateThread(function()
         end
 
         Citizen.Wait(0)
-    end
-end)
-
---- Draw labels for locks from > locks.drawLocks
-Citizen.CreateThread(function()
-    while true do
-        if (locks.flagState ~= locks.anyAuthorizedLock) then
-            if (locks.anyAuthorizedLock) then
-                locks.raycast:enableFlag(16)
-            else
-                locks.raycast:disableFlag(16)
-            end
-
-            locks.flagState = locks.anyAuthorizedLock
-        end
-
-        Citizen.Wait(100)
     end
 end)
 
@@ -160,7 +128,7 @@ Citizen.CreateThread(function()
                     if (lock.doors[i].latest == nil) then lock.doors[i].latest = {} end
 
                     if (lock.doors[i].position ~= nil and lock.doors[i].entity ~= nil) then
-                        if (lock.doors[i].locked and lock.doors[i].resetPosition ~= nil and lock.doors[i].resetPosition) then
+                        if (lock.locked and lock.doors[i].resetPosition ~= nil and lock.doors[i].resetPosition) then
                             if (lock.doors[i].latest.coords == nil or not lock.doors[i].latest.coords) then
                                 lock.doors[i].latest.coords = true
 
@@ -169,14 +137,14 @@ Citizen.CreateThread(function()
                         end
 
                         if (#(lock.doors[i].position - coords) <= lock.distance) then
-                            if (lock.doors[i].latest.freeze == nil or lock.doors[i].latest.freeze ~= lock.doors[i].locked) then
-                                lock.doors[i].latest.freeze = lock.doors[i].locked
+                            if (lock.doors[i].latest.freeze == nil or lock.doors[i].latest.freeze ~= lock.locked) then
+                                lock.doors[i].latest.freeze = lock.locked
 
-                                FreezeEntityPosition(lock.doors[i].entity, lock.doors[i].locked)
+                                FreezeEntityPosition(lock.doors[i].entity, lock.locked)
                             end
                         end
 
-                        if (lock.doors[i].locked and lock.doors[i].rotation ~= nil) then
+                        if (lock.locked and lock.doors[i].rotation ~= nil) then
                             if (lock.doors[i].latest.rotation == nil or not lock.doors[i].latest.rotation) then
                                 lock.doors[i].latest.rotation = true
 
@@ -236,7 +204,7 @@ Citizen.CreateThread(function()
     end
 end)
 
---- Request all markers
+--- Request all locks
 Citizen.CreateThread(function()
     while not resource.tasks.loadingFramework do
         Citizen.Wait(0)
@@ -253,6 +221,7 @@ onServerTrigger('corev:locks:updateLock', function(name, locked)
 
         for i, _ in pairs(locks.locks[name].doors or {}) do
             locks.locks[name].doors[i].locked = locked
+            locks.locks[name].doors[i].latest = {}
         end
     end
 end)

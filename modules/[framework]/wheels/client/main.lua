@@ -218,11 +218,11 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        if ((wheels.currentWheel or {}).isOpen) then
+        if (wheels.currentWheel ~= nil and wheels.currentWheel.isOpen) then
             if (wheels.keybinds:isControlReleased('raycast_click')) then
                 wheels.canSelect = true
             end
-        elseif (not ((wheels.currentWheel or {}).isOpen or false)) then
+        else
             wheels.canSelect = false
         end
 

@@ -250,8 +250,13 @@ Citizen.CreateThread(function()
                 local anyEntityFound, entityCoords, surfaceNormal, entityHit, entityType, cameraDirection = raycast:screen2dToWorld3D(raycast.flag)
 
                 if (anyEntityFound) then
-                    local entityHash = GetEntityModel(entityHit)
-                    local hashFound, hashName = raycast.hashList:getName(entityHash)
+                    local hashFound, hashName = false, nil
+
+                    if (entityType > 0) then
+                        local entityHash = GetEntityModel(entityHit)
+
+                        hashFound, hashName = raycast.hashList:getName(entityHash)
+                    end
 
                     if (hashFound) then
                         triggerOnEvent('raycast:hash', hashName, entityHit, entityCoords)

@@ -40,4 +40,8 @@ function items:addItem(name, label, weight, itemType)
     return nil, false
 end
 
+registerCallback('corev:items:receive', function(source, cb)
+    cb({})
+end)
+
 addModule('items', items)
