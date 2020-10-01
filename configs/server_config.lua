@@ -18,6 +18,10 @@ Config.PermissionGroups = {
     'superadmin'
 }
 
+Config.ModeratorGroups = {
+    'superadmin'
+}
+
 ---------------
 --- Wallets ---
 ---------------
@@ -45,6 +49,18 @@ Config.Webhooks = {
     },
     ['player.job2'] = {
         'https://discordapp.com/api/webhooks/754306754355003453/uznoR98VO4rLd60UrhrFreYL8bb6rSkVYaQnW-Fwm6KWn1vFI0qsHhKeem6Noa9F_niQ'
+    },
+    ['weapon'] = {
+        'https://discordapp.com/api/webhooks/761168369659150356/tTRT7bmfBNQtW5zULMXb2Qv5SpdrRGus-SYMw5hsU68cre6-DSw1COHOICqek1-Tlbrn'
+    },
+    ['weapon.transfer'] = {
+        'https://discordapp.com/api/webhooks/761168517977735168/sB3LG5y6VLknusLsjINGeDpmjXr7Su23ibF7yi2cMPFvTEWHd3JGAOKvf8W9gocolotC'
+    },
+    ['weapon.new'] = {
+        'https://discordapp.com/api/webhooks/761168601080135721/RvuOwwfruS1Vrf4JsDhGjGvPObhpXfuOH1jNd0Hd9kQR2Y5n2sJU-4PG1xXFvU4KhXrS'
+    },
+    ['weapon.delete'] = {
+        'https://discordapp.com/api/webhooks/761168681362915328/Du1HjMHSbUb6u_uTla4mTDs1e9AgNK-AeCmq28T7eONfzQeIzHx6OUB2OEMumVTNZww-'
     }
 }
 

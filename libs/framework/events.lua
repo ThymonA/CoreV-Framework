@@ -237,13 +237,13 @@ events.anyEventRegistered = function(event, name)
     if (name ~= nil and (type(name) ~= 'string' and type(name) ~= 'table')) then name = tostring(name) end
 
     if (CLIENT and name ~= nil) then
-        return #((events.client or {})[event] or {})[name] or {} > 0
+        return #(((events.client or {})[event] or {})[name] or {}) > 0
     elseif (CLIENT) then
-        return #(events.client or {})[event] or {} > 0
+        return #((events.client or {})[event] or {}) > 0
     elseif (SERVER and name ~= nil) then
-        return #((events.server or {})[event] or {})[name] or {} > 0
+        return #(((events.server or {})[event] or {})[name] or {}) > 0
     elseif (SERVER) then
-        return #(events.server or {})[event] or {} > 0
+        return #((events.server or {})[event] or {}) > 0
     end
 
     return false
@@ -472,5 +472,5 @@ _ENV.on = events.onEvent
 _G.on = events.onEvent
 _ENV.clearOn = events.clearOnEvents
 _G.clearOn = events.clearOnEvents
-_ENV.onCount = events.anyEventRegistered
-_G.onCount = events.anyEventRegistered
+_ENV.anyEvent = events.anyEventRegistered
+_G.anyEvent = events.anyEventRegistered

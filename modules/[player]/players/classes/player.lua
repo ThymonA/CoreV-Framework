@@ -53,7 +53,7 @@ function players:createPlayer(_player)
 
         print(_(CR(), 'players', 'player_created', playerName))
 
-        return players:createPlayer(_player)
+        return self:createPlayer(_player)
     end
 
     local playerData = database:fetchAll('SELECT * FROM `players` WHERE `identifier` = @identifier LIMIT 1', {

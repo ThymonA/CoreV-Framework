@@ -1,16 +1,16 @@
 {
     "fx_version": "adamant",
     "game": [ "gta5" ],
-    "description": "CoreV items module",
+    "description": "CoreV weapons module",
     "client_scripts": [
         "client/main.lua"
     ],
     "server_scripts": [
         "server/main.lua",
-        "classes/item.lua"
+        "classes/weapon.lua"
     ],
     "languages": {
         "nl": "langs/nl.json"
     },
-    "module": "items"
+    "module": "weapons"
 }

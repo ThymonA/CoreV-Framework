@@ -12,7 +12,8 @@ local identifiers = class('identifiers')
 
 --- Default values
 identifiers:set {
-    players = {}
+    players = {},
+    playerIdIdentifiers = {}
 }
 
 --- Returns a player identifier by type
@@ -23,7 +24,7 @@ function identifiers:getPlayer(player)
         if (identifiers.players ~= nil and identifiers.players[player] ~= nil) then
             return identifiers.players[player]
         end
-        
+
         return self:createIdentifier(player)
     end
 
@@ -42,6 +43,34 @@ function identifiers:getPlayer(player)
     end
 
     return nil
+end
+
+--- Returns a player identifier by player id (not player source)
+--- @param playerId number|string PlayerID
+function identifiers:getIdentifierByPlayerId(playerId)
+    if (playerId == nil) then return nil end
+    if (type(playerId) ~= 'number') then playerId = tonumber(playerId) end
+    if (playerId <= 0) then return nil end
+
+    local _identifier = 'none'
+
+    if (self.playerIdIdentifiers ~= nil and self.playerIdIdentifiers[tostring(playerId)] ~= nil) then
+        _identifier = self.playerIdIdentifiers[tostring(playerId)]
+
+        return self:getPlayer(_identifier)
+    end
+
+    local database = m('database')
+    
+    _identifier = (database:fetchScalar("SELECT `identifier` FROM `players` WHERE `id` = @id LIMIT 1", {
+        ['@id'] = playerId
+    }) or 'none')
+
+    if (_identifier == 'none') then return nil end
+
+    self.playerIdIdentifiers[tostring(playerId)] = _identifier
+
+    return self:getPlayer(_identifier)
 end
 
 --- Returns a player identifier

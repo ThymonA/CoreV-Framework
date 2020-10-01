@@ -52,7 +52,7 @@ function markers:createMarker(name, event, whitelist, markerType, position, size
                     ExecuteCommand(('add_ace group.%s "marker.%s" allow'):format(_group, name))
                 end
             else
-                ExecuteCommand(('add_ace group.%s  "marker.%s" allow'):format(group, name))
+                ExecuteCommand(('add_ace group.%s "marker.%s" allow'):format(group, name))
             end
         end
     end
