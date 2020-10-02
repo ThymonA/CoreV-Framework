@@ -8,7 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-function weapons:createAWeapon(id, player, job, name, bullets, location)
+function weapons:createAWeapon(id, player, job, name, bullets, location, components, tint)
     local weapon = class('weapon')
     local identifiers, jobs = m('identifiers'), m('jobs')
 
@@ -19,6 +19,8 @@ function weapons:createAWeapon(id, player, job, name, bullets, location)
         name = name or 'unknown',
         bullets = bullets or 120,
         location = location or 'unknown',
+        components = components or {},
+        tint = tint or 1,
         ownerType = 'unknown',
         identifier = nil,
         job = nil,

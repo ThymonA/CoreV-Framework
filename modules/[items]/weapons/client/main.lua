@@ -12,16 +12,28 @@ local weapons = class('weapons')
 
 --- Set default values
 weapons:set {
-    weapons = {}
+    inventory = {}
 }
 
---- Request all items
-Citizen.CreateThread(function()
-    while not resource.tasks.loadingFramework do
-        Citizen.Wait(0)
-    end
+on('playerSpawned', function(playerPed, playerCoords)
+    --- Update player weapons
+    triggerServerCallback('corev:weapons:getWeapons', function(_weapons)
+        RemoveAllPedWeapons(playerPed, true)
 
-    triggerServerCallback('corev:weapons:getInventoryWeapons', function(_items)
-        items.items = _items or {}
+        print(json.encode(_weapons))
+
+        for weaponName, weapon in pairs(_weapons or {}) do
+            local weaponHash = GetHashKey(weaponName)
+
+            GiveWeaponToPed(playerPed, weaponHash, weapon.bullets, false, false)
+            SetPedWeaponTintIndex(playerPed, weaponHash, weapon.tint)
+
+            for _, component in pairs(weapon.components or {}) do
+                local component_name = component.id or 'UNKNOWN_COMPONENT'
+                local component_hash = GetHashKey(component_name)
+
+                GiveWeaponComponentToPed(playerPed, weaponHash, component_hash)
+            end
+        end
     end)
 end)

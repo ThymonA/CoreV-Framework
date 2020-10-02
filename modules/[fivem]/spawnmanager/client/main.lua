@@ -15,20 +15,18 @@ Citizen.CreateThread(function()
                 return;
             end
 
-            if (GetEntityModel(PlayerPedId()) == GetHashKey('PLAYER_ZERO')) then
-                local defaultModel = GetHashKey('a_f_y_epsilon_01')
+            local defaultModel = GetHashKey('a_f_y_epsilon_01')
 
-                RequestModel(defaultModel)
+            RequestModel(defaultModel)
 
-                while not HasModelLoaded(defaultModel) do
-                    Citizen.Wait(0)
-                end
-
-                SetPlayerModel(PlayerId(), defaultModel)
-                SetPedDefaultComponentVariation(PlayerPedId())
-                SetPedRandomComponentVariation(PlayerPedId(), true)
-                SetModelAsNoLongerNeeded(defaultModel)
+            while not HasModelLoaded(defaultModel) do
+                Citizen.Wait(0)
             end
+
+            SetPlayerModel(PlayerId(), defaultModel)
+            SetPedDefaultComponentVariation(PlayerPedId())
+            SetPedRandomComponentVariation(PlayerPedId(), true)
+            SetModelAsNoLongerNeeded(defaultModel)
 
             ShutdownLoadingScreen()
             DoScreenFadeIn(2500)
@@ -49,6 +47,8 @@ Citizen.CreateThread(function()
 
             SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z, false, false, false, true)
             FreezeEntityPosition(PlayerPedId(), false)
+
+            triggerOnEvent('playerSpawned', nil, PlayerPedId(), coords)
 
             return;
         end

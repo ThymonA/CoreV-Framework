@@ -38,10 +38,6 @@ server_scripts {
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',
     'configs/others/vehicle_config.lua',
-    'configs/others/weapon_ammo_config.lua',
-    'configs/others/weapon_category_config.lua',
-    'configs/others/weapon_component_config.lua',
-    'configs/others/weapon_config.lua',
     'configs/server_config.lua',
 
     'libs/common.lua',
@@ -55,6 +51,11 @@ server_scripts {
     'server/libs/callbacks.lua',
     'server/libs/resources.lua',
     'server/libs/compiler.lua',
+
+    'configs/others/weapon_ammo_config.lua',
+    'configs/others/weapon_category_config.lua',
+    'configs/others/weapon_component_config.lua',
+    'configs/others/weapon_config.lua',
 
     'server/functions.lua',
     'server/main.lua'
@@ -73,10 +74,6 @@ corevclients {
     'configs/shared_config.lua',
     'configs/others/brands_config.lua',
     'configs/others/vehicle_config.lua',
-    'configs/others/weapon_ammo_config.lua',
-    'configs/others/weapon_category_config.lua',
-    'configs/others/weapon_component_config.lua',
-    'configs/others/weapon_config.lua',
     'configs/client_config.lua',
 
     'libs/common.lua',
@@ -91,6 +88,11 @@ corevclients {
 
     'client/libs/callbacks.lua',
     'client/libs/resources.lua',
+
+    'configs/others/weapon_ammo_config.lua',
+    'configs/others/weapon_category_config.lua',
+    'configs/others/weapon_component_config.lua',
+    'configs/others/weapon_config.lua',
 
     'client/main.lua'
 }

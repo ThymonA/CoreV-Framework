@@ -48,7 +48,7 @@ end
 function weapons:getJobWeapons(source, job, location)
     if (job == nil or type(job) ~= 'string') then return {} end
     if (location == nil or type(location) ~= 'string') then return {} end
-    
+
     local player, players = nil, m('players')
 
     player = players:getPlayer(source) or nil
@@ -92,7 +92,9 @@ onFrameworkStarted(function()
                 weapon.job_id or 0,
                 weapon.name or 'unknown',
                 weapon.bullets or 120,
-                weapon.location or 'safe'
+                weapon.location or 'safe',
+                json.decode(weapon.components or '{}'),
+                weapon.tint or 1
             )
 
             if (weaponObject ~= nil) then
@@ -122,4 +124,42 @@ onFrameworkStarted(function()
 
         weapons.loaded = true
     end)
+end)
+
+--- Trigger when player is fully connected
+registerCallback('corev:weapons:getWeapons', function(source, cb)
+    local playerInventoryWeapons = weapons:getPlayerWeapons(source, 'inv')
+    local playerInvWeapons = {}
+
+    for _, invWeapon in pairs(playerInventoryWeapons or {}) do
+        local ammoMaxClipSize = ((invWeapon.weapon or {}).ammo or {}).max or 0
+        local waeponId = (invWeapon.weapon or {}).id or 'weapon_unknown'
+        local weaponComponents = {}
+
+        if (invWeapon.bullets > ammoMaxClipSize) then invWeapon.bullets = ammoMaxClipSize end
+
+        for _, weaponComponent in pairs((invWeapon.weapon or {}).components or {}) do
+            for _, invWeaponComponent in pairs(invWeapon.components or {}) do
+                if (string.lower(invWeaponComponent) == string.lower(weaponComponent.id) or weaponComponent.default) then
+                    weaponComponents[weaponComponent.id] = {
+                        id = weaponComponent.id,
+                        hash = weaponComponent.hash,
+                        type = weaponComponent.type,
+                        default = weaponComponent.default
+                    }
+                end
+            end
+        end
+
+        playerInvWeapons[waeponId] = {
+            id = invWeapon.id,
+            name = invWeapon.name,
+            bullets = invWeapon.bullets,
+            location = invWeapon.location,
+            tint = invWeapon.tint,
+            components = weaponComponents
+        }
+    end
+
+    cb(playerInvWeapons)
 end)
