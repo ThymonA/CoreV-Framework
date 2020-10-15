@@ -461,3 +461,4 @@ debug/internal_modules/client/*.lua
 debug/internal_modules/server/*.lua
 
 # End of https://www.toptal.com/developers/gitignore/api/lua,git,jspm,visualstudio,visualstudiocode,vue,vuejs
+.vscode/
