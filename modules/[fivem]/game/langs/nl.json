@@ -1,9 +1,0 @@
-{
-    "help_car": "Spawn een voertuig op je locatie",
-    "help_deletevehicle": "Verwijderd een voertuig in een bepaalde radius",
-    "vehicle_name": "Naam van voertuig",
-    "vehicle_radius": "Radius waarin u voertuig wilt verwijderen",
-    "console_not_allowed": "Console is niet toegestaan om deze commando uit te voeren",
-    "empty_or_invalid_name": "U heeft een ongeldige naam opgegeven",
-    "help_print_car": "Log vehicle in console om te gebruiken in bijv. scripts"
-}

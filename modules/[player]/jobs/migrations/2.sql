@@ -1,2 +1,0 @@
-INSERT INTO `jobs` (`name`, `label`, `whitelisted`) VALUES ('staff', 'DobberdamRP', 1);
-INSERT INTO `job_grades` SELECT `id` AS `job_id`, 0 AS `grade`, 'staff' AS `name`, 'STAFF' AS `label`, 500 AS `salary` FROM `jobs` WHERE `name` = 'staff' LIMIT 1;

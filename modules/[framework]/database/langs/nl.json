@@ -1,6 +1,0 @@
-{
-    "error_query_type": "De SQL query moet een string of getal zijn.",
-    "error_params_type": "Parameters moet een tabel zijn.",
-    "error_queries_type": "De SQL queries moeten een tabel zijn",
-    "database_not_started": "Server is bezig met de verbiding met de database... even geduld a.u.b....."
-}

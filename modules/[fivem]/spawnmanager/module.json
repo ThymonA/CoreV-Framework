@@ -1,9 +1,0 @@
-{
-    "fx_version": "adamant",
-    "game": [ "gta5" ],
-    "description": "CoreV spawnmanager module",
-    "client_scripts": [
-        "client/main.lua"
-    ],
-    "module": "spawnmanager"
-}
