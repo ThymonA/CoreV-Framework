@@ -11,5 +11,6 @@
 local config = {}
 
 config.defaultSpawnLocation = vector3(-206.79, -1015.12, 29.14)
+config.defaultModel = 'mp_m_freemode_01'
 
 return config

@@ -19,6 +19,7 @@ local decode = assert(json.decode)
 local sub = assert(string.sub)
 local pack = assert(pack or table.pack)
 
+--- Cahce FiveM globals
 local exports = assert(exports)
 
 --- Create translation class

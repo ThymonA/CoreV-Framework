@@ -8,19 +8,28 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
+
+--- Cache global variables
+local assert = assert
+local corev = assert(corev)
+local wait = assert(Citizen.Wait)
+
+--- This thread allowes you to spawn in a server
 Citizen.CreateThread(function()
     while true do
         if (NetworkIsPlayerActive(PlayerId())) then
-            if (GetEntityModel(PlayerPedId()) == GetHashKey('a_f_y_epsilon_01')) then
+            local modelName = corev:cfg('spawnmanager', 'defaultModel')
+            local defaultModel = GetHashKey(corev:ensure(modelName, 'mp_m_freemode_01'))
+            local defaultLocation = corev:cfg('spawnmanager', 'defaultSpawnLocation')
+
+            if (GetEntityModel(PlayerPedId()) == defaultModel) then
                 return;
             end
-
-            local defaultModel = GetHashKey('a_f_y_epsilon_01')
 
             RequestModel(defaultModel)
 
             while not HasModelLoaded(defaultModel) do
-                Citizen.Wait(0)
+                wait(0)
             end
 
             SetPlayerModel(PlayerId(), defaultModel)
@@ -36,23 +45,21 @@ Citizen.CreateThread(function()
             ClearPlayerWantedLevel(PlayerId())
             SetMaxWantedLevel(0)
 
-            local coords, timeout = Config.DefaultSpawnLocation or vector3(-206.79, -1015.12, 29.14), 0
+            local coords, timeout = defaultLocation or vector3(-206.79, -1015.12, 29.14), 0
 
             RequestCollisionAtCoord(coords.x, coords.y, coords.z)
 
             while not HasCollisionLoadedAroundEntity(PlayerPedId()) and timeout < 2000 do
                 timeout = timeout + 1
-                Citizen.Wait(0)
+                wait(0)
             end
 
             SetEntityCoords(PlayerPedId(), coords.x, coords.y, coords.z, false, false, false, true)
             FreezeEntityPosition(PlayerPedId(), false)
 
-            triggerOnEvent('playerSpawned', nil, PlayerPedId(), coords)
-
             return;
         end
 
-        Citizen.Wait(0)
+        wait(0)
     end
 end)

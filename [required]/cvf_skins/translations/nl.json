@@ -1,0 +1,20 @@
+{
+    "language": "nl",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "mixed_values": "U lijkt %s% op uw moeder en %s% op uw vader",
+        "overlay_color": "Kleur: %s",
+        "style": "Stijl: %s",
+        "eye_color": "Oog kleur: %s",
+        "clothing": "Kledingstuk: %s van %s",
+        "clothing_texture": "Variant: %s van %s"
+    }
+}

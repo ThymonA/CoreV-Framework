@@ -11,6 +11,8 @@
 
 --- Cache global variables
 local assert = assert
+
+--- Cahce FiveM globals
 local exports = assert(exports)
 
 --- Load translation module in configuration

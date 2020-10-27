@@ -21,10 +21,12 @@ local pack = assert(pack or table.pack)
 local lower = assert(string.lower)
 local isClient = not IsDuplicityVersion()
 
+--- Cahce FiveM globals
 local exports = assert(exports)
 local cfv_ids_self = assert(exports['cvf_ids'])
 local cfv_ids_func = assert(cfv_ids_self.__id)
 
+--- Create a configuration table
 local configuration = {}
 
 --- Merge multiple tables into one table

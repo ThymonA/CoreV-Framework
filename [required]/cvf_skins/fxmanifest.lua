@@ -12,11 +12,11 @@ fx_version 'adamant'
 game 'gta5'
 
 ---
---- Information about this resource (CoreV Framework Config's)
+--- Information about this resource (CoreV Framework Id's)
 ---
-name 'CoreV\'s Spawnmanager'
+name 'CoreV\'s Ids'
 version '1.0.0'
-description 'Spawnmanager resource for CoreV Framework'
+description 'Ids resource for CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
@@ -26,5 +26,13 @@ url 'https://git.arens.io/ThymonA/corev-framework/'
 ---
 client_scripts {
     '@corev/client/import.lua',
-    'client/main.lua'
+    'classes/skin_funcs.lua',
+    'classes/skin.lua'
+}
+
+---
+--- Register all dependencies
+---
+dependencies {
+    'cvf_translations'
 }

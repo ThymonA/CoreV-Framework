@@ -21,9 +21,13 @@ local tostring = assert(tostring)
 local encode = assert(json.encode)
 local lower = assert(string.lower)
 local sub = assert(string.sub)
+local len = assert(string.len)
+local gmatch = assert(string.gmatch)
+local insert = assert(table.insert)
 local isClient = not IsDuplicityVersion()
 local currentResourceName = GetCurrentResourceName()
 
+--- Cahce FiveM globals
 local exports = assert(exports)
 local __exports = assert({})
 
@@ -53,7 +57,7 @@ if (not isClient) then
 end
 
 --- Modify global variable
-local global = setmetatable({}, {
+global = setmetatable({}, {
     __newindex = function(_, n, v)
         __global[n]         = v
         __environment[n]    = v
@@ -252,6 +256,38 @@ function corev:endswith(str, word)
     word = self:ensure(word, '')
 
     return sub(str, -#word) == word
+end
+
+--- Replace a string that contains `this` to `that`
+--- @param str string String where to replace in
+--- @param this string Word that's need to be replaced
+--- @param that string Replace `this` whit given string
+--- @returns string String where `this` has been replaced with `that`
+function corev:replace(str, this, that)
+    local b, e = str:find(this, 1, true)
+
+    if b == nil then
+        return str
+    else
+        return str:sub(1, b - 1) .. that .. str:sub(e + 1):replace(this, that)
+    end
+end
+
+
+--- Split a string by given delim
+--- @param str string String that's need to be split
+--- @param delim string Split string by every given delim
+--- @returns string[] List of strings, splitted at given delim
+function corev:split(str, delim)
+    local t = {}
+
+    for substr in gmatch(self:ensure(str, ''), "[^".. delim .. "]*") do
+        if substr ~= nil and len(substr) > 0 then
+            insert(t, substr)
+        end
+    end
+
+    return t
 end
 
 --- Register corev as global variable

@@ -22,7 +22,7 @@ local ids_counter = 0
 --- Generates a ID for given string
 --- @param name string|number|nil String to generate a ID for
 --- @return number Generated ID or Cached ID
-local function generatedId(name)
+function generatedId(name)
     if (name == nil) then return 0 end
     if (type(name) == 'number') then return name end
 
