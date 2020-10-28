@@ -8,7 +8,14 @@
 // -- Version: 1.0.0
 // -- Description: Custom FiveM Framework
 // ----------------------- [ CoreV ] -----------------------
-const overlays = require('./data/overlays.json')
+const overlays = require('./data/overlays.json');
+const fs = require('fs-extra');
+
+import * as json2lua from 'json2lua';
+import { resolve } from 'path';
+import { formatText, WriteMode } from 'lua-fmt';
+
+type Dictionary<K extends string, T> = Partial<Record<K, T>>
 
 enum TattooZone {
     ZONE_TORSO = 0,
@@ -37,18 +44,18 @@ class Tattoo {
     }
 }
 
-class TattoosCollection {
-    TORSO: Tattoo[] = [];
-    HEAD: Tattoo[] = [];
-    LEFT_ARM: Tattoo[] = [];
-    RIGHT_ARM: Tattoo[] = [];
-    LEFT_LEG: Tattoo[] = [];
-    RIGHT_LEG: Tattoo[] = [];
-    BADGES: Tattoo[] = [];
+class ExportCollection {
+    TORSO: Dictionary<string, string[]> = {};
+    HEAD: Dictionary<string, string[]> = {};
+    LEFT_ARM: Dictionary<string, string[]> = {};
+    RIGHT_ARM: Dictionary<string, string[]> = {};
+    LEFT_LEG: Dictionary<string, string[]> = {};
+    RIGHT_LEG: Dictionary<string, string[]> = {};
+    BADGES: Dictionary<string, string[]> = {};
 }
 
-const MaleTattoosCollection = new TattoosCollection();
-const FemaleTattoosCollection = new TattoosCollection();
+const maleObject = new ExportCollection();
+const femaleObject = new ExportCollection();
 
 overlays.forEach((element) => {
     const tattoo = element as Tattoo
@@ -60,61 +67,109 @@ overlays.forEach((element) => {
                 case TattooZone.ZONE_TORSO:
                     if (tattoo.gender == 0 || tattoo.gender == 2)
                     {
-                        MaleTattoosCollection.TORSO.push(tattoo);
+                        if (maleObject.TORSO[tattoo.collectionName] == null || typeof maleObject.TORSO[tattoo.collectionName] == 'undefined') {
+                            maleObject.TORSO[tattoo.collectionName] = [];
+                        }
+
+                        maleObject.TORSO[tattoo.collectionName].push(tattoo.name);
                     }
                     if (tattoo.gender == 1 || tattoo.gender == 2)
                     {
-                        FemaleTattoosCollection.TORSO.push(tattoo);
+                        if (femaleObject.TORSO[tattoo.collectionName] == null || typeof femaleObject.TORSO[tattoo.collectionName] == 'undefined') {
+                            femaleObject.TORSO[tattoo.collectionName] = [];
+                        }
+
+                        femaleObject.TORSO[tattoo.collectionName].push(tattoo.name);
                     }
                     break;
                 case TattooZone.ZONE_HEAD:
                     if (tattoo.gender == 0 || tattoo.gender == 2)
                     {
-                        MaleTattoosCollection.HEAD.push(tattoo);
+                        if (maleObject.HEAD[tattoo.collectionName] == null || typeof maleObject.HEAD[tattoo.collectionName] == 'undefined') {
+                            maleObject.HEAD[tattoo.collectionName] = [];
+                        }
+
+                        maleObject.HEAD[tattoo.collectionName].push(tattoo.name);
                     }
                     if (tattoo.gender == 1 || tattoo.gender == 2)
                     {
-                        FemaleTattoosCollection.HEAD.push(tattoo);
+                        if (femaleObject.HEAD[tattoo.collectionName] == null || typeof femaleObject.HEAD[tattoo.collectionName] == 'undefined') {
+                            femaleObject.HEAD[tattoo.collectionName] = [];
+                        }
+
+                        femaleObject.HEAD[tattoo.collectionName].push(tattoo.name);
                     }
                     break;
                 case TattooZone.ZONE_LEFT_ARM:
                     if (tattoo.gender == 0 || tattoo.gender == 2)
                     {
-                        MaleTattoosCollection.LEFT_ARM.push(tattoo);
+                        if (maleObject.LEFT_ARM[tattoo.collectionName] == null || typeof maleObject.LEFT_ARM[tattoo.collectionName] == 'undefined') {
+                            maleObject.LEFT_ARM[tattoo.collectionName] = [];
+                        }
+
+                        maleObject.LEFT_ARM[tattoo.collectionName].push(tattoo.name);
                     }
                     if (tattoo.gender == 1 || tattoo.gender == 2)
                     {
-                        FemaleTattoosCollection.LEFT_ARM.push(tattoo);
+                        if (femaleObject.LEFT_ARM[tattoo.collectionName] == null || typeof femaleObject.LEFT_ARM[tattoo.collectionName] == 'undefined') {
+                            femaleObject.LEFT_ARM[tattoo.collectionName] = [];
+                        }
+
+                        femaleObject.LEFT_ARM[tattoo.collectionName].push(tattoo.name);
                     }
                     break;
                 case TattooZone.ZONE_RIGHT_ARM:
                     if (tattoo.gender == 0 || tattoo.gender == 2)
                     {
-                        MaleTattoosCollection.RIGHT_ARM.push(tattoo);
+                        if (maleObject.RIGHT_ARM[tattoo.collectionName] == null || typeof maleObject.RIGHT_ARM[tattoo.collectionName] == 'undefined') {
+                            maleObject.RIGHT_ARM[tattoo.collectionName] = [];
+                        }
+
+                        maleObject.RIGHT_ARM[tattoo.collectionName].push(tattoo.name);
                     }
                     if (tattoo.gender == 1 || tattoo.gender == 2)
                     {
-                        FemaleTattoosCollection.RIGHT_ARM.push(tattoo);
+                        if (femaleObject.RIGHT_ARM[tattoo.collectionName] == null || typeof femaleObject.RIGHT_ARM[tattoo.collectionName] == 'undefined') {
+                            femaleObject.RIGHT_ARM[tattoo.collectionName] = [];
+                        }
+
+                        femaleObject.RIGHT_ARM[tattoo.collectionName].push(tattoo.name);
                     }
                     break;
                 case TattooZone.ZONE_LEFT_LEG:
                     if (tattoo.gender == 0 || tattoo.gender == 2)
                     {
-                        MaleTattoosCollection.LEFT_LEG.push(tattoo);
+                        if (maleObject.LEFT_LEG[tattoo.collectionName] == null || typeof maleObject.LEFT_LEG[tattoo.collectionName] == 'undefined') {
+                            maleObject.LEFT_LEG[tattoo.collectionName] = [];
+                        }
+
+                        maleObject.LEFT_LEG[tattoo.collectionName].push(tattoo.name);
                     }
                     if (tattoo.gender == 1 || tattoo.gender == 2)
                     {
-                        FemaleTattoosCollection.LEFT_LEG.push(tattoo);
+                        if (femaleObject.LEFT_LEG[tattoo.collectionName] == null || typeof femaleObject.LEFT_LEG[tattoo.collectionName] == 'undefined') {
+                            femaleObject.LEFT_LEG[tattoo.collectionName] = [];
+                        }
+
+                        femaleObject.LEFT_LEG[tattoo.collectionName].push(tattoo.name);
                     }
                     break;
                 case TattooZone.ZONE_RIGHT_LEG:
                     if (tattoo.gender == 0 || tattoo.gender == 2)
                     {
-                        MaleTattoosCollection.RIGHT_LEG.push(tattoo);
+                        if (maleObject.RIGHT_LEG[tattoo.collectionName] == null || typeof maleObject.RIGHT_LEG[tattoo.collectionName] == 'undefined') {
+                            maleObject.RIGHT_LEG[tattoo.collectionName] = [];
+                        }
+
+                        maleObject.RIGHT_LEG[tattoo.collectionName].push(tattoo.name);
                     }
                     if (tattoo.gender == 1 || tattoo.gender == 2)
                     {
-                        FemaleTattoosCollection.RIGHT_LEG.push(tattoo);
+                        if (femaleObject.RIGHT_LEG[tattoo.collectionName] == null || typeof femaleObject.RIGHT_LEG[tattoo.collectionName] == 'undefined') {
+                            femaleObject.RIGHT_LEG[tattoo.collectionName] = [];
+                        }
+
+                        femaleObject.RIGHT_LEG[tattoo.collectionName].push(tattoo.name);
                     }
                     break;
                 default:
@@ -123,20 +178,40 @@ overlays.forEach((element) => {
         } else if (tattoo.type == 'TYPE_BADGE' && !tattoo.name.toLowerCase().includes('hair_')) {
             if (tattoo.gender == 0 || tattoo.gender == 2)
             {
-                MaleTattoosCollection.BADGES.push(tattoo);
+                if (maleObject.BADGES[tattoo.collectionName] == null || typeof maleObject.BADGES[tattoo.collectionName] == 'undefined') {
+                    maleObject.BADGES[tattoo.collectionName] = [];
+                }
+
+                maleObject.BADGES[tattoo.collectionName].push(tattoo.name);
             }
             if (tattoo.gender == 1 || tattoo.gender == 2)
             {
-                FemaleTattoosCollection.BADGES.push(tattoo);
+                if (femaleObject.BADGES[tattoo.collectionName] == null || typeof femaleObject.BADGES[tattoo.collectionName] == 'undefined') {
+                    femaleObject.BADGES[tattoo.collectionName] = [];
+                }
+
+                femaleObject.BADGES[tattoo.collectionName].push(tattoo.name);
             }
         } 
     }
 });
 
-console.log('MaleTattoosCollection.HEAD', MaleTattoosCollection.HEAD.length)
-console.log('MaleTattoosCollection.BADGES', MaleTattoosCollection.BADGES.length)
-console.log('MaleTattoosCollection.LEFT_ARM', MaleTattoosCollection.LEFT_ARM.length)
-console.log('MaleTattoosCollection.LEFT_LEG', MaleTattoosCollection.LEFT_LEG.length)
-console.log('MaleTattoosCollection.RIGHT_ARM', MaleTattoosCollection.RIGHT_ARM.length)
-console.log('MaleTattoosCollection.RIGHT_LEG', MaleTattoosCollection.RIGHT_LEG.length)
-console.log('MaleTattoosCollection.TORSO', MaleTattoosCollection.TORSO.length)
+const luaDataMale = json2lua.fromObject(maleObject);
+const luaDataFemale = json2lua.fromObject(femaleObject);
+const export_directory = resolve(`${__dirname}/exports`);
+
+if (!fs.existsSync(export_directory)) { fs.mkdirSync(export_directory, { recursive: true }); }
+
+fs.writeFileSync(resolve(`${export_directory}/tattoos_male.lua`), formatText('return ' + luaDataMale, {
+    useTabs: true,
+    quotemark: 'single',
+    writeMode: WriteMode.Diff,
+    linebreakMultipleAssignments: true
+}));
+
+fs.writeFileSync(resolve(`${export_directory}/tattoos_female.lua`), formatText('return ' + luaDataFemale, {
+    useTabs: true,
+    quotemark: 'single',
+    writeMode: WriteMode.Diff,
+    linebreakMultipleAssignments: true
+}));
