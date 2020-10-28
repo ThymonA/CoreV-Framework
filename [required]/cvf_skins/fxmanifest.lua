@@ -22,10 +22,19 @@ contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
 ---
+--- Load client files
+---
+files {
+    'generated_files/tattoos_female.lua',
+    'generated_files/tattoos_male.lua'
+}
+
+---
 --- Register client scripts
 ---
 client_scripts {
     '@corev/client/import.lua',
+    'classes/tattoo.lua',
     'classes/skin_funcs.lua',
     'classes/skin.lua'
 }

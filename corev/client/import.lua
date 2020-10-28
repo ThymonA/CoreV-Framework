@@ -269,10 +269,9 @@ function corev:replace(str, this, that)
     if b == nil then
         return str
     else
-        return str:sub(1, b - 1) .. that .. str:sub(e + 1):replace(this, that)
+        return str:sub(1, b - 1) .. that .. self:replace(str:sub(e + 1), this, that)
     end
 end
-
 
 --- Split a string by given delim
 --- @param str string String that's need to be split

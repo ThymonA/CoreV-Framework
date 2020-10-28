@@ -13,7 +13,11 @@
 local assert = assert
 local class = assert(class)
 local corev = assert(corev)
+local getTattooData = assert(getTattooData)
 local pairs = assert(pairs)
+local upper = assert(string.upper)
+local lower = assert(string.lower)
+local GetHashKey = assert(GetHashKey)
 local SetPedHeadBlendData = assert(SetPedHeadBlendData)
 local SetPedHairColor = assert(SetPedHairColor)
 local SetPedComponentVariation = assert(SetPedComponentVariation)
@@ -23,6 +27,8 @@ local GetNumberOfPedTextureVariations = assert(GetNumberOfPedTextureVariations)
 local GetNumberOfPedPropTextureVariations = assert(GetNumberOfPedPropTextureVariations)
 local ClearPedProp = assert(ClearPedProp)
 local SetPedPropIndex = assert(SetPedPropIndex)
+local ClearPedDecorations = assert(ClearPedDecorations)
+local AddPedDecorationFromHashes = assert(AddPedDecorationFromHashes)
 
 --- Create `skin_funcs` class
 local skin_funcs = class "skin_funcs"
@@ -139,6 +145,31 @@ function skin_funcs:updateProp(skin_options, key, index)
             _variantOption.max = newMax
 
             skin_options:updateValue(_variantOption.name, _variant, false)
+        end
+    end
+end
+
+--- Update category `tattoo` based on given `skin_options`
+--- @param skin_options skin_options Skin options
+function skin_funcs:updateTattoos(skin_options)
+    local tattooData = getTattooData(skin_options.isMale and 'male' or 'female')
+
+    ClearPedDecorations(skin_options.ped)
+
+    for categoryKey, tattoo_category in pairs(skin_options.tattoos or {}) do
+        for _, category_option in pairs(tattoo_category.options or {}) do
+            local value = category_option.value or 0
+
+            if (value > 0) then
+                local header = upper(corev:replace(categoryKey, 'tattoo_', ''))
+                local categoryName = ('tattoo_%s.'):format(lower(header))
+                local dlc = corev:replace(category_option.name, categoryName, '')
+                local nameOfTatto = ((tattooData[header] or {})[dlc] or {})[value] or 'unknown'
+
+                if (nameOfTatto ~= 'unknown') then
+                    AddPedDecorationFromHashes(skin_options.ped, GetHashKey(dlc), GetHashKey(nameOfTatto))
+                end
+            end
         end
     end
 end

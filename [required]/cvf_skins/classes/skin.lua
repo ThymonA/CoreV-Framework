@@ -14,6 +14,7 @@ local assert = assert
 local class = assert(class)
 local corev = assert(corev)
 local skin_funcs = assert(skin_funcs)
+local loadTattoos = assert(loadTattoos)
 local pairs = assert(pairs)
 local GetNumberOfPedDrawableVariations = assert(GetNumberOfPedDrawableVariations)
 local GetNumberOfPedPropDrawableVariations = assert(GetNumberOfPedPropDrawableVariations)
@@ -45,6 +46,7 @@ function GeneratePedSkin(ped)
     --- Load and checks ped model
     local pedModel = GetEntityModel(ped)
     local isMP = pedModel == GetHashKey('mp_m_freemode_01') or pedModel == GetHashKey('mp_f_freemode_01')
+    local isMale = pedModel == GetHashKey('mp_m_freemode_01') or IsPedMale(ped)
 
     --- Create a skin_options class
     local skin_options = class 'skin_options'
@@ -54,6 +56,8 @@ function GeneratePedSkin(ped)
     skin_options:set {
         ped = ped,
         isMultiplayerPed = isMP,
+        isMale = isMale,
+        isFemale = not isMale,
         options = {}
     }
 
@@ -366,6 +370,14 @@ function GeneratePedSkin(ped)
             end
         end
         --- #props
+
+        --- #tattoos
+        for categoryKey, tattoo_category in pairs(self.tattoos or {}) do
+            for key, category_option in pairs(tattoo_category.options or {}) do
+                self.options[category_option.index] = self.tattoos[categoryKey].options[key]
+            end
+        end
+        --- #tattoos
     end
 
     --- Returns if key matches pattern
@@ -431,6 +443,12 @@ function GeneratePedSkin(ped)
             [8] = 'bracelets'
         }
 
+        --- local key table for code reuse and better readability | #clothing
+        local tattooKeys = {
+            [1] = 'tattoo_torso',    [2] = 'tattoo_head',      [3] = 'tattoo_left_arm', [4]  = 'tattoo_right_arm',
+            [5] = 'tattoo_left_leg', [6] = 'tattoo_right_leg', [7] = 'tattoo_badges'
+        }
+
         if (self:keyMatch(key, 'inheritance')) then
             skin_funcs:updateInheritance(self)
         elseif (self:keyMatch(key, 'hair')) then
@@ -459,6 +477,8 @@ function GeneratePedSkin(ped)
 
                 skin_funcs:updateProp(self, propKey, keyIndex - 1)
             end
+        elseif (self:keyMatch(key, tattooKeys)) then
+            skin_funcs:updateTattoos(self)
         end
     end
 
@@ -486,12 +506,16 @@ function GeneratePedSkin(ped)
         end
     end
 
+    --- Load skin tattoos
+    loadTattoos(skin_options)
+
     --- Update index references
     skin_options:updateRefs()
 
     return skin_options
 end
 
+--- # Only for test perpose, will be removed after release
 Citizen.CreateThread(function()
     local playerPed = PlayerPedId()
     local skin = GeneratePedSkin(playerPed)
@@ -500,6 +524,8 @@ Citizen.CreateThread(function()
     for idx, vlu in pairs(testSkin) do
         skin:updateValue(idx, vlu, true)
     end
+
+    skin:updateValue('tattoo_head.mpBeach_overlays', 5, true)
 
     print(json.encode(skin:toTable()))
 end)
