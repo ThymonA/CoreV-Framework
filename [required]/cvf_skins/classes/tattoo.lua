@@ -26,7 +26,7 @@ local GetCurrentResourceName = assert(GetCurrentResourceName)
 local function loadConfigurationFile(type)
     type = corev:ensure(type, 'unknown')
 
-    local filePath = ('generated_files/tattoos_%s.lua'):format(type)
+    local filePath = ('data/tattoos_%s.lua'):format(type)
     local rawFile = LoadResourceFile(GetCurrentResourceName(), filePath)
 
     if (rawFile) then

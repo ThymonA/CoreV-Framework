@@ -24,6 +24,9 @@ local sub = assert(string.sub)
 local len = assert(string.len)
 local gmatch = assert(string.gmatch)
 local insert = assert(table.insert)
+local _TSE = assert(TriggerServerEvent)
+local _RNE = assert(RegisterNetEvent)
+local _AEH = assert(AddEventHandler)
 local isClient = not IsDuplicityVersion()
 local currentResourceName = GetCurrentResourceName()
 
@@ -100,6 +103,13 @@ local class = assert(getClass())
 
 --- Create CoreV class
 local corev = class "corev"
+
+--- Set default values for `corev` class
+corev:set('callback', class "corev-callback")
+
+--- Set default values for `corev-callback` class
+corev.callback:set('requestId', 1)
+corev.callback:set('callbacks', {})
 
 --- Return a value type of any CFX object
 --- @param value any Any value
@@ -288,6 +298,62 @@ function corev:split(str, delim)
 
     return t
 end
+
+--- Trigger func by server
+--- @param name string Name of trigger
+--- @param callback function Trigger this function
+function corev:onServerTrigger(name, callback)
+    name = corev:ensure(name, 'unknown')
+    callback = corev:ensure(callback, function() end)
+
+    if (name == 'unknown') then return end
+
+    _RNE(name)
+    _AEH(name, callback)
+end
+
+--- Trigger func by client
+--- @param name string Name of trigger
+--- @param callback function Trigger this function
+function corev:onClientTrigger(name, callback)
+    name = corev:ensure(name, 'unknown')
+    callback = corev:ensure(callback, function() end)
+
+    if (name == 'unknown') then return end
+
+    _AEH(name, callback)
+end
+
+--- Trigger server callback
+--- @param name string Name of callback
+--- @param callback function Trigger this function on server return
+function corev.callback:triggerCallback(name, callback, ...)
+    name = corev:ensure(name, 'unknown')
+    callback = corev:ensure(callback, function() end)
+
+    if (name == 'unknown') then return end
+
+    self.callbacks[self.requestId] = callback
+
+    _TSE(('corev:%s:serverCallback'):format(currentResourceName), name, self.requestId, ...)
+
+    if (self.requestId < 65535) then
+        self.requestId = self.requestId + 1
+    else
+        self.requestId = 1
+    end
+end
+
+--- Results from server callback
+corev:onServerTrigger(('corev:%s:serverCallback'):format(currentResourceName), function(requestId, ...)
+    requestId = corev:ensure(requestId, 0)
+
+    if (requestId <= 0 or requestId > 65535) then return end
+    if (((corev.callback or {}).callbacks or {})[requestId] == nil) then return end
+
+    corev.callback.callbacks[requestId](...)
+    corev.callback.callbacks[requestId] = nil
+end)
 
 --- Register corev as global variable
 global.corev = corev

@@ -24,16 +24,16 @@ url 'https://git.arens.io/ThymonA/corev-framework/'
 ---
 --- Register client scripts
 ---
-server_scripts {
-    '@corev/server/import.lua',
+client_scripts {
+    '@corev/client/import.lua',
     'shared/main.lua'
 }
 
 ---
---- Register client scripts
+--- Register server scripts
 ---
-client_scripts {
-    '@corev/client/import.lua',
+server_scripts {
+    '@corev/server/import.lua',
     'shared/main.lua'
 }
 

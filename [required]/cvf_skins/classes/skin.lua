@@ -506,6 +506,60 @@ function GeneratePedSkin(ped)
         end
     end
 
+    --- Refresh player skin
+    function skin_options:refresh()
+        --- local key table for code reuse and better readability | #apperaance
+        local apperaanceKeys = {
+            [1]  = 'blemishes', [2]  = 'beard',          [3]  = 'eyebrows',   [4]  = 'ageing',
+            [5]  = 'makeup',    [6]  = 'blush',          [7]  = 'complexion', [8]  = 'sun_damage',
+            [9]  = 'lipstick',  [10] = 'moles_freckles', [11] = 'chest_hair', [12] = 'body_blemishes',
+            [13] = 'add_body_blemishes'
+        }
+
+        --- local key table for code reuse and better readability | #clothing
+        local clothingKeys = {
+            [1] = 'mask',       [2]  = 'not_used', [3]  = 'upper_body', [4] = 'lower_body',
+            [5] = 'bag',        [6]  = 'shoe',     [7]  = 'chain',      [8] = 'accessory',
+            [9] = 'body_armor', [10] = 'badge',    [11] = 'overlay'
+        }
+
+        --- local key table for code reuse and better readability | #clothing
+        local propKeys = {
+            [1] = 'hats',       [2]  = 'glasses',  [3]  = 'misc',   [7]  = 'watches',
+            [8] = 'bracelets'
+        }
+
+        skin_funcs:updateInheritance(self)
+        skin_funcs:updateAppearanceHair(self)
+
+        --- #appearance
+        for index, key in pairs(apperaanceKeys) do
+            skin_funcs:updateAppearance(self, key, index)
+        end
+        --- #appearance
+        --- #clothing
+        for index, key in pairs(clothingKeys) do
+            skin_funcs:updateClothing(self, key, index)
+        end
+        --- #clothing
+        --- #prop
+        for index, key in pairs(clothingKeys) do
+            skin_funcs:updateProp(self, key, index)
+        end
+        --- #prop
+
+        skin_funcs:updateTattoos(self)
+    end
+
+    --- Update skin based on given table
+    function skin_options:update(table)
+        table = corev:ensure(table, {})
+
+        for idx, vlu in pairs(table) do
+            self:updateValue(idx, vlu, false)
+        end
+    end
+
     --- Load skin tattoos
     loadTattoos(skin_options)
 
@@ -514,18 +568,3 @@ function GeneratePedSkin(ped)
 
     return skin_options
 end
-
---- # Only for test perpose, will be removed after release
-Citizen.CreateThread(function()
-    local playerPed = PlayerPedId()
-    local skin = GeneratePedSkin(playerPed)
-    local testSkin = {0,0,0,0,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,21,0,19,0,45,0,10,0,0,0,21,2,0,0,0,0,4,0,25,1,5,0,-1,-1,-1,-1,-1,-1}
-
-    for idx, vlu in pairs(testSkin) do
-        skin:updateValue(idx, vlu, true)
-    end
-
-    skin:updateValue('tattoo_head.mpBeach_overlays', 5, true)
-
-    print(json.encode(skin:toTable()))
-end)

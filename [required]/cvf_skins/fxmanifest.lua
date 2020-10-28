@@ -25,8 +25,8 @@ url 'https://git.arens.io/ThymonA/corev-framework/'
 --- Load client files
 ---
 files {
-    'generated_files/tattoos_female.lua',
-    'generated_files/tattoos_male.lua'
+    'data/tattoos_female.lua',
+    'data/tattoos_male.lua'
 }
 
 ---
@@ -36,7 +36,22 @@ client_scripts {
     '@corev/client/import.lua',
     'classes/tattoo.lua',
     'classes/skin_funcs.lua',
-    'classes/skin.lua'
+    'classes/skin.lua',
+    'client/main.lua'
+}
+
+---
+--- Register server scripts
+---
+server_scripts {
+    '@corev/server/import.lua',
+    'server/main.lua'
+}
+
+---
+--- Execute migration to make database up to date
+migrations {
+    'migrations/0.sql'
 }
 
 ---
