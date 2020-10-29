@@ -12,51 +12,24 @@ fx_version 'adamant'
 game 'gta5'
 
 ---
---- Information about this resource (CoreV Framework)
+--- Information about this resource (CoreV Framework Identifier)
 ---
-name 'CoreV Framework'
+name 'CoreV\'s Identifier'
 version '1.0.0'
-description 'CoreV Framework core resource'
+description 'Identifier resource for CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
 ---
---- Load client files
----
-files {
-    'vendors/class.lua',
-    'translations/*.json'
-}
-
----
---- Register all client files
----
-client_scripts {
-    'client/import.lua'
-}
-
----
---- Register all server files
+--- Register server scripts
 ---
 server_scripts {
-    'server/import.lua',
+    '@corev/server/import.lua',
     'server/main.lua'
 }
 
 ---
---- Load translations
+--- This stops clients from downloading anything of this resource.
 ---
-translations {
-    'translations/nl.json',
-    'translations/en.json'
-}
-
----
---- Load dependencies
----
-dependencies {
-    'cvf_config',
-    'cvf_translations',
-    'cvf_identifier'
-}
+server_only 'yes'

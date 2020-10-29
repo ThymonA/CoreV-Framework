@@ -146,7 +146,7 @@ end
 --- @param module string? (optional) Register translation for a module, example: core
 --- @param key string Key of translation
 --- @returns string Translation or 'MISSING TRANSLATION'
-local function getTranslationKey(...)
+function getTranslationKey(...)
     local arguments = pack(...)
 
     if (#arguments == 0) then

@@ -26,6 +26,7 @@ local match = assert(string.match)
 local gmatch = assert(string.gmatch)
 local insert = assert(table.insert)
 local load = assert(load)
+local pcall = assert(pcall)
 local xpcall = assert(xpcall)
 local pairs = assert(pairs)
 local next = assert(next)
@@ -53,6 +54,35 @@ local GetPlayerIdentifiers = assert(GetPlayerIdentifiers)
 local exports = assert(exports)
 local __exports = assert({})
 
+--- Prevent loading from crashing
+local function try(func, catch_func)
+    if (type(func) ~= 'function') then return end
+    if (type(catch_func) ~= 'function') then return end
+
+    local ok, exp = pcall(func)
+
+    if (not ok) then
+        catch_func(exp)
+    end
+end
+
+local function load_export(_le, index)
+    CreateThread(function()
+        while GetResourceState(_le.r) ~= 'started' do Wait(0) end
+
+        try(function()
+            if (currentResourceName ~= _le.r) then
+                __exports[index] = { self = assert(exports[_le.r]), func = nil }
+                __exports[index].func = assert(__exports[index].self[_le.f])
+            else
+                __exports[index] = { self = nil, func = __global[_le.f] or __environment[_le.f] or function() return nil end }
+            end
+        end, function()
+            __exports[index] = { self = nil, func = function() end }
+        end)
+    end)
+end
+
 --- Load those exports
 local __loadExports = {
     { r = 'cvf_config', f = '__c' },
@@ -62,17 +92,24 @@ local __loadExports = {
     { r = 'mysql-async', f = 'mysql_insert' },
     { r = 'mysql-async', f = 'mysql_fetch_scalar' },
     { r = 'mysql-async', f = 'mysql_fetch_all' },
-    { r = 'mysql-async', f = 'mysql_execute' }
+    { r = 'mysql-async', f = 'mysql_execute' },
+    { r = 'cvf_identifier', f = '__i' }
 }
 
 --- Store global exports as local variable
 for index, _le in pairs(__loadExports) do
-    if (currentResourceName ~= _le.r) then
-        __exports[index] = { self = assert(exports[_le.r]), func = nil }
-        __exports[index].func = assert(__exports[index].self[_le.f])
-    else
-        __exports[index] = { self = nil, func = __global[_le.f] or __environment[_le.f] or function() return nil end }
-    end
+    try(function()
+        if (currentResourceName ~= _le.r) then
+            __exports[index] = { self = assert(exports[_le.r]), func = nil }
+            __exports[index].func = assert(__exports[index].self[_le.f])
+        else
+            __exports[index] = { self = nil, func = __global[_le.f] or __environment[_le.f] or function() return nil end }
+        end
+    end, function()
+        __exports[index] = { self = nil, func = function() end }
+
+        load_export(_le, index)
+    end)
 end
 
 --- Remove table from memory
@@ -658,7 +695,10 @@ end)
 --- @param playerId number Source or Player ID to get identifier for
 --- @return string|nil Founded primary identifier or nil
 function corev:getIdentifier(playerId)
-    playerId = self:ensure(playerId, 0)
+    playerId = self:ensure(playerId, -1)
+
+    if (playerId < 0) then return nil end
+    if (playerId == 0) then return 'console' end
 
     local identifierType = self:cfg('core', 'identifierType') or 'license'
     local identifiers = GetPlayerIdentifiers(playerId)
@@ -690,6 +730,20 @@ function corev:getIdentifier(playerId)
     end
 
     return nil
+end
+
+--- Returns a list of player identifiers
+--- @param player string|number Player primary identifier or Player source ID
+--- @return table All founded identifiers
+--- @return string Founded player name
+function corev:getIdentifiers(player)
+    if (player == nil) then return end
+
+    if (__exports[9].self == nil) then
+        return __exports[9].func(player)
+    else
+        return __exports[9].func(__exports[9].self, player)
+    end
 end
 
 --- Register corev as global variable

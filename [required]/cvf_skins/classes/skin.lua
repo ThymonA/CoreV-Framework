@@ -518,9 +518,9 @@ function GeneratePedSkin(ped)
 
         --- local key table for code reuse and better readability | #clothing
         local clothingKeys = {
-            [1] = 'mask',       [2]  = 'not_used', [3]  = 'upper_body', [4] = 'lower_body',
-            [5] = 'bag',        [6]  = 'shoe',     [7]  = 'chain',      [8] = 'accessory',
-            [9] = 'body_armor', [10] = 'badge',    [11] = 'overlay'
+            [1] = 'mask',       [3]  = 'upper_body', [4] = 'lower_body', [5] = 'bag',
+            [6]  = 'shoe',      [7]  = 'chain',      [8] = 'accessory',  [9] = 'body_armor',
+            [10] = 'badge',     [11] = 'overlay'
         }
 
         --- local key table for code reuse and better readability | #clothing
@@ -543,7 +543,7 @@ function GeneratePedSkin(ped)
         end
         --- #clothing
         --- #prop
-        for index, key in pairs(clothingKeys) do
+        for index, key in pairs(propKeys) do
             skin_funcs:updateProp(self, key, index)
         end
         --- #prop
