@@ -23,6 +23,9 @@ local Wait = assert(Citizen.Wait)
 local exports = assert(exports)
 local _AEH = assert(AddEventHandler)
 
+--- Mark this resource as `database` migration dependent resource
+corev.db:migrationDependent()
+
 --- Create a `identifiers` class
 local identifiers = class 'identifiers'
 

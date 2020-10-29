@@ -32,6 +32,7 @@ local pairs = assert(pairs)
 local next = assert(next)
 local traceback = assert(debug.traceback)
 local error = assert(error)
+local print = assert(print)
 local vector3 = assert(vector3)
 local vector2 = assert(vector2)
 local setmetatable = assert(setmetatable)
@@ -171,6 +172,7 @@ corev:set('callback', class "corev-callback")
 
 --- Set default values for `corev-db` class
 corev.db:set('ready', false)
+corev.db:set('hasMigrations', false)
 
 --- Set default values for `corev-callback` class
 corev.callback:set('callbacks', {})
@@ -454,6 +456,8 @@ function corev.db:insertAsync(query, params, callback)
 
     params = self:safeParameters(params)
 
+    repeat Wait(0) until self.hasMigrations == false
+
     if (not self.ready) then
         corev.db:dbReady(function()
             __exports[5].func(__exports[5].self, query, params, callback)
@@ -475,6 +479,8 @@ function corev.db:fetchScalarAsync(query, params, callback)
     if (query == 'unknown') then return end
 
     params = self:safeParameters(params)
+
+    repeat Wait(0) until self.hasMigrations == false
 
     if (not self.ready) then
         corev.db:dbReady(function()
@@ -498,6 +504,8 @@ function corev.db:fetchAllAsync(query, params, callback)
 
     params = self:safeParameters(params)
 
+    repeat Wait(0) until self.hasMigrations == false
+
     if (not self.ready) then
         corev.db:dbReady(function()
             __exports[7].func(__exports[7].self, query, params, callback)
@@ -519,6 +527,8 @@ function corev.db:executeAsync(query, params, callback)
     if (query == 'unknown') then return end
 
     params = self:safeParameters(params)
+
+    repeat Wait(0) until self.hasMigrations == false
 
     if (not self.ready) then
         corev.db:dbReady(function()
@@ -615,6 +625,65 @@ function corev.db:execute(query, params)
     repeat Wait(0) until finished == true
 
     return res
+end
+
+--- Apply migrations
+function corev.db:migrationDependent()
+    self.hasMigrations = true
+
+    --- Execute this function when database is ready
+    self:dbReady(function()
+        local sql_index, migrations, finished = 0, nil, false
+
+        __exports[7].func(__exports[7].self, 'SELECT * FROM `migrations` WHERE `resource` = @resource', {
+            ['@resource'] = currentResourceName
+        }, function(result)
+            migrations = corev:ensure(result, {})
+            finished = true
+        end)
+
+        repeat Wait(0) until finished == true
+
+        while (self.hasMigrations) do
+            local sql_file = ('%s.sql'):format(sql_index)
+            local sql_exists = false
+
+            for _, migration in pairs(migrations) do
+                local db_name = corev:ensure(migration.name, 'unknown')
+
+                if (db_name == sql_file) then
+                    sql_exists = true
+                end
+            end
+
+            local sql_data = LoadResourceFile(currentResourceName, ('migrations/%s'):format(sql_file))
+
+            if (sql_data) then
+                if (not sql_exists) then
+                    local migrationFinished = false
+
+                    __exports[8].func(__exports[8].self, sql_data, {}, function()
+                        __exports[7].func(__exports[7].self, 'INSERT INTO `migrations` (`resource`, `name`) VALUES (@resource, @name)', {
+                            ['@resource'] = currentResourceName,
+                            ['@name'] = sql_file
+                        }, function()
+                            migrationFinished = true
+                        end)
+                    end)
+
+                    repeat Wait(0) until migrationFinished == true
+                end
+            else
+                self.hasMigrations = false
+            end
+
+            sql_index = sql_index + 1
+
+            Wait(0)
+        end
+
+        print(corev:t('core', 'database_migration'):format(currentResourceName))
+    end)
 end
 
 --- Trigger func by server

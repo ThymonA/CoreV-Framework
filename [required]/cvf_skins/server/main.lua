@@ -14,6 +14,9 @@ local assert = assert
 local corev = assert(corev)
 local class = assert(class)
 
+--- Mark this resource as `database` migration dependent resource
+corev.db:migrationDependent()
+
 --- Create a `skins` class
 local skins = class "skins"
 

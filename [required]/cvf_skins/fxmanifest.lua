@@ -49,13 +49,6 @@ server_scripts {
 }
 
 ---
---- Execute migration to make database up to date
----
-migrations {
-    'migrations/0.sql'
-}
-
----
 --- Register all dependencies
 ---
 dependencies {
