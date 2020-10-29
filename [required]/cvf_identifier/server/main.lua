@@ -19,7 +19,9 @@ local match = assert(string.match)
 local sub = assert(string.sub)
 local GetPlayerIdentifiers = assert(GetPlayerIdentifiers)
 local GetPlayerName = assert(GetPlayerName)
+local Wait = assert(Citizen.Wait)
 local exports = assert(exports)
+local _AEH = assert(AddEventHandler)
 
 --- Create a `identifiers` class
 local identifiers = class 'identifiers'
@@ -36,7 +38,7 @@ function identifiers:getPlayerIdentifierObject(player)
     if (player == nil) then return end
 
     if (corev:typeof(player) == 'number') then
-        playerId = corev:ensrue(player, -1)
+        playerId = corev:ensure(player, -1)
         player = corev:getIdentifier(playerId)
     end
 
@@ -61,9 +63,9 @@ function identifiers:getPlayerIdentifierObject(player)
     end
 
     --- Load default framework's identifier
-    local identifierType = self:cfg('core', 'identifierType') or 'license'
+    local identifierType = corev:cfg('core', 'identifierType') or 'license'
 
-    identifierType = self:ensure(identifierType, 'license')
+    identifierType = corev:ensure(identifierType, 'license')
     identifierType = lower(identifierType)
 
     --- Create a `player-identifier` class
@@ -93,7 +95,7 @@ function identifiers:getPlayerIdentifierObject(player)
 
         --- Apply all identifiers on `player-identifier` class
         for _, identifier in pairs(playerIdentifiers) do
-            identifier = self:ensure(identifier, 'none')
+            identifier = corev:ensure(identifier, 'none')
 
             local lowIdenti = lower(identifier)
 
@@ -133,7 +135,7 @@ function identifiers:getPlayerIdentifierObject(player)
         return playerIdentifier
     end
 
-    local dbQuery = ('SELECT * FROM `identifiers` WHERE `%s` = @identifier ORDER BY `id` DESC LIMIT 1'):format(identifierType)
+    local dbQuery = ('SELECT * FROM `player_identifiers` WHERE `%s` = @identifier ORDER BY `id` DESC LIMIT 1'):format(identifierType)
 
     local storedIdentifiers = corev.db:fetchAll(dbQuery, {
         ['@identifier'] = ('%s:%s'):format(identifierType, player)
@@ -208,6 +210,55 @@ end
 function getPlayerIdentifiers(player)
     return identifiers:getPlayerIdentifiers(player)
 end
+
+--- This event will be trigger when a player is connecting
+_AEH('playerConnecting', function(name, _, deferrals)
+    deferrals.defer()
+
+    local playerId = corev:ensure(source, -1)
+
+    if (playerId == -1) then
+        deferrals.done(corev:t('identifier', 'source_not_found'))
+        return
+    end
+
+    Wait(0)
+
+    local playerObject = identifiers:getPlayerIdentifierObject(playerId)
+
+    if (playerObject == nil) then
+        deferrals.done(corev:t('identifier', 'identifiers_not_found'))
+        return
+    end
+
+    --- Load player name
+    name = corev:ensure(name, GetPlayerName(playerId))
+
+    --- Store player identifiers for later use
+    corev.db:execute('INSERT INTO `player_identifiers` (`name`, `steam`, `license`, `xbl`, `live`, `discord`, `fivem`, `ip`) VALUES (@name, @steam, @license, @xbl, @live, @discord, @fivem, @ip)', {
+        ['@name'] = name,
+        ['@steam'] = playerObject.identifiers.stream,
+        ['@license'] = playerObject.identifiers.license,
+        ['@xbl'] = playerObject.identifiers.xbl,
+        ['@live'] = playerObject.identifiers.live,
+        ['@discord'] = playerObject.identifiers.discord,
+        ['@fivem'] = playerObject.identifiers.fivem,
+        ['@ip'] = playerObject.identifiers.ip
+    })
+
+    if (playerObject.identifier == nil) then
+        --- Load default framework's identifier
+        local identifierType = corev:cfg('core', 'identifierType') or 'license'
+
+        identifierType = corev:ensure(identifierType, 'license')
+        identifierType = lower(identifierType)
+
+        deferrals.done(corev:t('identifier', ('%s_not_found'):format(identifierType)))
+        return
+    end
+
+    deferrals.done()
+end)
 
 --- Register `__getPlayerIdentifiers` as export
 exports('__i', getPlayerIdentifiers)
