@@ -1,5 +1,5 @@
 # CoreV Framework [CVF]
-[![N|CoreV](https://i.imgur.com/K7ywz4K.png)](https://i.imgur.com/K7ywz4K.png)
+[![N|CoreV](https://i.imgur.com/3XeDqC0.png)](https://i.imgur.com/3XeDqC0.png)
 
 [![N|Project](https://img.shields.io/badge/GitHub%20Project-corv%20framework-lightgray?logo=github&style=for-the-badge)](https://github.com/ThymonA/CoreV-Framework)
 [![N|Project](https://img.shields.io/badge/GitLab%20Project-corv%20framework-orange?logo=gitlab&style=for-the-badge)](https://git.arens.io/ThymonA/corev-framework)
