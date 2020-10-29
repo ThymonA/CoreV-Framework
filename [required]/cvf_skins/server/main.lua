@@ -27,17 +27,24 @@ corev.callback:register('load', function(source, cb)
         return
     end
 
+    local playerIdentifier = corev:getIdentifier(source)
+
+    if (playerIdentifier == nil) then
+        cb({}, nil)
+        return
+    end
+
     corev.db:fetchAllAsync('SELECT * FROM `player_skins` WHERE `identifier` = @identifier LIMIT 1', {
-        ['@identifier'] = 'c3958793e6339ad7d0b51385c910f175f56fc34a'
+        ['@identifier'] = playerIdentifier
     }, function(results)
         results = corev:ensure(results, {})
 
         if (#results <= 0) then
-            cb({}, false)
+            cb({}, nil)
         else
             skins.players[source] = {
                 data = results[1].data or {},
-                model = results[1].model or false
+                model = results[1].model or nil
             }
 
             cb(skins.players[source].data, skins.players[source].model)

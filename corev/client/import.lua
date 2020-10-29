@@ -24,11 +24,20 @@ local sub = assert(string.sub)
 local len = assert(string.len)
 local gmatch = assert(string.gmatch)
 local insert = assert(table.insert)
+local load = assert(load)
+local xpcall = assert(xpcall)
+local pairs = assert(pairs)
+local traceback = assert(debug.traceback)
+local error = assert(error)
+local setmetatable = assert(setmetatable)
+local isClient = not IsDuplicityVersion()
+local currentResourceName = GetCurrentResourceName()
+
+--- FiveM cached global variables
+local LoadResourceFile = assert(LoadResourceFile)
 local _TSE = assert(TriggerServerEvent)
 local _RNE = assert(RegisterNetEvent)
 local _AEH = assert(AddEventHandler)
-local isClient = not IsDuplicityVersion()
-local currentResourceName = GetCurrentResourceName()
 
 --- Cahce FiveM globals
 local exports = assert(exports)
@@ -81,7 +90,7 @@ local function getClass()
         local func, _ = load(rawClassFile, 'corev/vendors/class.lua')
 
         if (func) then
-            local ok, result = xpcall(func, debug.traceback)
+            local ok, result = xpcall(func, traceback)
 
             if (ok) then
                 global.class = result

@@ -22,17 +22,30 @@ local encode = assert(json.encode)
 local lower = assert(string.lower)
 local sub = assert(string.sub)
 local len = assert(string.len)
+local match = assert(string.match)
 local gmatch = assert(string.gmatch)
 local insert = assert(table.insert)
+local load = assert(load)
+local xpcall = assert(xpcall)
+local pairs = assert(pairs)
+local next = assert(next)
+local traceback = assert(debug.traceback)
+local error = assert(error)
+local setmetatable = assert(setmetatable)
 local pack = assert(pack or table.pack)
 local unpack = assert(unpack or table.unpack)
-local _TCE = assert(TriggerClientEvent)
-local _RSE = assert(RegisterServerEvent)
-local _AEH = assert(AddEventHandler)
 local CreateThread = assert(Citizen.CreateThread)
 local Wait = assert(Citizen.Wait)
 local isServer = IsDuplicityVersion()
 local currentResourceName = GetCurrentResourceName()
+
+--- FiveM cached global variables
+local LoadResourceFile = assert(LoadResourceFile)
+local GetResourceState = assert(GetResourceState)
+local _TCE = assert(TriggerClientEvent)
+local _RSE = assert(RegisterServerEvent)
+local _AEH = assert(AddEventHandler)
+local GetPlayerIdentifiers = assert(GetPlayerIdentifiers)
 
 --- Cahce FiveM globals
 local exports = assert(exports)
@@ -90,7 +103,7 @@ local function getClass()
         local func, _ = load(rawClassFile, 'corev/vendors/class.lua')
 
         if (func) then
-            local ok, result = xpcall(func, debug.traceback)
+            local ok, result = xpcall(func, traceback)
 
             if (ok) then
                 global.class = result
@@ -585,12 +598,50 @@ corev:onClientTrigger(('corev:%s:serverCallback'):format(currentResourceName), f
 
     local params = pack(...)
 
-    Citizen.CreateThread(function()
+    CreateThread(function()
         corev.callback:triggerCallback(name, playerId, function(...)
             _TCE(('corev:%s:serverCallback'):format(currentResourceName), playerId, requestId, ...)
         end, unpack(params))
     end)
 end)
+
+--- This function will return player's primary identifier or nil
+--- @param playerId number Source or Player ID to get identifier for
+--- @return string|nil Founded primary identifier or nil
+function corev:getIdentifier(playerId)
+    playerId = self:ensure(playerId, 0)
+
+    local identifierType = self:cfg('core', 'identifierType') or 'license'
+    local identifiers = GetPlayerIdentifiers(playerId)
+
+    identifierType = self:ensure(identifierType, 'license')
+    identifierType = lower(identifierType)
+    identifiers = self:ensure(identifiers, {})
+
+    for _, identifier in pairs(identifiers) do
+        identifier = self:ensure(identifier, 'none')
+
+        local lowIdenti = lower(identifier)
+
+        if (identifierType == 'steam' and match(lowIdenti, 'steam:')) then
+            return sub(identifier, 7)
+        elseif (identifierType == 'license' and match(lowIdenti, 'license:')) then
+            return sub(identifier, 9)
+        elseif (identifierType == 'xbl' and match(lowIdenti, 'xbl:')) then
+            return sub(identifier, 5)
+        elseif (identifierType == 'live' and match(lowIdenti, 'live:')) then
+            return sub(identifier, 6)
+        elseif (identifierType == 'discord' and match(lowIdenti, 'discord:')) then
+            return sub(identifier, 9)
+        elseif (identifierType == 'fivem' and match(lowIdenti, 'fivem:')) then
+            return sub(identifier, 7)
+        elseif (identifierType == 'ip' and match(lowIdenti, 'ip:')) then
+            return sub(identifier, 4)
+        end
+    end
+
+    return nil
+end
 
 --- Register corev as global variable
 global.corev = corev
