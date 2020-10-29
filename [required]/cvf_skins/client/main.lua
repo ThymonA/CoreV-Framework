@@ -92,7 +92,7 @@ CreateThread(function()
             ClearPlayerWantedLevel(pId)
             SetMaxWantedLevel(0)
 
-            local coords, timeout = spawnLocation or vector3(0.0, 0.0, 0.0), 0
+            local coords, timeout = corev:ensure(spawnLocation, vector3(0.0, 0.0, 0.0)), 0
 
             RequestCollisionAtCoord(coords.x, coords.y, coords.z)
 

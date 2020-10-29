@@ -29,6 +29,8 @@ local xpcall = assert(xpcall)
 local pairs = assert(pairs)
 local traceback = assert(debug.traceback)
 local error = assert(error)
+local vector3 = assert(vector3)
+local vector2 = assert(vector2)
 local setmetatable = assert(setmetatable)
 local isClient = not IsDuplicityVersion()
 local currentResourceName = GetCurrentResourceName()
@@ -200,6 +202,51 @@ function corev:ensure(input, defaultValue)
             if (input == 0) then return false end
 
             return defaultValue
+        end
+
+        return defaultValue
+    end
+
+    if (inputType == 'vector3') then
+        if (currentInputType == 'table') then
+            local _x = self:ensure(input.x, defaultValue.x)
+            local _y = self:ensure(input.y, defaultValue.y)
+            local _z = self:ensure(input.z, defaultValue.z)
+
+            return vector3(_x, _y, _z)
+        end
+
+        if (currentInputType == 'vector2') then
+            local _x = self:ensure(input.x, defaultValue.x)
+            local _y = self:ensure(input.y, defaultValue.y)
+
+            return vector3(_x, _y, 0)
+        end
+
+        if (currentInputType == 'number') then
+            return vector3(input, input, input)
+        end
+
+        return defaultValue
+    end
+
+    if (inputType == 'vector2') then
+        if (currentInputType == 'table') then
+            local _x = self:ensure(input.x, defaultValue.x)
+            local _y = self:ensure(input.y, defaultValue.y)
+
+            return vector2(_x, _y)
+        end
+
+        if (currentInputType == 'vector3') then
+            local _x = self:ensure(input.x, defaultValue.x)
+            local _y = self:ensure(input.y, defaultValue.y)
+
+            return vector2(_x, _y)
+        end
+
+        if (currentInputType == 'number') then
+            return vector2(input, input)
         end
 
         return defaultValue
