@@ -82,13 +82,7 @@ end
 local __loadExports = {
     { r = 'cvf_config', f = '__c' },
     { r = 'cvf_ids', f = '__id' },
-    { r = 'cvf_translations', f = '__t' },
-    { r = 'mysql-async', f = 'is_ready'},
-    { r = 'mysql-async', f = 'mysql_insert' },
-    { r = 'mysql-async', f = 'mysql_fetch_scalar' },
-    { r = 'mysql-async', f = 'mysql_fetch_all' },
-    { r = 'mysql-async', f = 'mysql_execute' },
-    { r = 'cvf_identifier', f = '__i' }
+    { r = 'cvf_translations', f = '__t' }
 }
 
 --- Store global exports as local variable
@@ -105,23 +99,6 @@ for index, _le in pairs(__loadExports) do
 
         load_export(_le, index)
     end)
-end
-
---- Load those exports
-local __loadExports = {
-    { r = 'cvf_config', f = '__c' },
-    { r = 'cvf_ids', f = '__id' },
-    { r = 'cvf_translations', f = '__t' }
-}
-
---- Store global exports as local variable
-for index, _le in pairs(__loadExports) do
-    if (currentResourceName ~= _le.r) then
-        __exports[index] = { self = assert(exports[_le.r]), func = nil }
-        __exports[index].func = assert(__exports[index].self[_le.f])
-    else
-        __exports[index] = { self = nil, func = __global[_le.f] or __environment[_le.f] or function() return nil end }
-    end
 end
 
 --- Remove table from memory
