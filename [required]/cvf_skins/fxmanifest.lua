@@ -12,11 +12,11 @@ fx_version 'adamant'
 game 'gta5'
 
 ---
---- Information about this resource (CoreV Framework Id's)
+--- Information about this resource
 ---
-name 'CoreV\'s Ids'
+name '[CVF] Skin Resource'
 version '1.0.0'
-description 'Ids resource for CoreV Framework'
+description 'Skin resource for CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'

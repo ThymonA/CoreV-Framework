@@ -12,9 +12,9 @@ fx_version 'adamant'
 game 'gta5'
 
 ---
---- Information about this resource (CoreV Framework Identifier)
+--- Information about this resource
 ---
-name 'CoreV\'s Identifier'
+name '[CVF] Identifier Resource'
 version '1.0.0'
 description 'Identifier resource for CoreV Framework'
 author 'ThymonA'

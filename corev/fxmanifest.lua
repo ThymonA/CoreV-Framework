@@ -12,11 +12,11 @@ fx_version 'adamant'
 game 'gta5'
 
 ---
---- Information about this resource (CoreV Framework)
+--- Information about this resource
 ---
-name 'CoreV Framework'
+name '[CVF] CoreV Framework'
 version '1.0.0'
-description 'CoreV Framework core resource'
+description 'Core resource of CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'

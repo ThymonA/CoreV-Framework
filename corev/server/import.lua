@@ -627,6 +627,33 @@ function corev.db:execute(query, params)
     return res
 end
 
+--- This function returns `true` if resource and migration exists in database
+--- @param resourceName string Name of resource
+--- @param sqlVersion number SQL version number
+--- @return boolean `true` if exsits, otherwise `false`
+function corev.db:migrationExists(resourceName, sqlVersion)
+    resourceName = corev:ensure(resourceName, 'unknown')
+    sqlVersion = corev:ensure(sqlVersion, 0)
+
+    if (resourceName == 'unknown') then return false end
+
+    local res, finished = nil, false
+
+    __exports[7].func(__exports[7].self, 'SELECT `id` FROM `migrations` WHERE `resource` = @resource AND `name` = @name LIMIT 1', {
+        ['@resource'] = resourceName,
+        ['@name'] = ('%s.lua'):format(sqlVersion)
+    }, function(foundedResults)
+        foundedResults = corev:ensure(foundedResults, {})
+
+        res = #foundedResults > 0
+        finished = true
+    end)
+
+    repeat Wait(0) until finished == true
+
+    return res
+end
+
 --- Apply migrations
 function corev.db:migrationDependent()
     self.hasMigrations = true
@@ -645,31 +672,65 @@ function corev.db:migrationDependent()
         repeat Wait(0) until finished == true
 
         while (self.hasMigrations) do
-            local sql_file = ('%s.sql'):format(sql_index)
-            local sql_exists = false
+            local lua_file = ('%s.lua'):format(sql_index)
+            local lua_exists = false
 
             for _, migration in pairs(migrations) do
                 local db_name = corev:ensure(migration.name, 'unknown')
 
-                if (db_name == sql_file) then
-                    sql_exists = true
+                if (db_name == lua_file) then
+                    lua_exists = true
                 end
             end
 
-            local sql_data = LoadResourceFile(currentResourceName, ('migrations/%s'):format(sql_file))
+            local rawLuaMigration = LoadResourceFile(currentResourceName, ('migrations/%s'):format(lua_file))
 
-            if (sql_data) then
-                if (not sql_exists) then
+            if (rawLuaMigration) then
+                if (not lua_exists) then
                     local migrationFinished = false
 
-                    __exports[8].func(__exports[8].self, sql_data, {}, function()
-                        __exports[7].func(__exports[7].self, 'INSERT INTO `migrations` (`resource`, `name`) VALUES (@resource, @name)', {
-                            ['@resource'] = currentResourceName,
-                            ['@name'] = sql_file
-                        }, function()
-                            migrationFinished = true
-                        end)
-                    end)
+                    local migrationFunc, _ = load(rawLuaMigration, ('@%s/migration/%s'):format(currentResourceName, lua_file))
+
+                    if (migrationFunc) then
+                        local migrationLoaded, migrationData = xpcall(migrationFunc, traceback)
+
+                        if (migrationLoaded) then
+                            local migrationDependencies = corev:ensure(migrationData.dependencies, {})
+
+                            for dependencyResource, sqlVersion in pairs(migrationDependencies) do
+                                dependencyResource = corev:ensure(dependencyResource, 'unknown')
+                                sqlVersion = corev:ensure(sqlVersion, 0)
+
+                                if (dependencyResource == 'unknown') then
+                                    print(corev:t('core', 'database_migration_not_loaded'):format(currentResourceName))
+                                    return
+                                end
+
+                                while GetResourceState(dependencyResource) ~= 'started' do Wait(0) end
+                                while not self:migrationExists(dependencyResource, sqlVersion) do Wait(500) end
+                            end
+
+                            local migrationSql = corev:ensure(migrationData.sql, 'unknown')
+
+                            if (migrationSql == 'unknown') then
+                                print(corev:t('core', 'database_migration_not_loaded'):format(currentResourceName))
+                                return
+                            end
+
+                            __exports[8].func(__exports[8].self, migrationSql, {}, function()
+                                __exports[7].func(__exports[7].self, 'INSERT INTO `migrations` (`resource`, `name`) VALUES (@resource, @name)', {
+                                    ['@resource'] = currentResourceName,
+                                    ['@name'] = lua_file
+                                }, function()
+                                    migrationFinished = true
+                                end)
+                            end)
+                        else
+                            print(corev:t('core', 'database_migration_not_loaded'):format(currentResourceName))
+                        end
+                    else
+                        print(corev:t('core', 'database_migration_not_loaded'):format(currentResourceName))
+                    end
 
                     repeat Wait(0) until migrationFinished == true
                 end

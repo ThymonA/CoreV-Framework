@@ -14,35 +14,24 @@ game 'gta5'
 ---
 --- Information about this resource
 ---
-name '[CVF] Config Resource'
+name '[CVF] Job Resource'
 version '1.0.0'
-description 'Config resource for CoreV Framework'
+description 'Job resource for CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
 ---
---- Client available files
----
-files {
-    'configs/client/*.lua',
-    'configs/shared/*.lua'
-}
-
----
---- Register client scripts
+--- Register server scripts
 ---
 server_scripts {
-    'shared/main.lua'
+    '@corev/server/import.lua',
+    'server/main.lua'
 }
 
 ---
---- Register client scripts
+--- Register all dependencies
 ---
-client_scripts {
-    'shared/main.lua'
-}
-
 dependencies {
-    'cvf_ids'
+    'cvf_translations'
 }

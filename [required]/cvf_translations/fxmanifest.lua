@@ -12,9 +12,9 @@ fx_version 'adamant'
 game 'gta5'
 
 ---
---- Information about this resource (CoreV Framework Translation's)
+--- Information about this resource
 ---
-name 'CoreV\'s Translations'
+name '[CVF] Translation Resource'
 version '1.0.0'
 description 'Translation resource for CoreV Framework'
 author 'ThymonA'

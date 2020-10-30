@@ -8,29 +8,10 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-fx_version 'adamant'
-game 'gta5'
 
----
---- Information about this resource
----
-name '[CVF] Ids Resource'
-version '1.0.0'
-description 'Ids resource for CoreV Framework'
-author 'ThymonA'
-contact 'contact@arens.io'
-url 'https://git.arens.io/ThymonA/corev-framework/'
+--- Cache global variables
+local assert = assert
+local corev = assert(corev)
 
----
---- Register client scripts
----
-server_scripts {
-    'shared/main.lua'
-}
-
----
---- Register client scripts
----
-client_scripts {
-    'shared/main.lua'
-}
+--- Mark this resource as `database` migration dependent resource
+corev.db:migrationDependent()
