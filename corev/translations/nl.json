@@ -16,6 +16,7 @@
         "corev_ready": "-------\nCoreV framework is geladen...\n-------",
         "database_migration": "^2[^7CoreV^2] ^7Database is ^2bijgewerkt ^7voor resource: ^2%s",
         "database_migration_not_loaded": "^1[^7CoreV^1] ^7Kan database ^1niet bijwereken ^7voor resource: ^1%s",
+        "database_is_updating": "[CoreV] Framework is bezig met update van `%s`, probeer a.u.b. opnieuw te joinen",
         "weapon_dagger": "Antique Cavalry Dagger",
         "weapon_bat": "Baseball Bat",
         "weapon_bottle": "Broken Bottle",

@@ -747,6 +747,18 @@ function corev.db:migrationDependent()
     end)
 end
 
+--- Prevent users from joining the server while database is updating
+_AEH('playerConnecting', function(name, _, deferrals)
+    deferrals.defer()
+
+    if (corev.db.hasMigrations) then
+        deferrals.done(corev:t('core', 'database_is_updating'):format(currentResourceName))
+        return
+    end
+
+    deferrals.done()
+end)
+
 --- Trigger func by server
 --- @param name string Name of trigger
 --- @param callback function Trigger this function
