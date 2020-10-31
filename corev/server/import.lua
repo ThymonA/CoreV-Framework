@@ -13,6 +13,8 @@ local assert = assert
 --- Cache global variables
 local __global = assert(_G)
 local __environment = assert(_ENV)
+local promise = assert(promise)
+local coroutine = assert(coroutine)
 local type = assert(type)
 local rawget = assert(rawget)
 local rawset = assert(rawset)
@@ -456,7 +458,9 @@ function corev.db:insertAsync(query, params, callback)
 
     params = self:safeParameters(params)
 
-    repeat Wait(0) until self.hasMigrations == false
+    if (self.hasMigrations) then
+        repeat Wait(0) until self.hasMigrations == false
+    end
 
     if (not self.ready) then
         corev.db:dbReady(function()
@@ -480,7 +484,9 @@ function corev.db:fetchScalarAsync(query, params, callback)
 
     params = self:safeParameters(params)
 
-    repeat Wait(0) until self.hasMigrations == false
+    if (self.hasMigrations) then
+        repeat Wait(0) until self.hasMigrations == false
+    end
 
     if (not self.ready) then
         corev.db:dbReady(function()
@@ -504,7 +510,9 @@ function corev.db:fetchAllAsync(query, params, callback)
 
     params = self:safeParameters(params)
 
-    repeat Wait(0) until self.hasMigrations == false
+    if (self.hasMigrations) then
+        repeat Wait(0) until self.hasMigrations == false
+    end
 
     if (not self.ready) then
         corev.db:dbReady(function()
@@ -528,7 +536,9 @@ function corev.db:executeAsync(query, params, callback)
 
     params = self:safeParameters(params)
 
-    repeat Wait(0) until self.hasMigrations == false
+    if (self.hasMigrations) then
+        repeat Wait(0) until self.hasMigrations == false
+    end
 
     if (not self.ready) then
         corev.db:dbReady(function()
@@ -745,6 +755,25 @@ function corev.db:migrationDependent()
 
         print(corev:t('core', 'database_migration'):format(currentResourceName))
     end)
+end
+
+--- This function returns if a table exists or not
+--- @param tableName string Name of table
+--- @return boolean `true` if table exists, otherwise `false`
+function corev.db:tableExists(tableName)
+    tableName = corev:ensure(tableName, 'unknown')
+
+    if (tableName == 'unknown') then
+        return false
+    end
+
+    local result = self:fetchScalar('SHOW TABLES LIKE @tableName', {
+        ['@tableName'] = tableName
+    })
+
+    result = lower(corev:ensure(result, 'unknown'))
+
+    return lower(tableName) == result
 end
 
 --- Prevent users from joining the server while database is updating

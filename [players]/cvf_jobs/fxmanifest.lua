@@ -22,12 +22,29 @@ contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
 ---
+--- Load client files
+---
+files {
+    'translations/*.json'
+}
+
+---
 --- Register server scripts
 ---
 server_scripts {
     '@corev/server/import.lua',
+    'classes/job.lua',
     'server/main.lua'
 }
+
+---
+--- Load translations
+---
+translations {
+    'translations/nl.json',
+    'translations/en.json'
+}
+
 
 ---
 --- Register all dependencies

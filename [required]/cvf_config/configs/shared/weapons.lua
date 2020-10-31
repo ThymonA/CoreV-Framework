@@ -17,7 +17,7 @@ local exports = assert(exports)
 
 --- Load translation module in configuration
 local cvf_translations = assert(exports['cvf_translations'] or {})
-local getTranslation = assert(cvf_translations.__t or function(t, ...) return 'MISSING TRANSLATION' end)
+local getTranslation = assert(cvf_translations.__t or function() return 'MISSING TRANSLATION' end)
 local _T = function(...) return getTranslation(cvf_translations, ...) end
 
 --- Create configuration object
