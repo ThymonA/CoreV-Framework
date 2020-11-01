@@ -13,8 +13,6 @@ local assert = assert
 --- Cache global variables
 local __global = assert(_G)
 local __environment = assert(_ENV)
-local promise = assert(promise)
-local coroutine = assert(coroutine)
 local type = assert(type)
 local rawget = assert(rawget)
 local rawset = assert(rawset)
@@ -42,8 +40,6 @@ local pack = assert(pack or table.pack)
 local unpack = assert(unpack or table.unpack)
 local CreateThread = assert(Citizen.CreateThread)
 local Wait = assert(Citizen.Wait)
-local isServer = IsDuplicityVersion()
-local currentResourceName = GetCurrentResourceName()
 
 --- FiveM cached global variables
 local LoadResourceFile = assert(LoadResourceFile)
@@ -51,7 +47,13 @@ local GetResourceState = assert(GetResourceState)
 local _TCE = assert(TriggerClientEvent)
 local _RSE = assert(RegisterServerEvent)
 local _AEH = assert(AddEventHandler)
+local IsDuplicityVersion = assert(IsDuplicityVersion)
 local GetPlayerIdentifiers = assert(GetPlayerIdentifiers)
+local GetCurrentResourceName = assert(GetCurrentResourceName)
+
+--- Required resource variables
+local isServer = IsDuplicityVersion()
+local currentResourceName = GetCurrentResourceName()
 
 --- Cahce FiveM globals
 local exports = assert(exports)
@@ -96,7 +98,9 @@ local __loadExports = {
     { r = 'mysql-async', f = 'mysql_fetch_scalar' },
     { r = 'mysql-async', f = 'mysql_fetch_all' },
     { r = 'mysql-async', f = 'mysql_execute' },
-    { r = 'cvf_identifier', f = '__i' }
+    { r = 'cvf_identifier', f = '__i' },
+    { r = 'cvf_jobs', f = '__a' },
+    { r = 'cvf_jobs', f = '__l' }
 }
 
 --- Store global exports as local variable
@@ -171,6 +175,7 @@ local corev = class "corev"
 --- Set default values for `corev` class
 corev:set('db', class "corev-db")
 corev:set('callback', class "corev-callback")
+corev:set('jobs', class "jobs")
 
 --- Set default values for `corev-db` class
 corev.db:set('ready', false)
@@ -776,24 +781,12 @@ function corev.db:tableExists(tableName)
     return lower(tableName) == result
 end
 
---- Prevent users from joining the server while database is updating
-_AEH('playerConnecting', function(name, _, deferrals)
-    deferrals.defer()
-
-    if (corev.db.hasMigrations) then
-        deferrals.done(corev:t('core', 'database_is_updating'):format(currentResourceName))
-        return
-    end
-
-    deferrals.done()
-end)
-
 --- Trigger func by server
 --- @param name string Name of trigger
 --- @param callback function Trigger this function
 function corev:onServerTrigger(name, callback)
-    name = corev:ensure(name, 'unknown')
-    callback = corev:ensure(callback, function() end)
+    name = self:ensure(name, 'unknown')
+    callback = self:ensure(callback, function() end)
 
     if (name == 'unknown') then return end
 
@@ -804,13 +797,54 @@ end
 --- @param name string Name of trigger
 --- @param callback function Trigger this function
 function corev:onClientTrigger(name, callback)
-    name = corev:ensure(name, 'unknown')
-    callback = corev:ensure(callback, function() end)
+    name = self:ensure(name, 'unknown')
+    callback = self:ensure(callback, function() end)
 
     if (name == 'unknown') then return end
 
     _RSE(name)
     _AEH(name, callback)
+end
+
+--- Register a function as `playerConnecting`
+--- @param func function Execute this function when player is connecting
+function corev:onPlayerConnect(func)
+    func = self:ensure(func, function(source, doneCallback, updateMsg)
+        doneCallback()
+    end)
+
+    _AEH('playerConnecting', function(name, callback, deferrals)
+        local source = self:ensure(source, 0)
+
+        deferrals.defer()
+
+        CreateThread(function()
+            try(function()
+                local continue, canConnect, rejectMessage = false, false, ''
+
+                func(source, function(msg)
+                    msg = self:ensure(msg, '')
+                    canConnect = self:ensure(msg == '', false)
+
+                    if (not canConnect) then
+                        rejectMessage = msg
+                    end
+
+                    continue = true
+                end, deferrals.update)
+
+                repeat Wait(0) until continue == true
+
+                if (canConnect) then
+                    deferrals.done()
+                else
+                    deferrals.done(rejectMessage)
+                end
+            end, function(err)
+                deferrals.done(('[ERROR]: %s'):format(err))
+            end)
+        end)
+    end)
 end
 
 --- Register server callback
@@ -916,6 +950,70 @@ function corev:getIdentifiers(player)
         return __exports[9].func(__exports[9].self, player)
     end
 end
+
+--- Returns `job` bases on given `name`
+--- @param name string Name of job
+--- @return job|nil Returns a `job` class or nil
+function corev.jobs:getJob(name)
+    name = corev:ensure(name, 'unknown')
+
+    if (name == 'unknown') then
+        return nil
+    end
+
+    name = lower(name)
+
+    if (__exports[11].self == nil) then
+        return __exports[11].func(name)
+    else
+        return __exports[11].func(__exports[11].self, name)
+    end
+end
+
+--- Creates a job object based on given `name` and `grades`
+--- @param name string Name of job, example: unemployed, police etc. (lowercase)
+--- @param label string Label of job, this will be displayed as name of given job
+--- @param grades table List of grades as table, every grade needs to be a table as well
+--- @return job|nil Returns a `job` class if found or created, otherwise `nil`
+function corev.jobs:addJob(name, label, grades)
+    name = corev:ensure(name, 'unknown')
+    label = corev:ensure(label, 'Unknown')
+    grades = corev:ensure(grades, {})
+
+    if (name == 'unknown') then
+        return nil
+    end
+
+    name = lower(name)
+
+    if (__exports[10].self == nil) then
+        return __exports[10].func(name, label, grades)
+    else
+        return __exports[10].func(__exports[10].self, name, label, grades)
+    end
+end
+
+--- Returns stored resource name or call `GetCurrentResourceName`
+--- @return string Returns name of current resource
+function corev:getCurrentResourceName()
+    if (self:typeof(currentResourceName) == 'string') then
+        return currentResourceName
+    end
+
+    return GetCurrentResourceName()
+end
+
+--- Prevent users from joining the server while database is updating
+corev:onPlayerConnect(function(source, doneCallback, updateMsg)
+    updateMsg(corev:t('core', 'check_for_database_updates'))
+
+    if (corev.db.hasMigrations) then
+        doneCallback(corev:t('core', 'database_is_updating'):format(currentResourceName))
+        return
+    end
+
+    doneCallback()
+end)
 
 --- Register corev as global variable
 global.corev = corev

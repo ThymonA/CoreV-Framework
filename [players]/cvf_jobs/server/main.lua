@@ -13,7 +13,11 @@
 local assert = assert
 local corev = assert(corev)
 local createJobObject = assert(createJobObject)
+local getJob = assert(getJob)
 local lower = assert(string.lower)
+
+--- Cahce FiveM globals
+local exports = assert(exports)
 
 --- Mark this resource as `database` migration dependent resource
 corev.db:migrationDependent()
@@ -39,3 +43,41 @@ corev.db:dbReady(function()
     --- Creates default job for any player without job or player's where job has been removed
     createJobObject(defaultJob.name, defaultJob.label, { defaultGrade })
 end)
+
+--- Creates a job object based on given `name` and `grades`
+--- @param name string Name of job, example: unemployed, police etc. (lowercase)
+--- @param label string Label of job, this will be displayed as name of given job
+--- @param grades table List of grades as table, every grade needs to be a table as well
+--- @return job|nil Returns a `job` class if found or created, otherwise `nil`
+function addAJob(name, label, grades)
+    name = corev:ensure(name, 'unknown')
+    label = corev:ensure(label, 'Unknown')
+    grades = corev:ensure(grades, {})
+
+    if (name == 'unknown') then
+        return nil
+    end
+
+    name = lower(name)
+
+    return createJobObject(name, label, grades)
+end
+
+--- Returns `job` bases on given `name`
+--- @param name string Name of job
+--- @return job|nil Returns a `job` class or nil
+function loadJob(name)
+    name = corev:ensure(name, 'unknown')
+
+    if (name == 'unknown') then
+        return nil
+    end
+
+    name = lower(name)
+
+    return getJob(name)
+end
+
+--- Register `addAJob` and `loadJob` as export function
+exports('__a', addAJob)
+exports('__l', loadJob)

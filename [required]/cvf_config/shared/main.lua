@@ -139,7 +139,7 @@ end
 --- @param name string Name of configuration to load
 --- @params ... string[] Filer results by key
 --- @return any|nil Returns `any` data from cached configuration or `nil` if not found
-local function getConfiguration(name, ...)
+function getConfiguration(name, ...)
     name = name or 'core'
 
     if (type(name) ~= 'string') then name = tostring(name) end

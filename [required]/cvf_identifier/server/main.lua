@@ -215,27 +215,18 @@ function getPlayerIdentifiers(player)
 end
 
 --- This event will be trigger when a player is connecting
-_AEH('playerConnecting', function(name, _, deferrals)
-    deferrals.defer()
+corev:onPlayerConnect(function(source, doneCallback, updateMsg)
+    updateMsg(corev:t('identifier', ('check_identifiers'):format(corev:getCurrentResourceName())))
 
-    local playerId = corev:ensure(source, -1)
-
-    if (playerId == -1) then
-        deferrals.done(corev:t('identifier', 'source_not_found'))
-        return
-    end
-
-    Wait(0)
-
-    local playerObject = identifiers:getPlayerIdentifierObject(playerId)
+    local playerObject = identifiers:getPlayerIdentifierObject(source)
 
     if (playerObject == nil) then
-        deferrals.done(corev:t('identifier', 'identifiers_not_found'))
+        doneCallback(corev:t('identifier', 'identifiers_not_found'))
         return
     end
 
     --- Load player name
-    name = corev:ensure(name, GetPlayerName(playerId))
+    local name = GetPlayerName(source)
 
     --- Store player identifiers for later use
     corev.db:execute('INSERT INTO `player_identifiers` (`name`, `steam`, `license`, `xbl`, `live`, `discord`, `fivem`, `ip`) VALUES (@name, @steam, @license, @xbl, @live, @discord, @fivem, @ip)', {
@@ -256,11 +247,11 @@ _AEH('playerConnecting', function(name, _, deferrals)
         identifierType = corev:ensure(identifierType, 'license')
         identifierType = lower(identifierType)
 
-        deferrals.done(corev:t('identifier', ('%s_not_found'):format(identifierType)))
+        doneCallback(corev:t('identifier', ('%s_not_found'):format(identifierType)))
         return
     end
 
-    deferrals.done()
+    doneCallback()
 end)
 
 --- Register `__getPlayerIdentifiers` as export

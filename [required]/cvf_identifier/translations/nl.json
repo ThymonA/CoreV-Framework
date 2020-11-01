@@ -10,7 +10,7 @@
         }
     ],
     "translations": {
-        "source_not_found": "Wij konden uw `source` niet vaststellen, probeer a.u.b. opnieuw te joinen",
+        "check_identifiers": "[%s] Wij zijn uw identifiers aan het laden...",
         "identifiers_not_found": "Wij konden uw identiteit niet vaststellen, probeer a.u.b. opnieuw te joinen",
         "steam_not_found": "U moet uw Steam client open hebben om met deze server te kunnen verbinden",
         "license_not_found": "U moet een geldige GTA5 licentie hebben om met deze server te kunnen verbinden",

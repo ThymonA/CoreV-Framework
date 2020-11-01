@@ -10,7 +10,7 @@
         }
     ],
     "translations": {
-        "source_not_found": "We could not find your `source`, please reconnect or try again later",
+        "check_identifiers": "[%s] We are loading your identifiers...",
         "identifiers_not_found": "We could not find your identity, please reconnect or try again later",
         "steam_not_found": "You must have your Steam client open to connect to this server",
         "license_not_found": "You must have a valid GTA5 license to connect to this server",

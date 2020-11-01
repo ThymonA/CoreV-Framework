@@ -213,5 +213,28 @@ local function createJobObject(name, label, grades)
     return job
 end
 
+--- Returns `job` bases on given `name`
+--- @param name string Name of job
+--- @return job|nil Returns a `job` class or nil
+local function getJob(name)
+    name = corev:ensure(name, 'unknown')
+
+    if (name == 'unknown') then
+        return nil
+    end
+
+    name = lower(name)
+
+    --- If job already exists, then return stored job and don't override existing one
+    for _, job in pairs(jobs.jobs) do
+        if (job.name == name) then
+            return job
+        end
+    end
+
+    return nil
+end
+
 --- Register `createJobObject` as global function
 global.createJobObject = createJobObject
+global.getJob = getJob

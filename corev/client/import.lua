@@ -35,8 +35,6 @@ local vector2 = assert(vector2)
 local setmetatable = assert(setmetatable)
 local CreateThread = assert(Citizen.CreateThread)
 local Wait = assert(Citizen.Wait)
-local isClient = not IsDuplicityVersion()
-local currentResourceName = GetCurrentResourceName()
 
 --- FiveM cached global variables
 local LoadResourceFile = assert(LoadResourceFile)
@@ -44,6 +42,12 @@ local GetResourceState = assert(GetResourceState)
 local _TSE = assert(TriggerServerEvent)
 local _RNE = assert(RegisterNetEvent)
 local _AEH = assert(AddEventHandler)
+local IsDuplicityVersion = assert(IsDuplicityVersion)
+local GetCurrentResourceName = assert(GetCurrentResourceName)
+
+--- Required resource variables
+local isClient = not IsDuplicityVersion()
+local currentResourceName = GetCurrentResourceName()
 
 --- Cahce FiveM globals
 local exports = assert(exports)
@@ -449,6 +453,16 @@ corev:onServerTrigger(('corev:%s:serverCallback'):format(currentResourceName), f
     corev.callback.callbacks[requestId](...)
     corev.callback.callbacks[requestId] = nil
 end)
+
+--- Returns stored resource name or call `GetCurrentResourceName`
+--- @return string Returns name of current resource
+function corev:getCurrentResourceName()
+    if (self:typeof(currentResourceName) == 'string') then
+        return currentResourceName
+    end
+
+    return GetCurrentResourceName()
+end
 
 --- Register corev as global variable
 global.corev = corev
