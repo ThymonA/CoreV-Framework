@@ -25,7 +25,6 @@ local xpcall = assert(xpcall)
 local traceback = assert(debug.traceback)
 local encode = assert(json.encode)
 local Wait = assert(Citizen.Wait)
-local CreateThread = assert(Citizen.CreateThread)
 
 --- FiveM cached global variables
 local GetCurrentResourceName = assert(GetCurrentResourceName)
@@ -355,56 +354,53 @@ _AEH('playerConnecting', function(name, _, deferrals)
     end
 
     local presentCard = events:getPresentCard(deferrals)
+    local pIdentifiers = events:getIdentifiersBySource(source)
+    local identifierType = corev:ensure(corev:cfg('core', 'identifierType'), 'license')
 
-    CreateThread(function()
-        local pIdentifiers = events:getIdentifiersBySource(source)
-        local identifierType = corev:ensure(corev:cfg('core', 'identifierType'), 'license')
+    identifierType = lower(identifierType)
 
-        identifierType = lower(identifierType)
+    --- Create a `player` class
+    local player = class "player"
 
-        --- Create a `player` class
-        local player = class "player"
+    --- Set default values
+    player:set {
+        source = source,
+        name = name,
+        identifiers = pIdentifiers,
+        identifier = pIdentifiers[identifierType] or nil
+    }
 
-        --- Set default values
-        player:set {
-            source = source,
-            name = name,
-            identifiers = pIdentifiers,
-            identifier = pIdentifiers[identifierType] or nil
-        }
+    local continue, canConnect, rejectMessage = false, false, nil
 
-        local continue, canConnect, rejectMessage = false, false, nil
+    for _, trigger in pairs(triggers) do
+        presentCard.reset()
 
-        for _, trigger in pairs(triggers) do
-            presentCard.reset()
-
-            local func = corev:ensure(trigger.func, function(_, done, _) done() end)
-            local ok = xpcall(func, traceback, player, function(msg)
-                msg = corev:ensure(msg, '')
-                canConnect = corev:ensure(msg == '', false)
-
-                if (not canConnect) then
-                    rejectMessage = msg
-                end
-
-                continue = true
-            end, presentCard)
-
-            repeat Wait(0) until continue == true
-
-            if (not ok) then
-                canConnect = false
-                rejectMessage = corev:t('events', 'connecting_error'):format(trigger.resource)
-            end
+        local func = corev:ensure(trigger.func, function(_, done, _) done() end)
+        local ok = xpcall(func, traceback, player, function(msg)
+            msg = corev:ensure(msg, '')
+            canConnect = corev:ensure(msg == '', false)
 
             if (not canConnect) then
-                deferrals.done(rejectMessage)
-                return
+                rejectMessage = msg
             end
+
+            continue = true
+        end, presentCard)
+
+        repeat Wait(0) until continue == true
+
+        if (not ok) then
+            canConnect = false
+            rejectMessage = corev:t('events', 'connecting_error'):format(trigger.resource)
         end
 
-        deferrals.done()
-    end)
+        if (not canConnect) then
+            deferrals.done(rejectMessage)
+            return
+        end
+    end
+
+    deferrals.done()
 end)
 
 --- Register a new on event
