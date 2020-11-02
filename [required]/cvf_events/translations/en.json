@@ -10,6 +10,8 @@
         }
     ],
     "translations": {
-        "connecting_error": "[ERROR] You cannot join because of an error in @%s:playerConnecting"
+        "connecting_error": "[ERROR] You cannot join because of an error in @%s:playerConnecting",
+        "connecting_title": "Connecting with %s",
+        "connecting_description": "You are currently connecting with %s please wait..."
     }
 }

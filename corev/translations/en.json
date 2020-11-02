@@ -18,6 +18,7 @@
         "database_migration_not_loaded": "^1[^7CoreV^1] ^1Cannot update ^7 database for resource: ^1%s",
         "database_is_updating": "[CoreV] Framework is updating `%s`, please reconnect or try again later.",
         "check_for_database_updates": "[CoreV] We check if server is not updating...",
+        "checking_server": "Checking server status",
         "weapon_dagger": "Antique Cavalry Dagger",
         "weapon_bat": "Baseball Bat",
         "weapon_bottle": "Broken Bottle",

@@ -12,5 +12,6 @@ local config = {}
 
 config.language = 'nl'
 config.identifierType = 'license'
+config.serverName = 'CoreV Framework'
 
 return config

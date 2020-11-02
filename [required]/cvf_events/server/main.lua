@@ -23,6 +23,7 @@ local match = assert(string.match)
 local sub = assert(string.sub)
 local xpcall = assert(xpcall)
 local traceback = assert(debug.traceback)
+local encode = assert(json.encode)
 local Wait = assert(Citizen.Wait)
 local CreateThread = assert(Citizen.CreateThread)
 
@@ -244,6 +245,103 @@ function events:getIdentifiersBySource(source)
     return tableResults
 end
 
+--- Generates adaptive card json based on given `title`, `description` and `banner`
+function events:generateCard(title, description, banner)
+    local cfgBanner = corev:ensure(corev:cfg('events', 'bannerUrl'), 'https://i.imgur.com/3XeDqC0.png')
+    local serverName = corev:ensure(corev:cfg('core', 'serverName'), 'CoreV Framework')
+
+    local _tit = corev:t('events', 'connecting_title'):format(serverName)
+    local _desc = corev:t('events', 'connecting_description'):format(serverName)
+
+    title = corev:ensure(title, _tit)
+    description = corev:ensure(description, _desc)
+    banner = corev:ensure(banner, cfgBanner)
+
+    local card = {
+        ['type'] = 'AdaptiveCard',
+        ['body'] = {
+            { type = "Image", url = banner },
+            { type = "TextBlock", size = "Medium", weight = "Bolder", text = title, horizontalAlignment = "Center" },
+            { type = "TextBlock", text = description, wrap = true, horizontalAlignment = "Center" }
+        },
+        ['$schema'] = "http://adaptivecards.io/schemas/adaptive-card.json",
+        ['version'] = "1.3"
+    }
+
+    return encode(card)
+end
+
+--- This function will generate a `presentCard` class
+--- @param deferrals deferrals Deferrals from `playerConnecting` event
+--- @return presentCard Generated `presentCard` class
+function events:getPresentCard(deferrals)
+    --- Create a `presentCard` class
+    local presentCard = {}
+
+    --- Set default values presentCard
+    presentCard.title = nil
+    presentCard.description = nil
+    presentCard.banner = nil
+    presentCard.deferrals = deferrals
+
+    presentCard.update = function()
+        local cardJson = events:generateCard(presentCard.title, presentCard.description, presentCard.banner)
+
+        presentCard.deferrals.presentCard(cardJson)
+    end
+
+    presentCard.setTitle = function(title, update)
+        title = corev:ensure(title, 'unknown')
+        update = corev:ensure(update, true)
+
+        if (title == 'unknown') then title = nil end
+
+        presentCard.title = title
+
+        if (update) then presentCard.update() end
+    end
+
+    presentCard.setDescription = function(description, update)
+        description = corev:ensure(description, 'unknown')
+        update = corev:ensure(update, true)
+
+        if (description == 'unknown') then description = nil end
+
+        presentCard.description = description
+
+        if (update) then presentCard.update() end
+    end
+
+    presentCard.setBanner = function(banner, update)
+        banner = corev:ensure(banner, 'unknown')
+        update = corev:ensure(update, true)
+
+        if (banner == 'unknown') then banner = nil end
+
+        presentCard.banner = banner
+
+        if (update) then presentCard.update() end
+    end
+
+    presentCard.reset = function(update)
+        update = corev:ensure(update, true)
+
+        presentCard.title = nil
+        presentCard.description = nil
+        presentCard.banner = nil
+
+        if (update) then presentCard.update() end
+    end
+
+    presentCard.override = function(card, ...)
+        presentCard.deferrals.presentCard(card, ...)
+    end
+
+    presentCard.update()
+
+    return presentCard
+end
+
 --- This event will be triggerd when a player is connecting
 _AEH('playerConnecting', function(name, _, deferrals)
     deferrals.defer()
@@ -255,6 +353,8 @@ _AEH('playerConnecting', function(name, _, deferrals)
         deferrals.done()
         return
     end
+
+    local presentCard = events:getPresentCard(deferrals)
 
     CreateThread(function()
         local pIdentifiers = events:getIdentifiersBySource(source)
@@ -276,6 +376,8 @@ _AEH('playerConnecting', function(name, _, deferrals)
         local continue, canConnect, rejectMessage = false, false, nil
 
         for _, trigger in pairs(triggers) do
+            presentCard.reset()
+
             local func = corev:ensure(trigger.func, function(_, done, _) done() end)
             local ok = xpcall(func, traceback, player, function(msg)
                 msg = corev:ensure(msg, '')
@@ -286,7 +388,7 @@ _AEH('playerConnecting', function(name, _, deferrals)
                 end
 
                 continue = true
-            end, deferrals.presentCard)
+            end, presentCard)
 
             repeat Wait(0) until continue == true
 

@@ -995,7 +995,10 @@ corev:onClientTrigger(('corev:%s:serverCallback'):format(currentResourceName), f
 end)
 
 --- Prevent users from joining the server while database is updating
-corev.events:onPlayerConnect(function(_, done)
+corev.events:onPlayerConnect(function(_, done, presentCard)
+    presentCard.setTitle(corev:t('core', 'checking_server'), false)
+    presentCard.setDescription(corev:t('core', 'check_for_database_updates'))
+
     if (corev.db.hasMigrations) then
         done(corev:t('core', 'database_is_updating'):format(currentResourceName))
         return
