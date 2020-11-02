@@ -27,7 +27,6 @@ local encode = assert(json.encode)
 local Wait = assert(Citizen.Wait)
 
 --- FiveM cached global variables
-local GetCurrentResourceName = assert(GetCurrentResourceName)
 local GetInvokingResource = assert(GetInvokingResource)
 local GetNumPlayerIdentifiers = assert(GetNumPlayerIdentifiers)
 local GetPlayerIdentifier = assert(GetPlayerIdentifier)
@@ -40,7 +39,7 @@ local events = class "events"
 --- Set default values
 events:set {
     events = {},
-    resourceName = GetCurrentResourceName()
+    resourceName = corev:getCurrentResourceName()
 }
 
 --- Register a function as on event trigger
@@ -370,9 +369,9 @@ _AEH('playerConnecting', function(name, _, deferrals)
         identifier = pIdentifiers[identifierType] or nil
     }
 
-    local continue, canConnect, rejectMessage = false, false, nil
-
     for _, trigger in pairs(triggers) do
+        local continue, canConnect, rejectMessage, continueTimes = false, false, nil, 0
+
         presentCard.reset()
 
         local func = corev:ensure(trigger.func, function(_, done, _) done() end)

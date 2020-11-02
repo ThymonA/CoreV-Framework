@@ -1,5 +1,5 @@
 {
-    "language": "en",
+    "language": "nl",
     "translators": [
         {
             "name": "ThymonA",
@@ -10,7 +10,9 @@
         }
     ],
     "translations": {
-        "unemployed_label": "Unemployed",
-        "default_job_not_exists": "^1[ERROR] ^7Default job does not exist in database, restart your server and try again"
+        "connect_title": "Inladen van account",
+        "connect_description": "We zijn bezig met het inladen van je account...",
+        "default_job_not_found": "Wij konden geen standaard baan vinden, neem contact op met de server eigenaren",
+        "player_created": "^2[^7%s^2] ^7Account voor ^2\"^7%s^2\" ^7is aangemaakt^2!^7"
     }
 }

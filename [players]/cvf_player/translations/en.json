@@ -10,7 +10,9 @@
         }
     ],
     "translations": {
-        "unemployed_label": "Unemployed",
-        "default_job_not_exists": "^1[ERROR] ^7Default job does not exist in database, restart your server and try again"
+        "connect_title": "Loading account",
+        "connect_description": "We're loading your account...",
+        "default_job_not_found": "We could not find a standard job, please contact the server owners",
+        "player_created": "^2[^7%s^2] ^7Account for ^2\"^7%s^2\" ^7has been created^2!^7"
     }
 }
