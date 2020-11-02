@@ -1,0 +1,15 @@
+{
+    "language": "en",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "connecting_error": "[ERROR] You cannot join because of an error in @%s:playerConnecting"
+    }
+}

@@ -215,43 +215,30 @@ function getPlayerIdentifiers(player)
 end
 
 --- This event will be trigger when a player is connecting
-corev:onPlayerConnect(function(source, doneCallback, updateMsg)
-    updateMsg(corev:t('identifier', ('check_identifiers'):format(corev:getCurrentResourceName())))
-
-    local playerObject = identifiers:getPlayerIdentifierObject(source)
-
-    if (playerObject == nil) then
-        doneCallback(corev:t('identifier', 'identifiers_not_found'))
-        return
-    end
-
-    --- Load player name
-    local name = GetPlayerName(source)
-
+corev.events:onPlayerConnect(function(player, done)
     --- Store player identifiers for later use
     corev.db:execute('INSERT INTO `player_identifiers` (`name`, `steam`, `license`, `xbl`, `live`, `discord`, `fivem`, `ip`) VALUES (@name, @steam, @license, @xbl, @live, @discord, @fivem, @ip)', {
-        ['@name'] = name,
-        ['@steam'] = playerObject.identifiers.stream,
-        ['@license'] = playerObject.identifiers.license,
-        ['@xbl'] = playerObject.identifiers.xbl,
-        ['@live'] = playerObject.identifiers.live,
-        ['@discord'] = playerObject.identifiers.discord,
-        ['@fivem'] = playerObject.identifiers.fivem,
-        ['@ip'] = playerObject.identifiers.ip
+        ['@name'] = player.name,
+        ['@steam'] = player.identifiers.stream,
+        ['@license'] = player.identifiers.license,
+        ['@xbl'] = player.identifiers.xbl,
+        ['@live'] = player.identifiers.live,
+        ['@discord'] = player.identifiers.discord,
+        ['@fivem'] = player.identifiers.fivem,
+        ['@ip'] = player.identifiers.ip
     })
 
-    if (playerObject.identifier == nil) then
+    if (player.identifier == nil) then
         --- Load default framework's identifier
-        local identifierType = corev:cfg('core', 'identifierType') or 'license'
+        local identifierType = corev:ensure(corev:cfg('core', 'identifierType'), 'license')
 
-        identifierType = corev:ensure(identifierType, 'license')
         identifierType = lower(identifierType)
 
-        doneCallback(corev:t('identifier', ('%s_not_found'):format(identifierType)))
+        done(corev:t('identifier', ('%s_not_found'):format(identifierType)))
         return
     end
 
-    doneCallback()
+    done()
 end)
 
 --- Register `__getPlayerIdentifiers` as export

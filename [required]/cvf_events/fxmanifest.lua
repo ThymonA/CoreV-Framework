@@ -14,12 +14,19 @@ game 'gta5'
 ---
 --- Information about this resource
 ---
-name '[CVF] Identifier Resource'
+name '[CVF] Translation Resource'
 version '1.0.0'
-description 'Identifier resource for CoreV Framework'
+description 'Translation resource for CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
+
+---
+--- Load client files
+---
+files {
+    'translations/*.json'
+}
 
 ---
 --- Register server scripts
@@ -37,7 +44,6 @@ translations {
     'translations/en.json'
 }
 
----
---- This stops clients from downloading anything of this resource.
----
-server_only 'yes'
+dependencies {
+    'cvf_config'
+}

@@ -98,9 +98,10 @@ local __loadExports = {
     { r = 'mysql-async', f = 'mysql_fetch_scalar' },
     { r = 'mysql-async', f = 'mysql_fetch_all' },
     { r = 'mysql-async', f = 'mysql_execute' },
-    { r = 'cvf_identifier', f = '__i' },
     { r = 'cvf_jobs', f = '__a' },
-    { r = 'cvf_jobs', f = '__l' }
+    { r = 'cvf_jobs', f = '__l' },
+    { r = 'cvf_events', f = '__add' },
+    { r = 'cvf_events', f = '__del' }
 }
 
 --- Store global exports as local variable
@@ -170,12 +171,14 @@ end
 local class = assert(getClass())
 
 --- Create CoreV class
+--- @class CoreV
 local corev = class "corev"
 
 --- Set default values for `corev` class
 corev:set('db', class "corev-db")
 corev:set('callback', class "corev-callback")
-corev:set('jobs', class "jobs")
+corev:set('jobs', class "corev-jobs")
+corev:set('events', class "corev-events")
 
 --- Set default values for `corev-db` class
 corev.db:set('ready', false)
@@ -183,6 +186,13 @@ corev.db:set('hasMigrations', false)
 
 --- Set default values for `corev-callback` class
 corev.callback:set('callbacks', {})
+
+--- Tries to execute `func`, if any error occur, `catch_func` will be triggerd
+--- @param func function Function to execute
+--- @param catch_func function Fallback function when error occur
+function corev:try(func, catch_func)
+    return try(func, catch_func)
+end
 
 --- Return a value type of any CFX object
 --- @param value any Any value
@@ -806,47 +816,6 @@ function corev:onClientTrigger(name, callback)
     _AEH(name, callback)
 end
 
---- Register a function as `playerConnecting`
---- @param func function Execute this function when player is connecting
-function corev:onPlayerConnect(func)
-    func = self:ensure(func, function(source, doneCallback, updateMsg)
-        doneCallback()
-    end)
-
-    _AEH('playerConnecting', function(name, callback, deferrals)
-        local source = self:ensure(source, 0)
-
-        deferrals.defer()
-
-        CreateThread(function()
-            try(function()
-                local continue, canConnect, rejectMessage = false, false, ''
-
-                func(source, function(msg)
-                    msg = self:ensure(msg, '')
-                    canConnect = self:ensure(msg == '', false)
-
-                    if (not canConnect) then
-                        rejectMessage = msg
-                    end
-
-                    continue = true
-                end, deferrals.update)
-
-                repeat Wait(0) until continue == true
-
-                if (canConnect) then
-                    deferrals.done()
-                else
-                    deferrals.done(rejectMessage)
-                end
-            end, function(err)
-                deferrals.done(('[ERROR]: %s'):format(err))
-            end)
-        end)
-    end)
-end
-
 --- Register server callback
 --- @param name string Name of callback
 --- @param callback function Trigger this function on server return
@@ -874,27 +843,6 @@ function corev.callback:triggerCallback(name, source, callback, ...)
         self.callbacks[name](source, callback, ...)
     end
 end
-
---- Trigger event when client is requesting callback
-corev:onClientTrigger(('corev:%s:serverCallback'):format(currentResourceName), function(name, requestId, ...)
-    name = corev:ensure(name, 'unknown')
-    requestId = corev:ensure(requestId, 0)
-
-    local playerId = corev:ensure(source, -1)
-
-    if (playerId == -1) then return end
-    if (name == 'unknown') then return end
-    if (requestId <= 0 or requestId > 65535) then return end
-    if (((corev.callback or {}).callbacks or {})[name] == nil) then return end
-
-    local params = pack(...)
-
-    CreateThread(function()
-        corev.callback:triggerCallback(name, playerId, function(...)
-            _TCE(('corev:%s:serverCallback'):format(currentResourceName), playerId, requestId, ...)
-        end, unpack(params))
-    end)
-end)
 
 --- This function will return player's primary identifier or nil
 --- @param playerId number Source or Player ID to get identifier for
@@ -937,20 +885,6 @@ function corev:getIdentifier(playerId)
     return nil
 end
 
---- Returns a list of player identifiers
---- @param player string|number Player primary identifier or Player source ID
---- @return table All founded identifiers
---- @return string Founded player name
-function corev:getIdentifiers(player)
-    if (player == nil) then return end
-
-    if (__exports[9].self == nil) then
-        return __exports[9].func(player)
-    else
-        return __exports[9].func(__exports[9].self, player)
-    end
-end
-
 --- Returns `job` bases on given `name`
 --- @param name string Name of job
 --- @return job|nil Returns a `job` class or nil
@@ -963,10 +897,10 @@ function corev.jobs:getJob(name)
 
     name = lower(name)
 
-    if (__exports[11].self == nil) then
-        return __exports[11].func(name)
+    if (__exports[10].self == nil) then
+        return __exports[10].func(name)
     else
-        return __exports[11].func(__exports[11].self, name)
+        return __exports[10].func(__exports[10].self, name)
     end
 end
 
@@ -986,11 +920,47 @@ function corev.jobs:addJob(name, label, grades)
 
     name = lower(name)
 
-    if (__exports[10].self == nil) then
-        return __exports[10].func(name, label, grades)
+    if (__exports[9].self == nil) then
+        return __exports[9].func(name, label, grades)
     else
-        return __exports[10].func(__exports[10].self, name, label, grades)
+        return __exports[9].func(__exports[9].self, name, label, grades)
     end
+end
+
+--- Register a new on event
+--- @param event string Name of event
+function corev.events:register(event, ...)
+    event = corev:ensure(event, 'unknown')
+
+    if (event == 'unknown') then return end
+
+    if (__exports[11].self == nil) then
+        return __exports[11].func(event, ...)
+    else
+        return __exports[11].func(__exports[11].self, event, ...)
+    end
+end
+
+--- Unregister events based on event and/or names
+--- @param event string Name of event
+function corev.events:unregister(event, ...)
+    event = corev:ensure(event, 'unknown')
+
+    if (event == 'unknown') then return end
+
+    if (__exports[12].self == nil) then
+        return __exports[12].func(event, ...)
+    else
+        return __exports[12].func(__exports[12].self, event, ...)
+    end
+end
+
+--- Register a function as `playerConnecting`
+--- @param func function Execute this function when player is connecting
+function corev.events:onPlayerConnect(func)
+    func = corev:ensure(func, function(_, done, _) done() end)
+
+    self:register('playerConnecting', func)
 end
 
 --- Returns stored resource name or call `GetCurrentResourceName`
@@ -1003,16 +973,35 @@ function corev:getCurrentResourceName()
     return GetCurrentResourceName()
 end
 
---- Prevent users from joining the server while database is updating
-corev:onPlayerConnect(function(source, doneCallback, updateMsg)
-    updateMsg(corev:t('core', 'check_for_database_updates'))
+--- Trigger event when client is requesting callback
+corev:onClientTrigger(('corev:%s:serverCallback'):format(currentResourceName), function(name, requestId, ...)
+    name = corev:ensure(name, 'unknown')
+    requestId = corev:ensure(requestId, 0)
 
+    local playerId = corev:ensure(source, -1)
+
+    if (playerId == -1) then return end
+    if (name == 'unknown') then return end
+    if (requestId <= 0 or requestId > 65535) then return end
+    if (((corev.callback or {}).callbacks or {})[name] == nil) then return end
+
+    local params = pack(...)
+
+    CreateThread(function()
+        corev.callback:triggerCallback(name, playerId, function(...)
+            _TCE(('corev:%s:serverCallback'):format(currentResourceName), playerId, requestId, ...)
+        end, unpack(params))
+    end)
+end)
+
+--- Prevent users from joining the server while database is updating
+corev.events:onPlayerConnect(function(_, done)
     if (corev.db.hasMigrations) then
-        doneCallback(corev:t('core', 'database_is_updating'):format(currentResourceName))
+        done(corev:t('core', 'database_is_updating'):format(currentResourceName))
         return
     end
 
-    doneCallback()
+    done()
 end)
 
 --- Register corev as global variable

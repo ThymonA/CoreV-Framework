@@ -8,14 +8,8 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
+local config = {}
 
---- Cache global variables
-local assert = assert
-local corev = assert(corev)
+config.bannerUrl = 'https://i.imgur.com/3XeDqC0.png'
 
---- Mark this resource as `database` migration dependent resource
-corev.db:migrationDependent()
-
---- This event will be triggerd when client is connecting
-corev.events:onPlayerConnect(function(player, done, presentCard)
-end)
+return config
