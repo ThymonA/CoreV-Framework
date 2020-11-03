@@ -440,6 +440,31 @@ _AEH('playerDropped', function(reason)
     end
 end)
 
+--- Remove `triggers` when matching `resource` is stopped
+_AEH('onResourceStop', function(name)
+    name = corev:ensure(name, 'unknown')
+
+    for event, info in pairs(events.events) do
+        info = corev:ensure(info, {})
+
+        for index, trigger in pairs(info.triggers or {}) do
+            if (trigger.resource == name) then
+                remove(events.events[event].triggers, index)
+            end
+        end
+
+        for param, paramInfo in pairs(info.parameters or {}) do
+            paramInfo = corev:ensure(paramInfo, {})
+
+            for index, trigger in pairs(paramInfo) do
+                if (trigger.resource == name) then
+                    remove(events.events[event].parameters[param], index)
+                end
+            end
+        end
+    end
+end)
+
 --- Register a new on event
 --- @param event string Name of event
 function registerEvent(event, ...)
