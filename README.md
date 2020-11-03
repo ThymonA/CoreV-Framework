@@ -17,7 +17,7 @@ All 3rd party code in CoreV Framework
 
 Developer(s) | Project | Repository | Version | File
 :-------- | :------ | :---------- | :--------- | :-----
-**[siffiejoe](https://github.com/siffiejoe/)** | *lua-classy* | **[GitHub](https://github.com/siffiejoe/lua-classy/)** | *1.3.0* | **[class.lua](https://git.arens.io/ThymonA/corev-framework/-/blob/master/corev/vendors/class.lua)**
+**[Yonaba](https://github.com/Yonaba/)** | *30log* | **[GitHub](https://github.com/Yonaba/30log/)** | *1.3.0* | **[class.lua](https://git.arens.io/ThymonA/corev-framework/-/blob/master/corev/vendors/class.lua)**
 **[esx-framework](https://github.com/esx-framework)** | *es_extended* | **[GitHub](https://github.com/esx-framework/es_extended)** | v1-final | **..**
 
 ## License
