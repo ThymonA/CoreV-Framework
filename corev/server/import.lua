@@ -958,9 +958,17 @@ end
 --- Register a function as `playerConnecting`
 --- @param func function Execute this function when player is connecting
 function corev.events:onPlayerConnect(func)
-    func = corev:ensure(func, function(_, done, _) done() end)
+    func = corev:ensure(func, function(_, done) done() end)
 
     self:register('playerConnecting', func)
+end
+
+--- Register a function as `playerDropped`
+--- @param func function Execute this function when player is disconnected
+function corev.events:onPlayerDisconnect(func)
+    func = corev:ensure(func, function(_, done) done() end)
+
+    self:register('playerDropped', func)
 end
 
 --- Returns stored resource name or call `GetCurrentResourceName`

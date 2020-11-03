@@ -19,6 +19,8 @@
         "database_is_updating": "[CoreV] Framework is bezig met update van `%s`, probeer a.u.b. opnieuw te joinen",
         "check_for_database_updates": "[CoreV] Wij controleren of server niet aan het update is...",
         "checking_server": "Status van server controleren",
+        "player_connecting": "^2[^7CoreV^2] ^7Speler ^2'^7%s^2' ^7is aan het verbinden met de server",
+        "player_disconnect": "^1[^7CoreV^1] ^7Speler ^1'^7%s^1' ^7heeft de server verlaten",
         "weapon_dagger": "Antique Cavalry Dagger",
         "weapon_bat": "Baseball Bat",
         "weapon_bottle": "Broken Bottle",

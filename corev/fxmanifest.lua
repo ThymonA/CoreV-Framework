@@ -41,6 +41,7 @@ client_scripts {
 ---
 server_scripts {
     'server/import.lua',
+    'server/common.lua',
     'server/main.lua'
 }
 

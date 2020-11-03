@@ -30,6 +30,7 @@ local Wait = assert(Citizen.Wait)
 local GetInvokingResource = assert(GetInvokingResource)
 local GetNumPlayerIdentifiers = assert(GetNumPlayerIdentifiers)
 local GetPlayerIdentifier = assert(GetPlayerIdentifier)
+local GetPlayerName = assert(GetPlayerName)
 local _AEH = assert(AddEventHandler)
 local exports = assert(exports)
 
@@ -370,7 +371,7 @@ _AEH('playerConnecting', function(name, _, deferrals)
     }
 
     for _, trigger in pairs(triggers) do
-        local continue, canConnect, rejectMessage, continueTimes = false, false, nil, 0
+        local continue, canConnect, rejectMessage = false, false, nil
 
         presentCard.reset()
 
@@ -400,6 +401,41 @@ _AEH('playerConnecting', function(name, _, deferrals)
     end
 
     deferrals.done()
+end)
+
+--- This event will be triggerd when a player is connecting
+_AEH('playerDropped', function(reason)
+    reason = corev:ensure(reason, 'unknown')
+
+    local source = corev:ensure(source, 0)
+    local triggers = ((events.events or {})['playerdropped'] or {}).triggers or {}
+
+    if (#triggers == 0) then
+        return
+    end
+
+    local pIdentifiers = events:getIdentifiersBySource(source)
+    local identifierType = corev:ensure(corev:cfg('core', 'identifierType'), 'license')
+
+    identifierType = lower(identifierType)
+
+    --- Create a `player` class
+    local player = class "player"
+
+    --- Set default values
+    player:set {
+        source = source,
+        name = GetPlayerName(source),
+        identifiers = pIdentifiers,
+        identifier = pIdentifiers[identifierType] or nil
+    }
+
+    for _, trigger in pairs(triggers) do
+        local func = corev:ensure(trigger.func, function(_, done, _) done() end)
+        local ok = xpcall(func, traceback, player, reason)
+
+        repeat Wait(0) until ok ~= nil
+    end
 end)
 
 --- Register a new on event

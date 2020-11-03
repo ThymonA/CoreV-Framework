@@ -19,6 +19,8 @@
         "database_is_updating": "[CoreV] Framework is updating `%s`, please reconnect or try again later.",
         "check_for_database_updates": "[CoreV] We check if server is not updating...",
         "checking_server": "Checking server status",
+        "player_connecting": "^2[^7CoreV^2] ^7Player ^2'^7%s^2' ^7is connecting to the server",
+        "player_disconnect": "^1[^7CoreV^1] ^7Player ^1'^7%s^1' ^7has left the server",
         "weapon_dagger": "Antique Cavalry Dagger",
         "weapon_bat": "Baseball Bat",
         "weapon_bottle": "Broken Bottle",
