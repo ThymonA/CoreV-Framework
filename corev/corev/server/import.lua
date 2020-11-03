@@ -101,7 +101,8 @@ local __loadExports = {
     { r = 'cvf_jobs', f = '__a' },
     { r = 'cvf_jobs', f = '__l' },
     { r = 'cvf_events', f = '__add' },
-    { r = 'cvf_events', f = '__del' }
+    { r = 'cvf_events', f = '__del' },
+    { r = 'cvf_identifier', f = '__g' }
 }
 
 --- Store global exports as local variable
@@ -844,47 +845,6 @@ function corev.callback:triggerCallback(name, source, callback, ...)
     end
 end
 
---- This function will return player's primary identifier or nil
---- @param playerId number Source or Player ID to get identifier for
---- @return string|nil Founded primary identifier or nil
-function corev:getIdentifier(playerId)
-    playerId = self:ensure(playerId, -1)
-
-    if (playerId < 0) then return nil end
-    if (playerId == 0) then return 'console' end
-
-    local identifierType = self:cfg('core', 'identifierType') or 'license'
-    local identifiers = GetPlayerIdentifiers(playerId)
-
-    identifierType = self:ensure(identifierType, 'license')
-    identifierType = lower(identifierType)
-    identifiers = self:ensure(identifiers, {})
-
-    for _, identifier in pairs(identifiers) do
-        identifier = self:ensure(identifier, 'none')
-
-        local lowIdenti = lower(identifier)
-
-        if (identifierType == 'steam' and match(lowIdenti, 'steam:')) then
-            return sub(identifier, 7)
-        elseif (identifierType == 'license' and match(lowIdenti, 'license:')) then
-            return sub(identifier, 9)
-        elseif (identifierType == 'xbl' and match(lowIdenti, 'xbl:')) then
-            return sub(identifier, 5)
-        elseif (identifierType == 'live' and match(lowIdenti, 'live:')) then
-            return sub(identifier, 6)
-        elseif (identifierType == 'discord' and match(lowIdenti, 'discord:')) then
-            return sub(identifier, 9)
-        elseif (identifierType == 'fivem' and match(lowIdenti, 'fivem:')) then
-            return sub(identifier, 7)
-        elseif (identifierType == 'ip' and match(lowIdenti, 'ip:')) then
-            return sub(identifier, 4)
-        end
-    end
-
-    return nil
-end
-
 --- Returns `job` bases on given `name`
 --- @param name string Name of job
 --- @return job|nil Returns a `job` class or nil
@@ -979,6 +939,34 @@ function corev:getCurrentResourceName()
     end
 
     return GetCurrentResourceName()
+end
+
+--- Returns a `player` class with the latest identifiers
+--- @param input string|number Any identifier or Player source
+--- @return player|nil Returns a `player` class if found, otherwise nil
+function corev:getPlayerIdentifiers(input)
+    if (self:typeof(input) ~= 'number' and self:typeof(input) ~= 'string') then
+        input = self:ensure(input, 'unknown')
+    end
+
+    if (self:typeof(input) == 'string' and input == 'unknown') then return nil end
+
+    if (__exports[13].self == nil) then
+        return __exports[13].func(input)
+    else
+        return __exports[13].func(__exports[13].self, input)
+    end
+end
+
+--- This function will return player's primary identifier or nil
+--- @param input string|number Any identifier or Player source
+--- @return string|nil Founded primary identifier or nil
+function corev:getPrimaryIdentifier(input)
+    local player = self:getPlayerIdentifiers(input)
+
+    if (player == nil) then return nil end
+
+    return player.identifier
 end
 
 --- Trigger event when client is requesting callback

@@ -1,0 +1,17 @@
+{
+    "language": "nl",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "connecting_error": "[ERROR] U kunt niet joinen i.v.m. een error in @%s:playerConnecting",
+        "connecting_title": "Verbinden met %s",
+        "connecting_description": "U bent momenteel aan het verbinden met %s even geduld a.u.b."
+    }
+}

@@ -1,0 +1,16 @@
+{
+    "language": "en",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "unemployed_label": "Unemployed",
+        "default_job_not_exists": "^1[ERROR] ^7Default job does not exist in database, restart your server and try again"
+    }
+}
