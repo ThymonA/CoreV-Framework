@@ -30,7 +30,7 @@ corev.callback:register('load', function(source, cb)
         return
     end
 
-    local playerIdentifier = corev:getIdentifier(source)
+    local playerIdentifier = corev:getPrimaryIdentifier(source)
 
     if (playerIdentifier == nil) then
         cb({}, nil)
