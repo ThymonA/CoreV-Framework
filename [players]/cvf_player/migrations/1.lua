@@ -8,10 +8,15 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-local config = {}
+local migration = {}
 
-config.language = 'en'
-config.identifierType = 'license'
-config.serverName = 'CoreV Framework'
+--- Prevent migration from executing before dependend sql has been executed
+migration.dependencies = {}
 
-return config
+--- Execute this sql after `dependencies` has been executed
+migration.sql = [[
+    ALTER TABLE `players` ADD `group` VARCHAR(20) NOT NULL DEFAULT 'user' AFTER `name`;
+]]
+
+--- Returns current migration
+return migration

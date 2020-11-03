@@ -34,7 +34,8 @@ files {
 server_scripts {
     '@corev/server/import.lua',
     'classes/player.lua',
-    'server/main.lua'
+    'server/main.lua',
+    'server/commands.lua'
 }
 
 ---

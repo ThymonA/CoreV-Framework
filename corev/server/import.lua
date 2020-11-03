@@ -101,7 +101,9 @@ local __loadExports = {
     [11] = { r = 'cvf_events', f = '__add' },
     [12] = { r = 'cvf_events', f = '__del' },
     [13] = { r = 'cvf_identifier', f = '__g' },
-    [14] = { r = 'cvf_player', f = '__g' }
+    [14] = { r = 'cvf_player', f = '__g' },
+    [15] = { r = 'cvf_commands', f = '__rc' },
+    [16] = { r = 'cvf_commands', f = '__rp' }
 }
 
 --- Store global exports as local variable
@@ -961,6 +963,36 @@ function corev:getPlayer(input)
         return __exports[14].func(input)
     else
         return __exports[14].func(__exports[14].self, input)
+    end
+end
+
+--- Register a command
+--- @param name string|table Name of command to execute
+--- @param aces string|table Aces allowed to execute this command
+--- @param callback function Execute this function when player is allowed
+function corev:registerCommand(name, aces, callback)
+    name = self:ensure(name, 'unknown')
+    aces = self:typeof(aces) == 'table' and aces or corev:ensure(aces, '*')
+    callback = self:ensure(callback, function() end)
+
+    if (__exports[15].self == nil) then
+        return __exports[15].func(name, aces, callback)
+    else
+        return __exports[15].func(__exports[15].self, name, aces, callback)
+    end
+end
+
+--- Create a parser for generated command
+--- @param name string Name of command
+--- @param parseInfo table Information about parser
+function corev:registerParser(name, parseInfo)
+    name = self:ensure(name, 'unknown')
+    parseInfo = self:ensure(parseInfo, {})
+
+    if (__exports[16].self == nil) then
+        return __exports[16].func(name, parseInfo)
+    else
+        return __exports[16].func(__exports[16].self, name, parseInfo)
     end
 end
 

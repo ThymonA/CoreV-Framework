@@ -245,6 +245,10 @@ function events:getIdentifiersBySource(source)
 end
 
 --- Generates adaptive card json based on given `title`, `description` and `banner`
+--- @param title string|nil Title under banner
+--- @param description string|nil Description under title
+--- @param banner string|nil Banner Banner used in card (URL)
+--- @return string Generated card as json
 function events:generateCard(title, description, banner)
     local cfgBanner = corev:ensure(corev:cfg('events', 'bannerUrl'), 'https://i.imgur.com/3XeDqC0.png')
     local serverName = corev:ensure(corev:cfg('core', 'serverName'), 'CoreV Framework')

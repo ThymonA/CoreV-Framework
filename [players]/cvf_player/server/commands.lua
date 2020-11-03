@@ -8,10 +8,7 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-local config = {}
 
-config.language = 'en'
-config.identifierType = 'license'
-config.serverName = 'CoreV Framework'
-
-return config
+--- Cache global variables
+local assert = assert
+local corev = assert(corev)

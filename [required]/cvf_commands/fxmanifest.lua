@@ -8,10 +8,23 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-local config = {}
+fx_version 'adamant'
+game 'gta5'
 
-config.language = 'en'
-config.identifierType = 'license'
-config.serverName = 'CoreV Framework'
+---
+--- Information about this resource
+---
+name '[CVF] Translation Resource'
+version '1.0.0'
+description 'Translation resource for CoreV Framework'
+author 'ThymonA'
+contact 'contact@arens.io'
+url 'https://git.arens.io/ThymonA/corev-framework/'
 
-return config
+---
+--- Register server scripts
+---
+server_scripts {
+    '@corev/server/import.lua',
+    'server/main.lua'
+}
