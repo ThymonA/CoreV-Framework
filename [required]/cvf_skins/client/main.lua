@@ -56,6 +56,12 @@ CreateThread(function()
 
             local model = GetHashKey(result_model or defaultModel)
 
+            if (GetEntityModel(PlayerPedId()) == model) then
+                return
+            end
+
+            RequestModel(model)
+
             while not HasModelLoaded(model) do
                 Wait(0)
             end

@@ -26,7 +26,7 @@ skins:set('players', {})
 --- Register callback for loading database skin
 corev.callback:register('load', function(vPlayer, cb)
     if (vPlayer == nil) then
-        cb({}, nil)
+        cb('{}', nil)
         return
     end
 
@@ -41,10 +41,10 @@ corev.callback:register('load', function(vPlayer, cb)
         results = corev:ensure(results, {})
 
         if (#results <= 0) then
-            cb({}, nil)
+            cb('{}', nil)
         else
             skins.players[vPlayer.identifier] = {
-                data = results[1].data or {},
+                data = results[1].data or '{}',
                 model = results[1].model or nil
             }
 
