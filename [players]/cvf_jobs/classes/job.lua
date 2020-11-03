@@ -214,25 +214,94 @@ local function createJobObject(name, label, grades)
 end
 
 --- Returns `job` bases on given `name`
---- @param name string Name of job
+--- @param input string|number Name of job or ID of job
 --- @return job|nil Returns a `job` class or nil
-local function getJob(name)
-    name = corev:ensure(name, 'unknown')
+local function getCacheJob(input)
+    input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
 
-    if (name == 'unknown') then
+    if (corev:typeof(input) == 'number') then
+        return (jobs.jobs or {})[input] or nil
+    end
+
+    input = corev:ensure(input, 'unknown')
+
+    if (input == 'unknown') then
         return nil
     end
 
-    name = lower(name)
+    input = lower(input)
 
     --- If job already exists, then return stored job and don't override existing one
     for _, job in pairs(jobs.jobs) do
-        if (job.name == name) then
+        if (job.name == input) then
             return job
         end
     end
 
     return nil
+end
+
+--- Returns `job` bases on given `name`
+--- @param input string|number Name of job or ID of job
+--- @return job|nil Returns a `job` class or nil
+local function getJob(input)
+    input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
+
+    local jobFromCache = getCacheJob(input)
+
+    if (jobFromCache ~= nil) then return jobFromCache end
+
+    local dbJob
+
+    if (corev:typeof(input) == 'number') then
+        dbJob = corev.db:fetchAll('SELECT * FROM `jobs` WHERE `id` = @id LIMIT 1', {
+            ['@id'] = input
+        })
+    else
+        dbJob = corev.db:fetchAll('SELECT * FROM `jobs` WHERE `name` = @name LIMIT 1', {
+            ['@name'] = input
+        })
+    end
+
+    dbJob = corev:ensure(dbJob, {})
+
+    if (#dbJob == 0) then return nil end
+
+    --- Create a `job` class
+    local job = class "job"
+
+    --- Set default values
+    job:set {
+        id = dbJob[1].id,
+        name = dbJob[1].name,
+        label = dbJob[1].label,
+        grades = {}
+    }
+
+    local dbGrades = corev.db:fetchAll('SELECT * FROM `job_grades` WHERE `job_id` = @id ORDER BY `grade` ASC', {
+        ['@id'] = job.id
+    })
+
+    dbGrades = corev:ensure(dbGrades, {})
+
+    if (#dbGrades == 0) then return job end
+
+    for _, dbGrade in pairs(dbGrades) do
+        --- Create a `grade` class
+        local grade = class 'grade'
+
+        --- Set default values
+        grade:set {
+            job_id = dbGrade.job_id,
+            grade = corev:ensure(dbGrade.grade, 0),
+            name = dbGrade.name,
+            label = dbGrade.label
+        }
+
+        job.grades[grade.grade] = grade
+    end
+
+    return job
 end
 
 --- Register `createJobObject` as global function

@@ -275,68 +275,70 @@ end
 --- @return presentCard Generated `presentCard` class
 function events:getPresentCard(deferrals)
     --- Create a `presentCard` class
-    local presentCard = {}
+    local presentCard = class "presentCard"
 
     --- Set default values presentCard
-    presentCard.title = nil
-    presentCard.description = nil
-    presentCard.banner = nil
-    presentCard.deferrals = deferrals
+    presentCard:set {
+        title = nil,
+        description = nil,
+        banner = nil,
+        deferrals = deferrals
+    }
 
-    presentCard.update = function()
-        local cardJson = events:generateCard(presentCard.title, presentCard.description, presentCard.banner)
+    function presentCard:update()
+        local cardJson = events:generateCard(self.title, self.description, self.banner)
 
-        presentCard.deferrals.presentCard(cardJson)
+        self.deferrals.presentCard(cardJson)
     end
 
-    presentCard.setTitle = function(title, update)
+    function presentCard:setTitle(title, update)
         title = corev:ensure(title, 'unknown')
         update = corev:ensure(update, true)
 
         if (title == 'unknown') then title = nil end
 
-        presentCard.title = title
+        self.title = title
 
-        if (update) then presentCard.update() end
+        if (update) then self:update() end
     end
 
-    presentCard.setDescription = function(description, update)
+    function presentCard:setDescription(description, update)
         description = corev:ensure(description, 'unknown')
         update = corev:ensure(update, true)
 
         if (description == 'unknown') then description = nil end
 
-        presentCard.description = description
+        self.description = description
 
-        if (update) then presentCard.update() end
+        if (update) then self:update() end
     end
 
-    presentCard.setBanner = function(banner, update)
+    function presentCard:setBanner(banner, update)
         banner = corev:ensure(banner, 'unknown')
         update = corev:ensure(update, true)
 
         if (banner == 'unknown') then banner = nil end
 
-        presentCard.banner = banner
+        self.banner = banner
 
-        if (update) then presentCard.update() end
+        if (update) then self:update() end
     end
 
-    presentCard.reset = function(update)
+    function presentCard:reset(update)
         update = corev:ensure(update, true)
 
-        presentCard.title = nil
-        presentCard.description = nil
-        presentCard.banner = nil
+        self.title = nil
+        self.description = nil
+        self.banner = nil
 
-        if (update) then presentCard.update() end
+        if (update) then self:update() end
     end
 
-    presentCard.override = function(card, ...)
-        presentCard.deferrals.presentCard(card, ...)
+    function presentCard:override(card, ...)
+        self.deferrals.presentCard(card, ...)
     end
 
-    presentCard.update()
+    presentCard:update()
 
     return presentCard
 end
@@ -373,7 +375,7 @@ _AEH('playerConnecting', function(name, _, deferrals)
     for _, trigger in pairs(triggers) do
         local continue, canConnect, rejectMessage = false, false, nil
 
-        presentCard.reset()
+        presentCard:reset()
 
         local func = corev:ensure(trigger.func, function(_, done, _) done() end)
         local ok = xpcall(func, traceback, player, function(msg)

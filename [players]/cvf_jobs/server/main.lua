@@ -63,21 +63,6 @@ function addAJob(name, label, grades)
     return createJobObject(name, label, grades)
 end
 
---- Returns `job` bases on given `name`
---- @param name string Name of job
---- @return job|nil Returns a `job` class or nil
-function loadJob(name)
-    name = corev:ensure(name, 'unknown')
-
-    if (name == 'unknown') then
-        return nil
-    end
-
-    name = lower(name)
-
-    return getJob(name)
-end
-
 --- Register `addAJob` and `loadJob` as export function
 exports('__a', addAJob)
-exports('__l', loadJob)
+exports('__l', getJob)

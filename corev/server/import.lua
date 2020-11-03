@@ -22,7 +22,6 @@ local encode = assert(json.encode)
 local lower = assert(string.lower)
 local sub = assert(string.sub)
 local len = assert(string.len)
-local match = assert(string.match)
 local gmatch = assert(string.gmatch)
 local insert = assert(table.insert)
 local load = assert(load)
@@ -48,7 +47,6 @@ local _TCE = assert(TriggerClientEvent)
 local _RSE = assert(RegisterServerEvent)
 local _AEH = assert(AddEventHandler)
 local IsDuplicityVersion = assert(IsDuplicityVersion)
-local GetPlayerIdentifiers = assert(GetPlayerIdentifiers)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
 
 --- Required resource variables
@@ -90,19 +88,20 @@ end
 
 --- Load those exports
 local __loadExports = {
-    { r = 'cvf_config', f = '__c' },
-    { r = 'cvf_ids', f = '__id' },
-    { r = 'cvf_translations', f = '__t' },
-    { r = 'mysql-async', f = 'is_ready'},
-    { r = 'mysql-async', f = 'mysql_insert' },
-    { r = 'mysql-async', f = 'mysql_fetch_scalar' },
-    { r = 'mysql-async', f = 'mysql_fetch_all' },
-    { r = 'mysql-async', f = 'mysql_execute' },
-    { r = 'cvf_jobs', f = '__a' },
-    { r = 'cvf_jobs', f = '__l' },
-    { r = 'cvf_events', f = '__add' },
-    { r = 'cvf_events', f = '__del' },
-    { r = 'cvf_identifier', f = '__g' }
+    [1] = { r = 'cvf_config', f = '__c' },
+    [2] = { r = 'cvf_ids', f = '__id' },
+    [3] = { r = 'cvf_translations', f = '__t' },
+    [4] = { r = 'mysql-async', f = 'is_ready'},
+    [5] = { r = 'mysql-async', f = 'mysql_insert' },
+    [6] = { r = 'mysql-async', f = 'mysql_fetch_scalar' },
+    [7] = { r = 'mysql-async', f = 'mysql_fetch_all' },
+    [8] = { r = 'mysql-async', f = 'mysql_execute' },
+    [9] = { r = 'cvf_jobs', f = '__a' },
+    [10] = { r = 'cvf_jobs', f = '__l' },
+    [11] = { r = 'cvf_events', f = '__add' },
+    [12] = { r = 'cvf_events', f = '__del' },
+    [13] = { r = 'cvf_identifier', f = '__g' },
+    [14] = { r = 'cvf_player', f = '__g' }
 }
 
 --- Store global exports as local variable
@@ -213,7 +212,7 @@ function corev:typeof(value)
     local isSource = rawget(value, '__cfx_functionSource') ~= nil
 
     if (isSource) then return 'number' end
-    if (value.__class) then return class.name(value) end
+    if (value.__class) then return value.__class end
 
     return rawType
 end
@@ -841,26 +840,20 @@ function corev.callback:triggerCallback(name, source, callback, ...)
     if (name == 'unknown' or source == -1) then return end
 
     if ((self.callbacks or {})[name] ~= nil) then
-        self.callbacks[name](source, callback, ...)
+        local vPlayer = corev:getPlayer(source)
+
+        self.callbacks[name](vPlayer, callback, ...)
     end
 end
 
 --- Returns `job` bases on given `name`
---- @param name string Name of job
+--- @param input string|number Name of job or ID of job
 --- @return job|nil Returns a `job` class or nil
-function corev.jobs:getJob(name)
-    name = corev:ensure(name, 'unknown')
-
-    if (name == 'unknown') then
-        return nil
-    end
-
-    name = lower(name)
-
+function corev.jobs:getJob(input)
     if (__exports[10].self == nil) then
-        return __exports[10].func(name)
+        return __exports[10].func(input)
     else
-        return __exports[10].func(__exports[10].self, name)
+        return __exports[10].func(__exports[10].self, input)
     end
 end
 
@@ -945,9 +938,7 @@ end
 --- @param input string|number Any identifier or Player source
 --- @return player|nil Returns a `player` class if found, otherwise nil
 function corev:getPlayerIdentifiers(input)
-    if (self:typeof(input) ~= 'number' and self:typeof(input) ~= 'string') then
-        input = self:ensure(input, 'unknown')
-    end
+    input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
 
     if (self:typeof(input) == 'string' and input == 'unknown') then return nil end
 
@@ -955,6 +946,21 @@ function corev:getPlayerIdentifiers(input)
         return __exports[13].func(input)
     else
         return __exports[13].func(__exports[13].self, input)
+    end
+end
+
+--- Returns a `vPlayer` class based on given input
+--- @param input string|number Player identifier or Player source
+--- @return vPlayer|nil Founded/Generated `vPlayer` class or nil
+function corev:getPlayer(input)
+    input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
+
+    if (self:typeof(input) == 'string' and input == 'unknown') then return nil end
+
+    if (__exports[14].self == nil) then
+        return __exports[14].func(input)
+    else
+        return __exports[14].func(__exports[14].self, input)
     end
 end
 
@@ -992,8 +998,8 @@ end)
 
 --- Prevent users from joining the server while database is updating
 corev.events:onPlayerConnect(function(_, done, presentCard)
-    presentCard.setTitle(corev:t('core', 'checking_server'), false)
-    presentCard.setDescription(corev:t('core', 'check_for_database_updates'))
+    presentCard:setTitle(corev:t('core', 'checking_server'), false)
+    presentCard:setDescription(corev:t('core', 'check_for_database_updates'))
 
     if (corev.db.hasMigrations) then
         done(corev:t('core', 'database_is_updating'):format(currentResourceName))

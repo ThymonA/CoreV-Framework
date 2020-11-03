@@ -12,16 +12,29 @@
 --- Cache global variables
 local assert = assert
 local corev = assert(corev)
+local createPlayer = assert(createPlayer)
 local print = assert(print)
 local lower = assert(string.lower)
+
+--- Cahce FiveM globals
+local exports = assert(exports)
 
 --- Mark this resource as `database` migration dependent resource
 corev.db:migrationDependent()
 
+--- Returns a `vPlayer` class based on given input
+--- @param input string|number Player identifier or Player source
+--- @return vPlayer|nil Founded/Generated `vPlayer` class or nil
+function GetPlayer(input)
+    input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
+
+    return createPlayer(input)
+end
+
 --- This event will be triggerd when client is connecting
 corev.events:onPlayerConnect(function(player, done, presentCard)
-    presentCard.setTitle(corev:t('player', 'connect_title'), false)
-    presentCard.setDescription(corev:t('player', 'connect_description'))
+    presentCard:setTitle(corev:t('player', 'connect_title'), false)
+    presentCard:setDescription(corev:t('player', 'connect_description'))
 
     local exists = corev.db:fetchScalar('SELECT COUNT(*) FROM `players` WHERE `identifier` = @identifier LIMIT 1', {
         ['@identifier'] = player.identifier
@@ -33,6 +46,7 @@ corev.events:onPlayerConnect(function(player, done, presentCard)
             ['@identifier'] = player.identifier
         })
 
+        createPlayer(player.identifier)
         done()
         return
     end
@@ -59,5 +73,9 @@ corev.events:onPlayerConnect(function(player, done, presentCard)
 
     print(corev:t('player', 'player_created'):format(corev:getCurrentResourceName(), player.name))
 
+    createPlayer(player.identifier)
     done()
 end)
+
+--- Register `GetPlayer` as export function
+exports('__g', GetPlayer)

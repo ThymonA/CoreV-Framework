@@ -84,9 +84,9 @@ end
 
 --- Load those exports
 local __loadExports = {
-    { r = 'cvf_config', f = '__c' },
-    { r = 'cvf_ids', f = '__id' },
-    { r = 'cvf_translations', f = '__t' }
+    [1] = { r = 'cvf_config', f = '__c' },
+    [2] = { r = 'cvf_ids', f = '__id' },
+    [3] = { r = 'cvf_translations', f = '__t' }
 }
 
 --- Store global exports as local variable
@@ -183,7 +183,7 @@ function corev:typeof(value)
     local isSource = rawget(value, '__cfx_functionSource') ~= nil
 
     if (isSource) then return 'number' end
-    if (value.__class) then return class.name(value) end
+    if (value.__class) then return value.__class end
 
     return rawType
 end

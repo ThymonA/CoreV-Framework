@@ -24,33 +24,31 @@ local skins = class "skins"
 skins:set('players', {})
 
 --- Register callback for loading database skin
-corev.callback:register('load', function(source, cb)
-    if (skins.players ~= nil and skins.players[source] ~= nil) then
-        cb(skins.players[source].data, skins.players[source].model)
-        return
-    end
-
-    local playerIdentifier = corev:getPrimaryIdentifier(source)
-
-    if (playerIdentifier == nil) then
+corev.callback:register('load', function(vPlayer, cb)
+    if (vPlayer == nil) then
         cb({}, nil)
         return
     end
 
-    corev.db:fetchAllAsync('SELECT * FROM `player_skins` WHERE `identifier` = @identifier LIMIT 1', {
-        ['@identifier'] = playerIdentifier
+    if (skins.players ~= nil and skins.players[vPlayer.identifier] ~= nil) then
+        cb(skins.players[vPlayer.identifier].data, skins.players[vPlayer.identifier].model)
+        return
+    end
+
+    corev.db:fetchAllAsync('SELECT * FROM `player_skins` WHERE `player_id` = @id LIMIT 1', {
+        ['@id'] = vPlayer.id
     }, function(results)
         results = corev:ensure(results, {})
 
         if (#results <= 0) then
             cb({}, nil)
         else
-            skins.players[source] = {
+            skins.players[vPlayer.identifier] = {
                 data = results[1].data or {},
                 model = results[1].model or nil
             }
 
-            cb(skins.players[source].data, skins.players[source].model)
+            cb(skins.players[vPlayer.identifier].data, skins.players[vPlayer.identifier].model)
         end
     end)
 end)
