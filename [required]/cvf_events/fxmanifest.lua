@@ -45,5 +45,6 @@ translations {
 }
 
 dependencies {
+    'cvf_utils',
     'cvf_config'
 }

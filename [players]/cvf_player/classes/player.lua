@@ -13,9 +13,6 @@
 local assert = assert
 local class = assert(class)
 local corev = assert(corev)
-local pairs = assert(pairs)
-local insert = assert(table.insert)
-local match = assert(string.match)
 local lower = assert(string.lower)
 local CreateThread = assert(Citizen.CreateThread)
 
@@ -24,7 +21,8 @@ local players = class 'players'
 
 --- Set default values
 players:set {
-    players = {}
+    players = {},
+    sources = {}
 }
 
 --- Load a `job` class for given job
@@ -68,40 +66,6 @@ function players:getJobObject(input, grade)
     job:set('grade', gradeObj)
 
     return job
-end
-
---- Transform a ace table to string table
---- @param aces table Aces from @cvf_config -> aces.lua
---- @return table All founded aces as string table
-local function acesToTable(aces)
-    aces = corev:ensure(aces, {})
-
-    local results = {}
-
-    if (aces.parent) then
-        results = acesToTable(aces.parent)
-    end
-
-    local permissions = corev:ensure(aces.permissions, {})
-
-    for _, permission in pairs(permissions) do
-        insert(results, corev:ensure(permission, 'unknown'))
-    end
-
-    return results
-end
-
---- Load all aces for given group
---- @param group string Name of group
---- @return table All founded aces as string table
-local function loadAces(group)
-    group = corev:ensure(group, 'user')
-
-    local aces = corev:cfg('aces', 'groups', group)
-
-    aces = corev:ensure(aces, {})
-
-    return acesToTable(aces)
 end
 
 --- Create a `vPlayer` class
@@ -157,8 +121,7 @@ local function createPlayer(input)
         identifier = player.identifier,
         identifiers = player.identifiers,
         job = players:getJobObject(dbPlayer[1].job, dbPlayer[1].grade),
-        job2 = players:getJobObject(dbPlayer[1].job2, dbPlayer[1].grade2),
-        aces = loadAces(playerGroup)
+        job2 = players:getJobObject(dbPlayer[1].job2, dbPlayer[1].grade2)
     }
 
     --- This function will returns vPlayer primary identifier
@@ -166,50 +129,11 @@ local function createPlayer(input)
         return corev:ensure(self.identifier, 'unknown')
     end
 
-    --- Checks if player has access to given `ace`
-    --- @param ace string|table Ace(s) to check: 'example.*'
-    --- @return boolean `true` if player has access, otherwise `false`
-    function vPlayer:aceAllowed(ace)
-        ace = corev:typeof(ace) == 'table' and ace or corev:ensure(ace, '*')
-
-        if (corev:typeof(ace) == 'table') then
-            for _, _ace in pairs(ace) do
-                if (corev:typeof(_ace) == self:aceAllowed(_ace)) then
-                    return true
-                end
-            end
-
-            return false
-        end
-
-        if (ace == '*') then return true end
-
-        local hasDots = #corev:split(ace, '.') > 0
-
-        for _, _ace in pairs(self.aces) do
-            _ace = corev:ensure(_ace, 'none')
-
-            if (_ace == '*') then return true end
-
-            if (hasDots) then
-                local pattern = corev:replace(_ace, '.*', '%..*')
-
-                pattern = '^' .. pattern
-
-                if (match(ace, pattern) ~= nil) then
-                    return true
-                end
-            else
-                if (ace == _ace) then
-                    return true
-                end
-            end
-        end
-
-        return false
-    end
-
     players.players[vPlayer.identifier] = vPlayer
+
+    if (vPlayer.source ~= nil) then
+        players.sources[vPlayer.source] = players.players[vPlayer.identifier]
+    end
 
     return vPlayer
 end
@@ -219,5 +143,6 @@ CreateThread(function()
     createPlayer('console')
 end)
 
---- Register `createPlayer` as global function
+--- Register `createPlayer` as global function and `players` as global variable
+global.players = players
 global.createPlayer = createPlayer

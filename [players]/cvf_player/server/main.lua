@@ -12,7 +12,6 @@
 --- Cache global variables
 local assert = assert
 local corev = assert(corev)
-local createPlayer = assert(createPlayer)
 local print = assert(print)
 local lower = assert(string.lower)
 
@@ -25,8 +24,20 @@ corev.db:migrationDependent()
 --- Returns a `vPlayer` class based on given input
 --- @param input string|number Player identifier or Player source
 --- @return vPlayer|nil Founded/Generated `vPlayer` class or nil
-function GetPlayer(input)
+local function getPlayer(input)
     input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
+
+    if (corev:typeof(input) == 'number') then
+        local vPlayer = players.sources[input] or nil
+
+        if (vPlayer) then return vPlayer end
+
+        return createPlayer(input)
+    end
+
+    local vPlayer = players.players[input] or nil
+
+    if (vPlayer) then return vPlayer end
 
     return createPlayer(input)
 end
@@ -78,4 +89,4 @@ corev.events:onPlayerConnect(function(player, done, presentCard)
 end)
 
 --- Register `GetPlayer` as export function
-exports('__g', GetPlayer)
+exports('__g', getPlayer)

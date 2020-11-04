@@ -24,6 +24,7 @@ local traceback = assert(debug.traceback)
 --- FiveM cached global variables
 local RegisterCommand = assert(RegisterCommand)
 local GetInvokingResource = assert(GetInvokingResource)
+local ExecuteCommand = assert(ExecuteCommand)
 local exports = assert(exports)
 
 --- Create a `commands` class
@@ -47,19 +48,20 @@ local function __executeCommand(source, rawArguments, raw)
 
     if (commandName == 'unknown') then return end
 
-    local vPlayer = commands.players[source] or corev:getPlayer(source)
+    local player = commands.players[source] or corev:getPlayerIdentifiers(source)
 
-    if (vPlayer == nil) then return end
-    if (commands.players[source] == nil) then commands.players[source] = vPlayer end
+    if (player == nil) then return end
+    if (commands.players[source] == nil) then commands.players[source] = player end
 
-    local cmd = commands.commands[commandName] or nil
+    local key = corev:hashString(commandName)
+    local cmd = commands.commands[key] or nil
 
-    if (cmd == nil or not vPlayer:aceAllowed(cmd.aces)) then return end
+    if (cmd == nil) then return end
 
     rawArguments = corev:ensure(rawArguments, {})
 
     local arguments = {}
-    local parser = commands.parsers[commandName] or nil
+    local parser = commands.parsers[key] or nil
 
     if (parser) then
         for index, argument in pairs(parser.parameters) do
@@ -73,19 +75,19 @@ local function __executeCommand(source, rawArguments, raw)
         arguments = rawArguments
     end
 
-    xpcall(cmd.func, traceback, vPlayer, unpack(arguments))
+    xpcall(cmd.func, traceback, player, unpack(arguments))
 end
 
 --- Register a command
 --- @param resource string Name of resource where command is from
 --- @param name string|table Name of command to execute
---- @param aces string|table Aces allowed to execute this command
+--- @param groups string|table Group(s) allowed to execute this command
 --- @param callback function Execute this function when player is allowed
-function commands:register(resource, name, aces, callback)
+function commands:register(resource, name, groups, callback)
     if (corev:typeof(name) == 'tables') then
         for _, _name in pairs(name) do
             if (corev:typeof(_name) == 'string') then
-                self:register(resource, name, aces, callback)
+                self:register(resource, name, groups, callback)
             end
         end
 
@@ -94,12 +96,14 @@ function commands:register(resource, name, aces, callback)
 
     resource = corev:ensure(resource, corev:getCurrentResourceName())
     name = corev:ensure(name, 'unknown')
-    aces = corev:typeof(aces) == 'table' and aces or corev:ensure(aces, '*')
+    groups = corev:typeof(groups) == 'table' and groups or corev:ensure(groups, 'superadmin')
     callback = corev:ensure(callback, function() end)
 
     if (name == 'unknown') then return end
 
-    if (self.commands[name] ~= nil) then
+    local key = corev:hashString(name)
+
+    if (self.commands[key] ~= nil) then
         print(corev:t('commands', 'command_exsits'):format(name))
     end
 
@@ -110,14 +114,25 @@ function commands:register(resource, name, aces, callback)
     command:set {
         resource = resource,
         name = name,
-        aces = aces,
+        groups = groups,
         func = callback
     }
 
-    self.commands[lower(name)] = command
+    self.commands[key] = command
 
     --- Register command
     RegisterCommand(name, __executeCommand, false)
+
+    --- Whitelist a group
+    if corev:typeof(groups) == 'table' then
+		for _, group in pairs(groups) do
+            if (corev:typeof(group) == 'string') then
+                ExecuteCommand(('add_ace group.%s command.%s allow'):format(group, name))
+            end
+		end
+	elseif corev:typeof(groups) == 'string' then
+		ExecuteCommand(('add_ace group.%s command.%s allow'):format(groups, name))
+	end
 end
 
 --- Create a parser for generated command
@@ -130,7 +145,10 @@ function commands:parser(resource, name, parseInfo)
     parseInfo = corev:ensure(parseInfo, {})
 
     if (name == 'unknown') then return end
-    if (self.commands[name] == nil or self.commands[name].resource ~= resource) then return end
+
+    local key = corev:hashString(name)
+
+    if (self.commands[key] == nil or self.commands[key].resource ~= resource) then return end
 
     --- Create a `parser` class
     local parser = class 'parser'
@@ -154,18 +172,18 @@ function commands:parser(resource, name, parseInfo)
         })
     end
 
-    self.parsers[name] = parser
+    self.parsers[key] = parser
 end
 
 --- Register a command
 --- @param name string|table Name of command to execute
---- @param aces string|table Aces allowed to execute this command
+--- @param groups string|table Group(s) allowed to execute this command
 --- @param callback function Execute this function when player is allowed
-function registerCommand(name, aces, callback)
+function registerCommand(name, groups, callback)
     local _r = GetInvokingResource()
     local resource = corev:ensure(_r, corev:getCurrentResourceName())
 
-    commands:register(resource, name, aces, callback)
+    commands:register(resource, name, groups, callback)
 end
 
 --- Create a parser for generated command

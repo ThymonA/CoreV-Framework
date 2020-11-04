@@ -41,3 +41,7 @@ translations {
 --- This stops clients from downloading anything of this resource.
 ---
 server_only 'yes'
+
+dependencies {
+    'cvf_utils'
+}

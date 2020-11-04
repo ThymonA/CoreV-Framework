@@ -24,6 +24,10 @@ local sub = assert(string.sub)
 local len = assert(string.len)
 local gmatch = assert(string.gmatch)
 local insert = assert(table.insert)
+local modf = assert(math.modf)
+local clock = assert(os.clock)
+local time = assert(os.time)
+local date = assert(os.date)
 local load = assert(load)
 local pcall = assert(pcall)
 local xpcall = assert(xpcall)
@@ -48,7 +52,6 @@ local _RSE = assert(RegisterServerEvent)
 local _AEH = assert(AddEventHandler)
 local IsDuplicityVersion = assert(IsDuplicityVersion)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
-local GetHashKey = assert(GetHashKey)
 
 --- Required resource variables
 local isServer = IsDuplicityVersion()
@@ -103,7 +106,8 @@ local __loadExports = {
     [12] = { r = 'cvf_identifier', f = '__g' },
     [13] = { r = 'cvf_player', f = '__g' },
     [14] = { r = 'cvf_commands', f = '__rc' },
-    [15] = { r = 'cvf_commands', f = '__rp' }
+    [15] = { r = 'cvf_commands', f = '__rp' },
+    [16] = { r = 'cvf_utils', f = '__h' }
 }
 
 --- Store global exports as local variable
@@ -329,15 +333,6 @@ function corev:ensure(input, defaultValue)
     end
 
     return defaultValue
-end
-
---- Generates a ID for given string
---- @param name string|number|nil String to generate a ID for
---- @return number Generated ID or Cached ID
-function corev:id(input)
-    input = self:typeof(input) == 'number' and input or self:ensure(input, 'unknown')
-
-    return GetHashKey(input)
 end
 
 --- Load or return cached configuration based on name
@@ -959,17 +954,17 @@ end
 
 --- Register a command
 --- @param name string|table Name of command to execute
---- @param aces string|table Aces allowed to execute this command
+--- @param groups string|table Group(s) allowed to execute this command
 --- @param callback function Execute this function when player is allowed
-function corev:registerCommand(name, aces, callback)
+function corev:registerCommand(name, groups, callback)
     name = self:ensure(name, 'unknown')
-    aces = self:typeof(aces) == 'table' and aces or corev:ensure(aces, '*')
+    groups = self:typeof(groups) == 'table' and groups or corev:ensure(groups, 'superadmin')
     callback = self:ensure(callback, function() end)
 
     if (__exports[14].self == nil) then
-        return __exports[14].func(name, aces, callback)
+        return __exports[14].func(name, groups, callback)
     else
-        return __exports[14].func(__exports[14].self, name, aces, callback)
+        return __exports[14].func(__exports[14].self, name, groups, callback)
     end
 end
 
@@ -985,6 +980,39 @@ function corev:registerParser(name, parseInfo)
     else
         return __exports[15].func(__exports[15].self, name, parseInfo)
     end
+end
+
+--- Own implementation for GetHashKey
+--- @param key string Key to transform to hash
+--- @returns number Generated hash
+function corev:hashString(key)
+    key = self:ensure(key, 'unknown')
+
+    if (__exports[16].self == nil) then
+        return __exports[16].func(key)
+    else
+        return __exports[16].func(__exports[16].self, key)
+    end
+end
+
+--- Returns current time in milliseconds
+--- @return number Time in milliseconds
+function corev:getTimeInMilliseconds()
+    local currentMilliseconds
+    local _, b = modf(clock())
+
+    if (b == 0) then
+        currentMilliseconds = 0
+    else
+        currentMilliseconds = tonumber(tostring(b):sub(3,5))
+    end
+
+    local currentLocalTime = time(date('*t'))
+
+    currentLocalTime = currentLocalTime * 1000
+    currentLocalTime = currentLocalTime + currentMilliseconds
+
+    return currentLocalTime
 end
 
 --- This function will return player's primary identifier or nil

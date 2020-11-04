@@ -37,6 +37,7 @@ function identifiers:createConsole()
     --- Set default values
     player:set {
         source = 0,
+        name = 'Console',
         identifier = 'console',
         identifiers = {
             steam = 'console',

@@ -49,9 +49,9 @@ function translations:addTranslation(language, module, key, value, override)
 
     if (module == 'unknown') then module = 'core' end
 
-    module = corev:id(module)
-    language = corev:id(language)
-    key = corev:id(key)
+    module = corev:hashString(module)
+    language = corev:hashString(language)
+    key = corev:hashString(key)
 
     if (self.translations == nil) then self.translations = {} end
     if (self.translations[module] == nil) then self.translations[module] = {} end
@@ -78,9 +78,9 @@ function translations:getTranslation(language, module, key)
 
     if (module == 'unknown') then module = 'core' end
 
-    module = corev:id(module)
-    language = corev:id(language)
-    key = corev:id(key)
+    module = corev:hashString(module)
+    language = corev:hashString(language)
+    key = corev:hashString(key)
 
     return (((self.translations or {})[module] or {})[language] or {})[key] or 'MISSING TRANSLATION'
 end

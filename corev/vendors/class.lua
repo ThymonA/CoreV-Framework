@@ -75,8 +75,8 @@ local function extend(self, name, extra_params)
 	_classes[heir] = tostring(heir)
 	self.__subclasses[heir] = true
 	deep_copy(extra_params, deep_copy(self, heir))
-	heir.name    = extra_params and extra_params.name or name
-	heir.__class = extra_params and extra_params.name or name
+	heir.cname    = extra_params and extra_params.cname or name
+	heir.__class = extra_params and extra_params.cname or name
 	heir.__index = heir
 	heir.super   = self
 	heir.mixins = {}
@@ -109,8 +109,8 @@ local class = {
 _class = function(name, attr)
 	local c = deep_copy(attr)
 	_classes[c] = tostring(c)
-	c.name = name or c.name
-	c.__class = name or c.name
+	c.cname = name or c.cname
+	c.__class = name or c.cname
 	c.__tostring = baseMt.__tostring
 	c.__call = baseMt.__call
 	c.new = bind(instantiate, true)

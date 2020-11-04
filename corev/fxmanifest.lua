@@ -57,6 +57,7 @@ translations {
 --- Load dependencies
 ---
 dependencies {
+    'cvf_utils',
     'cvf_config',
     'cvf_translations'
 }

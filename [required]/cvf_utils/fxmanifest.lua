@@ -14,44 +14,28 @@ game 'gta5'
 ---
 --- Information about this resource
 ---
-name '[CVF] Skin Resource'
+name '[CVF] Utilities Resource'
 version '1.0.0'
-description 'Skin resource for CoreV Framework'
+description 'Utilities resource for CoreV Framework'
 author 'ThymonA'
 contact 'contact@arens.io'
 url 'https://git.arens.io/ThymonA/corev-framework/'
 
 ---
---- Load client files
----
-files {
-    'data/tattoos_female.lua',
-    'data/tattoos_male.lua'
-}
-
----
 --- Register client scripts
 ---
 client_scripts {
-    '@corev/client/import.lua',
-    'classes/tattoo.lua',
-    'classes/skin_funcs.lua',
-    'classes/skin.lua',
-    'client/main.lua'
+    'shared/main.js'
 }
 
 ---
 --- Register server scripts
 ---
 server_scripts {
-    '@corev/server/import.lua',
-    'server/main.lua'
+    'shared/main.js'
 }
 
----
---- Register all dependencies
----
 dependencies {
-    'cvf_utils',
-    'cvf_translations'
+    'webpack',
+    'yarn'
 }

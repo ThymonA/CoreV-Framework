@@ -91,7 +91,8 @@ end
 --- Load those exports
 local __loadExports = {
     [1] = { r = 'cvf_config', f = '__c' },
-    [2] = { r = 'cvf_translations', f = '__t' }
+    [2] = { r = 'cvf_translations', f = '__t' },
+    [3] = { r = 'cvf_utils', f = '__h' }
 }
 
 --- Store global exports as local variable
@@ -304,15 +305,6 @@ function corev:ensure(input, defaultValue)
     return defaultValue
 end
 
---- Generates a ID for given string
---- @param name string|number|nil String to generate a ID for
---- @return number Generated ID or Cached ID
-function corev:id(input)
-    input = self:typeof(input) == 'number' and input or self:ensure(input, 'unknown')
-
-    return GetHashKey(input)
-end
-
 --- Load or return cached configuration based on name
 --- @param name string Name of configuration to load
 --- @params ... string[] Filer results by key
@@ -339,6 +331,19 @@ function corev:t(...)
         return __exports[2].func(...)
     else
         return __exports[2].func(__exports[2].self, ...) 
+    end
+end
+
+--- Own implementation for GetHashKey
+--- @param key string Key to transform to hash
+--- @returns number Generated hash
+function corev:hashString(key)
+    key = self:ensure(key, 'unknown')
+
+    if (__exports[3].self == nil) then
+        return __exports[3].func(key)
+    else
+        return __exports[3].func(__exports[3].self, key)
     end
 end
 

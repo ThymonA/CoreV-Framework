@@ -38,5 +38,6 @@ server_scripts {
 }
 
 dependencies {
+    'cvf_utils',
     'cvf_config'
 }
