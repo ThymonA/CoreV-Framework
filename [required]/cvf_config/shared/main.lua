@@ -20,11 +20,10 @@ local traceback = assert(traceback or debug.traceback)
 local pack = assert(pack or table.pack)
 local lower = assert(string.lower)
 local isClient = not IsDuplicityVersion()
+local GetHashKey = assert(GetHashKey)
 
 --- Cahce FiveM globals
 local exports = assert(exports)
-local cfv_ids_self = assert(exports['cvf_ids'])
-local cfv_ids_func = assert(cfv_ids_self.__id)
 
 --- Create a configuration table
 local configuration = {}
@@ -67,7 +66,7 @@ local function merge_tables(...)
 end
 
 --- This function results a config table or value from stored configuration variable
---- @param cacheKey number Cached key from `cfv_ids:__id`
+--- @param cacheKey number Cached key from `GetHashKey`
 --- @return any|nil results from stored configuration variable
 local function getConfigurationFromCache(cacheKey, ...)
     local arguments = pack(...)
@@ -95,7 +94,7 @@ end
 
 --- Load configuration by name
 --- @param name string Name of configuration
---- @param cacheKey number Cached key from `cfv_ids:__id`
+--- @param cacheKey number Cached key from `GetHashKey`
 local function loadConfigurationVariable(name, cacheKey)
     if (configuration[cacheKey] ~= nil) then
         return
@@ -146,7 +145,7 @@ function getConfiguration(name, ...)
 
     name = lower(name)
 
-    local cacheKey = cfv_ids_func(cfv_ids_self, name)
+    local cacheKey = GetHashKey(name)
 
     loadConfigurationVariable(name, cacheKey)
 

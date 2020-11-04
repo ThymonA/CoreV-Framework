@@ -48,6 +48,7 @@ local _RSE = assert(RegisterServerEvent)
 local _AEH = assert(AddEventHandler)
 local IsDuplicityVersion = assert(IsDuplicityVersion)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
+local GetHashKey = assert(GetHashKey)
 
 --- Required resource variables
 local isServer = IsDuplicityVersion()
@@ -89,21 +90,20 @@ end
 --- Load those exports
 local __loadExports = {
     [1] = { r = 'cvf_config', f = '__c' },
-    [2] = { r = 'cvf_ids', f = '__id' },
-    [3] = { r = 'cvf_translations', f = '__t' },
-    [4] = { r = 'mysql-async', f = 'is_ready'},
-    [5] = { r = 'mysql-async', f = 'mysql_insert' },
-    [6] = { r = 'mysql-async', f = 'mysql_fetch_scalar' },
-    [7] = { r = 'mysql-async', f = 'mysql_fetch_all' },
-    [8] = { r = 'mysql-async', f = 'mysql_execute' },
-    [9] = { r = 'cvf_jobs', f = '__a' },
-    [10] = { r = 'cvf_jobs', f = '__l' },
-    [11] = { r = 'cvf_events', f = '__add' },
-    [12] = { r = 'cvf_events', f = '__del' },
-    [13] = { r = 'cvf_identifier', f = '__g' },
-    [14] = { r = 'cvf_player', f = '__g' },
-    [15] = { r = 'cvf_commands', f = '__rc' },
-    [16] = { r = 'cvf_commands', f = '__rp' }
+    [2] = { r = 'cvf_translations', f = '__t' },
+    [3] = { r = 'mysql-async', f = 'is_ready'},
+    [4] = { r = 'mysql-async', f = 'mysql_insert' },
+    [5] = { r = 'mysql-async', f = 'mysql_fetch_scalar' },
+    [6] = { r = 'mysql-async', f = 'mysql_fetch_all' },
+    [7] = { r = 'mysql-async', f = 'mysql_execute' },
+    [8] = { r = 'cvf_jobs', f = '__a' },
+    [9] = { r = 'cvf_jobs', f = '__l' },
+    [10] = { r = 'cvf_events', f = '__add' },
+    [11] = { r = 'cvf_events', f = '__del' },
+    [12] = { r = 'cvf_identifier', f = '__g' },
+    [13] = { r = 'cvf_player', f = '__g' },
+    [14] = { r = 'cvf_commands', f = '__rc' },
+    [15] = { r = 'cvf_commands', f = '__rp' }
 }
 
 --- Store global exports as local variable
@@ -331,6 +331,15 @@ function corev:ensure(input, defaultValue)
     return defaultValue
 end
 
+--- Generates a ID for given string
+--- @param name string|number|nil String to generate a ID for
+--- @return number Generated ID or Cached ID
+function corev:id(input)
+    input = self:typeof(input) == 'number' and input or self:ensure(input, 'unknown')
+
+    return GetHashKey(input)
+end
+
 --- Load or return cached configuration based on name
 --- @param name string Name of configuration to load
 --- @params ... string[] Filer results by key
@@ -347,34 +356,16 @@ function corev:cfg(name, ...)
     end
 end
 
---- Generates a ID for given string
---- @param name string|number|nil String to generate a ID for
---- @return number Generated ID or Cached ID
-function corev:id(name)
-    if (name == nil) then return 0 end
-    if (self:typeof(name) == 'number') then return name end
-
-    name = self:ensure(name, 'unknown')
-
-    if (name == 'unknown') then return 0 end
-
-    if (__exports[2].self == nil) then
-        return __exports[2].func(name)
-    else
-        return __exports[2].func(__exports[2].self, name)
-    end
-end
-
 --- Returns translation key founded or 'MISSING TRANSLATION'
 --- @param language string? (optional) Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
 --- @param module string? (optional) Register translation for a module, example: core
 --- @param key string Key of translation
 --- @returns string Translation or 'MISSING TRANSLATION'
 function corev:t(...)
-    if (__exports[3].self == nil) then
-        return __exports[3].func(...)
+    if (__exports[2].self == nil) then
+        return __exports[2].func(...)
     else
-        return __exports[3].func(__exports[3].self, ...) 
+        return __exports[2].func(__exports[2].self, ...) 
     end
 end
 
@@ -438,7 +429,7 @@ function corev.db:dbReady(callback)
 
     CreateThread(function()
         while GetResourceState('mysql-async') ~= 'started' do Wait(0) end
-        while not __exports[4].func(__exports[4].self) do Wait(0) end
+        while not __exports[3].func(__exports[3].self) do Wait(0) end
 
         callback()
     end)
@@ -481,10 +472,10 @@ function corev.db:insertAsync(query, params, callback)
 
     if (not self.ready) then
         corev.db:dbReady(function()
-            __exports[5].func(__exports[5].self, query, params, callback)
+            __exports[4].func(__exports[4].self, query, params, callback)
         end)
     else
-        __exports[5].func(__exports[5].self, query, params, callback)
+        __exports[4].func(__exports[4].self, query, params, callback)
     end
 end
 
@@ -507,10 +498,10 @@ function corev.db:fetchScalarAsync(query, params, callback)
 
     if (not self.ready) then
         corev.db:dbReady(function()
-            __exports[6].func(__exports[6].self, query, params, callback)
+            __exports[5].func(__exports[5].self, query, params, callback)
         end)
     else
-        __exports[6].func(__exports[6].self, query, params, callback)
+        __exports[5].func(__exports[5].self, query, params, callback)
     end
 end
 
@@ -533,10 +524,10 @@ function corev.db:fetchAllAsync(query, params, callback)
 
     if (not self.ready) then
         corev.db:dbReady(function()
-            __exports[7].func(__exports[7].self, query, params, callback)
+            __exports[6].func(__exports[6].self, query, params, callback)
         end)
     else
-        __exports[7].func(__exports[7].self, query, params, callback)
+        __exports[6].func(__exports[6].self, query, params, callback)
     end
 end
 
@@ -559,10 +550,10 @@ function corev.db:executeAsync(query, params, callback)
 
     if (not self.ready) then
         corev.db:dbReady(function()
-            __exports[8].func(__exports[8].self, query, params, callback)
+            __exports[7].func(__exports[7].self, query, params, callback)
         end)
     else
-        __exports[8].func(__exports[8].self, query, params, callback)
+        __exports[7].func(__exports[7].self, query, params, callback)
     end
 end
 
@@ -666,7 +657,7 @@ function corev.db:migrationExists(resourceName, sqlVersion)
 
     local res, finished = nil, false
 
-    __exports[7].func(__exports[7].self, 'SELECT `id` FROM `migrations` WHERE `resource` = @resource AND `name` = @name LIMIT 1', {
+    __exports[6].func(__exports[6].self, 'SELECT `id` FROM `migrations` WHERE `resource` = @resource AND `name` = @name LIMIT 1', {
         ['@resource'] = resourceName,
         ['@name'] = ('%s.lua'):format(sqlVersion)
     }, function(foundedResults)
@@ -689,7 +680,7 @@ function corev.db:migrationDependent()
     self:dbReady(function()
         local sql_index, migrations, finished = 0, nil, false
 
-        __exports[7].func(__exports[7].self, 'SELECT * FROM `migrations` WHERE `resource` = @resource', {
+        __exports[6].func(__exports[6].self, 'SELECT * FROM `migrations` WHERE `resource` = @resource', {
             ['@resource'] = currentResourceName
         }, function(result)
             migrations = corev:ensure(result, {})
@@ -744,8 +735,8 @@ function corev.db:migrationDependent()
                                 return
                             end
 
-                            __exports[8].func(__exports[8].self, migrationSql, {}, function()
-                                __exports[7].func(__exports[7].self, 'INSERT INTO `migrations` (`resource`, `name`) VALUES (@resource, @name)', {
+                            __exports[7].func(__exports[7].self, migrationSql, {}, function()
+                                __exports[6].func(__exports[6].self, 'INSERT INTO `migrations` (`resource`, `name`) VALUES (@resource, @name)', {
                                     ['@resource'] = currentResourceName,
                                     ['@name'] = lua_file
                                 }, function()
@@ -852,10 +843,10 @@ end
 --- @param input string|number Name of job or ID of job
 --- @return job|nil Returns a `job` class or nil
 function corev.jobs:getJob(input)
-    if (__exports[10].self == nil) then
-        return __exports[10].func(input)
+    if (__exports[9].self == nil) then
+        return __exports[9].func(input)
     else
-        return __exports[10].func(__exports[10].self, input)
+        return __exports[9].func(__exports[9].self, input)
     end
 end
 
@@ -875,10 +866,10 @@ function corev.jobs:addJob(name, label, grades)
 
     name = lower(name)
 
-    if (__exports[9].self == nil) then
-        return __exports[9].func(name, label, grades)
+    if (__exports[8].self == nil) then
+        return __exports[8].func(name, label, grades)
     else
-        return __exports[9].func(__exports[9].self, name, label, grades)
+        return __exports[8].func(__exports[8].self, name, label, grades)
     end
 end
 
@@ -889,10 +880,10 @@ function corev.events:register(event, ...)
 
     if (event == 'unknown') then return end
 
-    if (__exports[11].self == nil) then
-        return __exports[11].func(event, ...)
+    if (__exports[10].self == nil) then
+        return __exports[10].func(event, ...)
     else
-        return __exports[11].func(__exports[11].self, event, ...)
+        return __exports[10].func(__exports[10].self, event, ...)
     end
 end
 
@@ -903,10 +894,10 @@ function corev.events:unregister(event, ...)
 
     if (event == 'unknown') then return end
 
-    if (__exports[12].self == nil) then
-        return __exports[12].func(event, ...)
+    if (__exports[11].self == nil) then
+        return __exports[11].func(event, ...)
     else
-        return __exports[12].func(__exports[12].self, event, ...)
+        return __exports[11].func(__exports[11].self, event, ...)
     end
 end
 
@@ -944,10 +935,10 @@ function corev:getPlayerIdentifiers(input)
 
     if (self:typeof(input) == 'string' and input == 'unknown') then return nil end
 
-    if (__exports[13].self == nil) then
-        return __exports[13].func(input)
+    if (__exports[12].self == nil) then
+        return __exports[12].func(input)
     else
-        return __exports[13].func(__exports[13].self, input)
+        return __exports[12].func(__exports[12].self, input)
     end
 end
 
@@ -959,10 +950,10 @@ function corev:getPlayer(input)
 
     if (self:typeof(input) == 'string' and input == 'unknown') then return nil end
 
-    if (__exports[14].self == nil) then
-        return __exports[14].func(input)
+    if (__exports[13].self == nil) then
+        return __exports[13].func(input)
     else
-        return __exports[14].func(__exports[14].self, input)
+        return __exports[13].func(__exports[13].self, input)
     end
 end
 
@@ -975,10 +966,10 @@ function corev:registerCommand(name, aces, callback)
     aces = self:typeof(aces) == 'table' and aces or corev:ensure(aces, '*')
     callback = self:ensure(callback, function() end)
 
-    if (__exports[15].self == nil) then
-        return __exports[15].func(name, aces, callback)
+    if (__exports[14].self == nil) then
+        return __exports[14].func(name, aces, callback)
     else
-        return __exports[15].func(__exports[15].self, name, aces, callback)
+        return __exports[14].func(__exports[14].self, name, aces, callback)
     end
 end
 
@@ -989,10 +980,10 @@ function corev:registerParser(name, parseInfo)
     name = self:ensure(name, 'unknown')
     parseInfo = self:ensure(parseInfo, {})
 
-    if (__exports[16].self == nil) then
-        return __exports[16].func(name, parseInfo)
+    if (__exports[15].self == nil) then
+        return __exports[15].func(name, parseInfo)
     else
-        return __exports[16].func(__exports[16].self, name, parseInfo)
+        return __exports[15].func(__exports[15].self, name, parseInfo)
     end
 end
 

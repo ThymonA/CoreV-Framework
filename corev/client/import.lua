@@ -44,6 +44,12 @@ local _RNE = assert(RegisterNetEvent)
 local _AEH = assert(AddEventHandler)
 local IsDuplicityVersion = assert(IsDuplicityVersion)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
+local GetHashKey = assert(GetHashKey)
+local HasModelLoaded = assert(HasModelLoaded)
+local IsModelInCdimage = assert(IsModelInCdimage)
+local RequestModel = assert(RequestModel)
+local HasStreamedTextureDictLoaded = assert(HasStreamedTextureDictLoaded)
+local RequestStreamedTextureDict = assert(RequestStreamedTextureDict)
 
 --- Required resource variables
 local isClient = not IsDuplicityVersion()
@@ -85,8 +91,7 @@ end
 --- Load those exports
 local __loadExports = {
     [1] = { r = 'cvf_config', f = '__c' },
-    [2] = { r = 'cvf_ids', f = '__id' },
-    [3] = { r = 'cvf_translations', f = '__t' }
+    [2] = { r = 'cvf_translations', f = '__t' }
 }
 
 --- Store global exports as local variable
@@ -160,6 +165,7 @@ local corev = class "corev"
 
 --- Set default values for `corev` class
 corev:set('callback', class "corev-callback")
+corev:set('streaming', class "corev-streaming")
 
 --- Set default values for `corev-callback` class
 corev.callback:set('requestId', 1)
@@ -298,6 +304,15 @@ function corev:ensure(input, defaultValue)
     return defaultValue
 end
 
+--- Generates a ID for given string
+--- @param name string|number|nil String to generate a ID for
+--- @return number Generated ID or Cached ID
+function corev:id(input)
+    input = self:typeof(input) == 'number' and input or self:ensure(input, 'unknown')
+
+    return GetHashKey(input)
+end
+
 --- Load or return cached configuration based on name
 --- @param name string Name of configuration to load
 --- @params ... string[] Filer results by key
@@ -314,34 +329,16 @@ function corev:cfg(name, ...)
     end
 end
 
---- Generates a ID for given string
---- @param name string|number|nil String to generate a ID for
---- @return number Generated ID or Cached ID
-function corev:id(name)
-    if (name == nil) then return 0 end
-    if (self:typeof(name) == 'number') then return name end
-
-    name = self:ensure(name, 'unknown')
-
-    if (name == 'unknown') then return 0 end
-
-    if (__exports[2].self == nil) then
-        return __exports[2].func(name)
-    else
-        return __exports[2].func(__exports[2].self, name)
-    end
-end
-
 --- Returns translation key founded or 'MISSING TRANSLATION'
 --- @param language string? (optional) Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
 --- @param module string? (optional) Register translation for a module, example: core
 --- @param key string Key of translation
 --- @returns string Translation or 'MISSING TRANSLATION'
 function corev:t(...)
-    if (__exports[3].self == nil) then
-        return __exports[3].func(...)
+    if (__exports[2].self == nil) then
+        return __exports[2].func(...)
     else
-        return __exports[3].func(__exports[3].self, ...) 
+        return __exports[2].func(__exports[2].self, ...) 
     end
 end
 
@@ -441,6 +438,49 @@ function corev.callback:triggerCallback(name, callback, ...)
     else
         self.requestId = 1
     end
+end
+
+--- Load a model async and trigger cb when model has been loaded
+--- @param hash number|string Hash you want to load
+--- @param cb function When model is loaded, this function will be triggerd
+function corev.streaming:requestModelAsync(hash, cb)
+    hash = corev:typeof(hash) == 'number' and hash or corev:ensure(hash, 'unknown')
+    cb = corev:ensure(cb, function() end)
+
+    if (corev:typeof(hash) == 'string') then
+        if (hash == 'unknown') then return end
+
+        hash = GetHashKey(hash)
+    end
+
+    if (not HasModelLoaded(hash) and IsModelInCdimage(hash)) then
+        RequestModel(hash)
+
+        repeat Wait(0) until HasModelLoaded(hash) == true
+    end
+
+    cb()
+end
+
+--- Load a texture dictonary async and trigger cb when dictonary has been loaded
+--- @param hash string Name of texture dictonary to load
+--- @param cb function When dictonary is loaded, this function will be triggerd
+function corev.streaming:requestTextureAsync(textureDictionary, cb)
+    textureDictionary = corev:ensure(textureDictionary, 'unknown')
+    cb = corev:ensure(cb, function() end)
+
+    if (textureDictionary == 'unknown') then return end
+
+    if (HasStreamedTextureDictLoaded(textureDictionary)) then
+        cb()
+        return
+    end
+
+    RequestStreamedTextureDict(textureDictionary, true)
+
+    repeat Wait(0) until HasStreamedTextureDictLoaded(textureDictionary) == true
+
+    cb()
 end
 
 --- Results from server callback
