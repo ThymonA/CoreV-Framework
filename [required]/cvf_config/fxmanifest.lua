@@ -42,7 +42,3 @@ server_scripts {
 client_scripts {
     'shared/main.lua'
 }
-
-dependencies {
-    'cvf_utils'
-}

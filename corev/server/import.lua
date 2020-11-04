@@ -52,6 +52,7 @@ local _RSE = assert(RegisterServerEvent)
 local _AEH = assert(AddEventHandler)
 local IsDuplicityVersion = assert(IsDuplicityVersion)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
+local GetHashKey = assert(GetHashKey)
 
 --- Required resource variables
 local isServer = IsDuplicityVersion()
@@ -106,8 +107,7 @@ local __loadExports = {
     [12] = { r = 'cvf_identifier', f = '__g' },
     [13] = { r = 'cvf_player', f = '__g' },
     [14] = { r = 'cvf_commands', f = '__rc' },
-    [15] = { r = 'cvf_commands', f = '__rp' },
-    [16] = { r = 'cvf_utils', f = '__h' }
+    [15] = { r = 'cvf_commands', f = '__rp' }
 }
 
 --- Store global exports as local variable
@@ -988,11 +988,7 @@ end
 function corev:hashString(key)
     key = self:ensure(key, 'unknown')
 
-    if (__exports[16].self == nil) then
-        return __exports[16].func(key)
-    else
-        return __exports[16].func(__exports[16].self, key)
-    end
+    return GetHashKey(key)
 end
 
 --- Returns current time in milliseconds

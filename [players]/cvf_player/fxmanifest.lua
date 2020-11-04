@@ -50,6 +50,5 @@ translations {
 --- Register all dependencies
 ---
 dependencies {
-    'cvf_utils',
     'cvf_translations'
 }

@@ -28,7 +28,3 @@ server_scripts {
     '@corev/server/import.lua',
     'server/main.lua'
 }
-
-dependencies {
-    'cvf_utils'
-}

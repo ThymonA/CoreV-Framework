@@ -43,8 +43,3 @@ translations {
     'translations/nl.json',
     'translations/en.json'
 }
-
-dependencies {
-    'cvf_utils',
-    'cvf_config'
-}

@@ -91,8 +91,7 @@ end
 --- Load those exports
 local __loadExports = {
     [1] = { r = 'cvf_config', f = '__c' },
-    [2] = { r = 'cvf_translations', f = '__t' },
-    [3] = { r = 'cvf_utils', f = '__h' }
+    [2] = { r = 'cvf_translations', f = '__t' }
 }
 
 --- Store global exports as local variable
@@ -340,11 +339,7 @@ end
 function corev:hashString(key)
     key = self:ensure(key, 'unknown')
 
-    if (__exports[3].self == nil) then
-        return __exports[3].func(key)
-    else
-        return __exports[3].func(__exports[3].self, key)
-    end
+    return GetHashKey(key)
 end
 
 --- Checks if a string starts with given word
