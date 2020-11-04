@@ -95,7 +95,7 @@ function commands:register(resource, name, groups, callback)
     end
 
     resource = corev:ensure(resource, corev:getCurrentResourceName())
-    name = corev:ensure(name, 'unknown')
+    name = lower(corev:ensure(name, 'unknown'))
     groups = corev:typeof(groups) == 'table' and groups or corev:ensure(groups, 'superadmin')
     callback = corev:ensure(callback, function() end)
 
@@ -163,8 +163,15 @@ function commands:parser(resource, name, parseInfo)
     for _, info in pairs(parseInfo) do
         local type = corev:ensure(info.type, 'any')
         local default = info.default or nil
+        local rawType = corev:typeof(default)
 
-        if (corev:typeof(default) ~= type) then type = 'any' end
+        if (rawType ~= type) then
+            if (rawType == 'nil' and type == 'boolean') then
+                default = false
+            else
+                type = 'any'
+            end
+        end
 
         insert(parser.parameters, {
             type = type,
