@@ -187,7 +187,7 @@ corev.events:onPlayerConnect(function(player, done)
 
         identifierType = lower(identifierType)
 
-        done(corev:t('identifier', ('%s_not_found'):format(identifierType)))
+        done(corev:t(('%s_not_found'):format(identifierType)))
         return
     end
 

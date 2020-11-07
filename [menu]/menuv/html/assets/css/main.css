@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu');
+
+html,
+body {
+    overflow: hidden;
+    font-family: 'Ubuntu', sans-serif;
+    color: white;
+}
+
+.menuv {
+    background-color: rgba(0, 0, 0, 0.50);
+    max-width: 20em;
+    max-height: 35em;
+    margin-top: 1em;
+    margin-left: 1em;
+    font-size: 0.85em;
+}
+
+.menuv .menuv-header {
+    height: 3em;
+    max-height: 3em;
+    line-height: 3em;
+    width: 100%;
+    text-align: center;
+    letter-spacing: 0.25em;
+    font-size: 1.25em;
+    font-weight: 700;
+    background-color: black;
+}
+
+.menuv .menuv-header strong {
+    position: relative;
+    z-index: 1;
+    color: white;
+}
+
+.menuv .menuv-subheader {
+    background-color: red;
+    text-align: center;
+    font-weight: 100;
+    font-size: 0.9em;
+    line-height: 2em;
+}
+
+.menuv .menuv-items {
+
+}
+
+.menuv .menuv-items .menuv-item {
+    padding: 0.25em 0.50em;
+    font-size: 0.9em;
+}
+
+.menuv .menuv-items .menuv-item i,
+.menuv .menuv-items .menuv-item svg {
+    float: right;
+    margin-top: 0.125em;
+    font-size: 1.2em;
+}
+
+.menuv .menuv-items .menuv-item.active {
+    color: black;
+    background-color: rgba(255, 255, 255, 1.0);
+    font-weight: 900;
+}
+
+.menuv .menuv-items .menuv-item.active i,
+.menuv .menuv-items .menuv-item.active svg {
+    color: black;
+}
+
+.menuv .menuv-pagination {
+    padding: 0.5em;
+    max-width: 20em;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    border-top: 2px solid white;
+    margin-top: 1em;
+}
+
+.menuv .menuv-pagination .menu-pagination-option {
+    display: inline-block;
+    height: 1.5em;
+    width: 3em;
+    background-color: white;
+    color: black;
+    text-align: center;
+    border-radius: 2.5px;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+    font-size: 0.8em;
+}
+
+.menuv .menuv-pagination .menu-pagination-option.active {
+    background-color: red;
+    color: white;
+}
+
+.menuv .menuv-pagination .menu-pagination-ellipsis {
+    display: inline-block;
+    height: 1.5em;
+    width: 1.5em;
+    background-color: transparent;
+    color: white;
+    text-align: center;
+}
+
+.menuv .menuv-description {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 20em;
+    padding: 0.25em 0;
+    margin-top: 0.5em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.menuv .menuv-description strong {
+    color: white;
+    font-size: 0.8em;
+    font-weight: 100;
+}

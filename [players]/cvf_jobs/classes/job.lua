@@ -155,7 +155,7 @@ local function createJobObject(name, label, grades)
         jobGradeResult = corev:ensure(jobGradeResult, {})
 
         if (#jobGradeResult <= 0) then
-            error(corev:t('jobs', 'default_job_not_exists'))
+            error(corev:t('default_job_not_exists'))
             return
         end
 
@@ -163,7 +163,7 @@ local function createJobObject(name, label, grades)
         local dbJobGrade = corev:ensure(jobGradeResult[1].grade, -1)
 
         if (dbJobId < 0 or dbJobGrade < 0) then
-            error(corev:t('jobs', 'default_job_not_exists'))
+            error(corev:t('default_job_not_exists'))
             return
         end
 

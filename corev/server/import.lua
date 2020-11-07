@@ -14,6 +14,7 @@ local assert = assert
 local __global = assert(_G)
 local __environment = assert(_ENV)
 local type = assert(type)
+local string = assert(string)
 local rawget = assert(rawget)
 local rawset = assert(rawset)
 local tonumber = assert(tonumber)
@@ -362,17 +363,6 @@ function corev:t(...)
     else
         return __exports[2].func(__exports[2].self, ...) 
     end
-end
-
---- Checks if a string starts with given word
---- @param str string String to search in
---- @param word string Word to search for
---- @return boolean `true` if word has been found, otherwise `false`
-function corev:startswith(str, word)
-    str = self:ensure(str, '')
-    word = self:ensure(word, '')
-
-    return sub(str, 1, #word) == word
 end
 
 --- Checks if a string ends with given word
@@ -1058,3 +1048,18 @@ end)
 
 --- Register corev as global variable
 global.corev = corev
+
+----------------------------
+--- Modify global variables
+----------------------------
+global.string = string
+
+--- Checks if a string starts with given word
+--- @param self string String to search in
+--- @param word string Word to search for
+--- @return boolean `true` if word has been found, otherwise `false`
+global.string.startsWith = function(self, word)
+    word = corev:ensure(word, 'unknown')
+
+    return self:sub(1, #word) == word
+end

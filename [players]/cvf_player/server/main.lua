@@ -44,8 +44,8 @@ end
 
 --- This event will be triggerd when client is connecting
 corev.events:onPlayerConnect(function(player, done, presentCard)
-    presentCard:setTitle(corev:t('player', 'connect_title'), false)
-    presentCard:setDescription(corev:t('player', 'connect_description'))
+    presentCard:setTitle(corev:t('connect_title'), false)
+    presentCard:setDescription(corev:t('connect_description'))
 
     local exists = corev.db:fetchScalar('SELECT COUNT(*) FROM `players` WHERE `identifier` = @identifier LIMIT 1', {
         ['@identifier'] = player.identifier
@@ -67,7 +67,7 @@ corev.events:onPlayerConnect(function(player, done, presentCard)
     local defaultJob = corev.jobs:getJob(defaultJobName)
 
     if (defaultJob == nil or (defaultJob.grades or {})[0] == nil) then
-        done(corev:t('player', 'default_job_not_found'))
+        done(corev:t('default_job_not_found'))
         return
     end
 
@@ -82,7 +82,7 @@ corev.events:onPlayerConnect(function(player, done, presentCard)
         ['@grade2'] = defaultGrade.grade
     })
 
-    print(corev:t('player', 'player_created'):format(corev:getCurrentResourceName(), player.name))
+    print(corev:t('player_created'):format(corev:getCurrentResourceName(), player.name))
 
     createPlayer(player.identifier)
     done()

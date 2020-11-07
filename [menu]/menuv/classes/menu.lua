@@ -8,19 +8,8 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
+local assert = assert
 
 --- Cache global variables
-local assert = assert
 local corev = assert(corev)
-local print = assert(print)
-
---- This event will be trigger when a player is connecting
-corev.events:onPlayerConnect(function(player, done)
-    print(corev:t('player_connecting'):format(player.name))
-    done()
-end)
-
---- This event will be triggerd when a player is disconnected
-corev.events:onPlayerDisconnect(function(player)
-    print(corev:t('player_disconnect'):format(player.name))
-end)
+local class = assert(class)

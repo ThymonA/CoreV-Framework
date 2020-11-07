@@ -21,6 +21,12 @@ local pack = assert(pack or table.pack)
 
 --- Cahce FiveM globals
 local exports = assert(exports)
+local GetInvokingResource = assert(GetInvokingResource)
+local LoadResourceFile = assert(LoadResourceFile)
+local GetNumResources = assert(GetNumResources)
+local GetResourceByFindIndex = assert(GetResourceByFindIndex)
+local GetNumResourceMetadata = assert(GetNumResourceMetadata)
+local GetResourceMetadata = assert(GetResourceMetadata)
 
 --- Create translation class
 local translations = class "translations"
@@ -78,6 +84,15 @@ function translations:getTranslation(language, module, key)
 
     if (module == 'unknown') then module = 'core' end
 
+    --- Transform invoking resource to CoreV module
+    if (module:startsWith('corev_')) then
+        module = sub(module, 7)
+    elseif (module:startsWith('cvf_')) then
+        module = sub(module, 5)
+    elseif (module == 'corev') then
+        module = 'core'
+    end
+
     module = corev:hashString(module)
     language = corev:hashString(language)
     key = corev:hashString(key)
@@ -118,11 +133,9 @@ for i = 0, GetNumResources(), 1 do
                     if (__module == 'corev') then
                         __module = 'core'
                     else
-                        if (corev:startswith(__module, 'corev_')) then
+                        if (__module:startsWith('corev_')) then
                             __module = sub(__module, 7)
-                        end
-
-                        if (corev:startswith(__module, 'cvf_')) then
+                        elseif (__module:startsWith('cvf_')) then
                             __module = sub(__module, 5)
                         end
 
@@ -146,7 +159,11 @@ end
 --- @param module string? (optional) Register translation for a module, example: core
 --- @param key string Key of translation
 --- @returns string Translation or 'MISSING TRANSLATION'
-function getTranslationKey(...)
+local function getTranslationKey(...)
+    local __module = GetInvokingResource()
+
+    __module = corev:ensure(__module, 'corev')
+
     local arguments = pack(...)
 
     if (#arguments == 0) then
@@ -155,7 +172,7 @@ function getTranslationKey(...)
 
     if (#arguments == 1) then
         local language = corev:ensure(corev:cfg('core', 'language'), 'en')
-        local module = 'core'
+        local module = __module
         local key = corev:ensure(arguments[1], 'unknown')
 
         return translations:getTranslation(language, module, key)
@@ -163,7 +180,7 @@ function getTranslationKey(...)
 
     if (#arguments == 2) then
         local language = corev:ensure(corev:cfg('core', 'language'), 'en')
-        local module = corev:ensure(arguments[1], 'core')
+        local module = corev:ensure(arguments[1], __module)
         local key = corev:ensure(arguments[2], 'unknown')
 
         return translations:getTranslation(language, module, key)
@@ -171,7 +188,7 @@ function getTranslationKey(...)
 
     if (#arguments >= 3) then
         local language = corev:ensure(arguments[1], 'en')
-        local module = corev:ensure(arguments[2], 'core')
+        local module = corev:ensure(arguments[2], __module)
         local key = corev:ensure(arguments[3], 'unknown')
 
         return translations:getTranslation(language, module, key)

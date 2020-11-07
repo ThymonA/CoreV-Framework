@@ -104,7 +104,7 @@ function commands:register(resource, name, groups, callback)
     local key = corev:hashString(name)
 
     if (self.commands[key] ~= nil) then
-        print(corev:t('commands', 'command_exsits'):format(name))
+        print(corev:t('command_exsits'):format(name))
     end
 
     --- Create a `command` class

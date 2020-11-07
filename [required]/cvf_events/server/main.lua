@@ -253,8 +253,8 @@ function events:generateCard(title, description, banner)
     local cfgBanner = corev:ensure(corev:cfg('events', 'bannerUrl'), 'https://i.imgur.com/3XeDqC0.png')
     local serverName = corev:ensure(corev:cfg('core', 'serverName'), 'CoreV Framework')
 
-    local _tit = corev:t('events', 'connecting_title'):format(serverName)
-    local _desc = corev:t('events', 'connecting_description'):format(serverName)
+    local _tit = corev:t('connecting_title'):format(serverName)
+    local _desc = corev:t('connecting_description'):format(serverName)
 
     title = corev:ensure(title, _tit)
     description = corev:ensure(description, _desc)
@@ -397,7 +397,7 @@ _AEH('playerConnecting', function(name, _, deferrals)
 
         if (not ok) then
             canConnect = false
-            rejectMessage = corev:t('events', 'connecting_error'):format(trigger.resource)
+            rejectMessage = corev:t('connecting_error'):format(trigger.resource)
         end
 
         if (not canConnect) then

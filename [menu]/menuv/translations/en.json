@@ -1,0 +1,15 @@
+{
+    "language": "en",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "menu_invalid_type": "We expect a menu and not a %s"
+    }
+}
