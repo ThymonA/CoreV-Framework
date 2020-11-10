@@ -10,6 +10,7 @@
         }
     ],
     "translations": {
-        "menu_invalid_type": "We expect a menu and not a %s"
+        "menu_invalid_type": "We expect a menu and not a %s",
+        "menu_item_invalid_type": "You enter an invalid item type"
     }
 }

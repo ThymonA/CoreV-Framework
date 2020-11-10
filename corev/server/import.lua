@@ -24,8 +24,13 @@ local lower = assert(string.lower)
 local sub = assert(string.sub)
 local len = assert(string.len)
 local gmatch = assert(string.gmatch)
+local char = assert(string.char)
+local byte = assert(string.byte)
 local insert = assert(table.insert)
 local modf = assert(math.modf)
+local randomseed = assert(math.randomseed)
+local random = assert(math.random)
+local floor = assert(math.floor)
 local clock = assert(os.clock)
 local time = assert(os.time)
 local date = assert(os.date)
@@ -53,7 +58,7 @@ local _RSE = assert(RegisterServerEvent)
 local _AEH = assert(AddEventHandler)
 local IsDuplicityVersion = assert(IsDuplicityVersion)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
-local GetHashKey = assert(GetHashKey)
+local GetGameTimer = assert(GetGameTimer)
 
 --- Required resource variables
 local isServer = IsDuplicityVersion()
@@ -175,7 +180,7 @@ local function getClass()
 end
 
 --- Cache global variables
-local class = assert(getClass())
+local class = assert(class or getClass())
 
 --- Create CoreV class
 --- @class CoreV
@@ -220,8 +225,35 @@ function corev:typeof(value)
 
     if (isSource) then return 'number' end
     if (value.__class) then return value.__class end
+    if (value.__type) then return value.__type end
 
     return rawType
+end
+
+--- Convert value to number
+--- @param value any Any value
+--- @return number A integer
+function corev:toInt(value)
+    local rawType = self:typeof(value)
+
+    if (rawType == 'nil') then return 0 end
+    if (rawType == 'number') then return value or 0 end
+    if (rawType == 'uint32') then return rawget(value, 'value') or 0 end
+
+    return tonumber(value) or 0
+end
+
+--- Convert value to int32
+--- @param value any Any value to int32
+--- @return number Int32 value
+function corev:maxInt32(value)
+    local input = self:toInt(value)
+
+    if (input >= 2147483648) then
+        return input & 0xFFFFFFFF
+    end
+
+    return input
 end
 
 --- Makes sure your input matches your type of defaultValue
@@ -259,7 +291,7 @@ function corev:ensure(input, defaultValue)
         if (currentInputType == 'vector3') then return encode({input.x, input.y, input.z}) or defaultValue end
         if (currentInputType == 'vector2') then return encode({input.x, input.y}) or defaultValue end
 
-        return defaultValue
+        return tostring(input) or defaultValue
     end
 
     if (inputType == 'boolean') then
@@ -972,13 +1004,32 @@ function corev:registerParser(name, parseInfo)
     end
 end
 
---- Own implementation for GetHashKey
---- @param key string Key to transform to hash
+--- Own implementation of GetHashKey
+--- https://gist.github.com/ThymonA/5266760e0fe302feceb19094b6bff458
+--- @param name string Key to transform to hash
 --- @returns number Generated hash
-function corev:hashString(key)
-    key = self:ensure(key, 'unknown')
+function corev:hashString(name)
+    name = corev:ensure(name, 'unknown')
 
-    return GetHashKey(key)
+    local length = len(name)
+    local hash = 0
+
+    for i = 1, length, 1 do
+        local c = byte(name, i, i)
+
+        hash = hash + (c >= 65 and c <= 90 and (c + 32) or c)
+        hash = hash + (hash << 10)
+        hash = self:maxInt32(hash)
+        hash = hash ~ (hash >> 6)
+    end
+
+    hash = hash + (hash << 3)
+    hash = self:maxInt32(hash)
+    hash = hash ~ (hash >> 11)
+    hash = hash + (hash << 15)
+    hash = self:maxInt32(hash)
+
+    return floor(((hash + 2^31) % 2^32 - 2^31))
 end
 
 --- Returns current time in milliseconds
@@ -999,6 +1050,43 @@ function corev:getTimeInMilliseconds()
     currentLocalTime = currentLocalTime + currentMilliseconds
 
     return currentLocalTime
+end
+
+function corev:getCurrentTime()
+    local _, b = modf(clock())
+
+    if (b == 0) then
+        b = '000'
+    else
+        b = tostring(b):sub(3,5)
+    end
+
+    return date('%Y-%m-%d %H:%M:%S.', time()) .. b
+end
+
+--- Will generate a random string based on given length
+--- @param length number Length the random string must be
+--- @param recurse boolean When `false`, GetGameTimer() will called as seed, otherwise keep current seed
+--- @return string Generated random string matching your length
+function corev:getRandomString(length, recurse)
+    length = self:ensure(length, 16)
+    recurse = self:ensure(recurse, false)
+
+    if (not recurse) then
+        randomseed(GetGameTimer())
+    end
+
+    if (length <= 0) then return string.empty end
+
+    local number = random(48, 122)
+
+    if (number > 57 and number < 65) then
+        return self:getRandomString(length, true)
+    elseif (number > 90 and number < 97) then
+        return self:getRandomString(length, true)
+    else
+        return self:getRandomString(length - 1, true) .. char(number)
+    end
 end
 
 --- This function will return player's primary identifier or nil
@@ -1063,3 +1151,6 @@ global.string.startsWith = function(self, word)
 
     return self:sub(1, #word) == word
 end
+
+--- Represent a empty string
+global.string.empty = ''

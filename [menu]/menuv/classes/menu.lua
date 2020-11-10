@@ -13,3 +13,21 @@ local assert = assert
 --- Cache global variables
 local corev = assert(corev)
 local class = assert(class)
+
+local function createMenu(resource, name)
+    resource = corev:ensure(resource, corev:getCurrentResourceName())
+    name = corev:ensure(name, 'unknown')
+
+    if (name == 'unknown') then name = corev:getRandomString() end
+
+    --- Create a `menu` class
+    local menu = class "menu"
+
+    --- Set default information
+    menu:set {
+        __name = name,
+        __resource = resource,
+        events = {},
+        items = {}
+    }
+end

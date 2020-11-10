@@ -24,7 +24,12 @@ local lower = assert(string.lower)
 local sub = assert(string.sub)
 local len = assert(string.len)
 local gmatch = assert(string.gmatch)
+local char = assert(string.char)
+local byte = assert(string.byte)
 local insert = assert(table.insert)
+local randomseed = assert(math.randomseed)
+local random = assert(math.random)
+local floor = assert(math.floor)
 local load = assert(load)
 local pcall = assert(pcall)
 local xpcall = assert(xpcall)
@@ -51,6 +56,7 @@ local IsModelInCdimage = assert(IsModelInCdimage)
 local RequestModel = assert(RequestModel)
 local HasStreamedTextureDictLoaded = assert(HasStreamedTextureDictLoaded)
 local RequestStreamedTextureDict = assert(RequestStreamedTextureDict)
+local GetGameTimer = assert(GetGameTimer)
 
 --- Required resource variables
 local isClient = not IsDuplicityVersion()
@@ -191,8 +197,34 @@ function corev:typeof(value)
 
     if (isSource) then return 'number' end
     if (value.__class) then return value.__class end
+    if (value.__type) then return value.__type end
 
     return rawType
+end
+
+--- Convert value to number
+--- @param value any Any value
+--- @return number A integer
+function corev:toInt(value)
+    local rawType = self:typeof(value)
+
+    if (rawType == 'nil') then return 0 end
+    if (rawType == 'number') then return value or 0 end
+
+    return tonumber(value) or 0
+end
+
+--- Convert value to int32
+--- @param value any Any value to int32
+--- @return number Int32 value
+function corev:maxInt32(value)
+    local input = self:toInt(value)
+
+    if (input >= 2147483648) then
+        return input & 0xFFFFFFFF
+    end
+
+    return input
 end
 
 --- Makes sure your input matches your type of defaultValue
@@ -227,8 +259,10 @@ function corev:ensure(input, defaultValue)
         if (currentInputType == 'number') then return tostring(input) or defaultValue end
         if (currentInputType == 'boolean') then return input and 'yes' or 'no' end
         if (currentInputType == 'table') then return encode(input) or defaultValue end
+        if (currentInputType == 'vector3') then return encode({input.x, input.y, input.z}) or defaultValue end
+        if (currentInputType == 'vector2') then return encode({input.x, input.y}) or defaultValue end
 
-        return defaultValue
+        return tostring(input) or defaultValue
     end
 
     if (inputType == 'boolean') then
@@ -334,13 +368,32 @@ function corev:t(...)
     end
 end
 
---- Own implementation for GetHashKey
---- @param key string Key to transform to hash
+--- Own implementation of GetHashKey
+--- https://gist.github.com/ThymonA/5266760e0fe302feceb19094b6bff458
+--- @param name string Key to transform to hash
 --- @returns number Generated hash
-function corev:hashString(key)
-    key = self:ensure(key, 'unknown')
+function corev:hashString(name)
+    name = corev:ensure(name, 'unknown')
 
-    return GetHashKey(key)
+    local length = len(name)
+    local hash = 0
+
+    for i = 1, length, 1 do
+        local c = byte(name, i, i)
+
+        hash = hash + (c >= 65 and c <= 90 and (c + 32) or c)
+        hash = hash + (hash << 10)
+        hash = self:maxInt32(hash)
+        hash = hash ~ (hash >> 6)
+    end
+
+    hash = hash + (hash << 3)
+    hash = self:maxInt32(hash)
+    hash = hash ~ (hash >> 11)
+    hash = hash + (hash << 15)
+    hash = self:maxInt32(hash)
+
+    return floor(((hash + 2^31) % 2^32 - 2^31))
 end
 
 --- Checks if a string ends with given word
@@ -494,6 +547,31 @@ function corev:getCurrentResourceName()
     return GetCurrentResourceName()
 end
 
+--- Will generate a random string based on given length
+--- @param length number Length the random string must be
+--- @param recurse boolean When `false`, GetGameTimer() will called as seed, otherwise keep current seed
+--- @return string Generated random string matching your length
+function corev:getRandomString(length, recurse)
+    length = self:ensure(length, 16)
+    recurse = self:ensure(recurse, false)
+
+    if (not recurse) then
+        randomseed(GetGameTimer())
+    end
+
+    if (length <= 0) then return string.empty end
+
+    local number = random(48, 122)
+
+    if (number > 57 and number < 65) then
+        return self:getRandomString(length, true)
+    elseif (number > 90 and number < 97) then
+        return self:getRandomString(length, true)
+    else
+        return self:getRandomString(length - 1, true) .. char(number)
+    end
+end
+
 --- Register corev as global variable
 global.corev = corev
 
@@ -511,3 +589,6 @@ global.string.startsWith = function(self, word)
 
     return self:sub(1, #word) == word
 end
+
+--- Represent a empty string
+global.string.empty = ''

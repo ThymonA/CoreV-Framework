@@ -10,6 +10,7 @@
         }
     ],
     "translations": {
-        "menu_invalid_type": "We verwachten een menu en geen %s"
+        "menu_invalid_type": "We verwachten een menu en geen %s",
+        "menu_item_invalid_type": "U geeft een niet geldige item type op"
     }
 }
