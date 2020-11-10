@@ -61,6 +61,7 @@ local GetGameTimer = assert(GetGameTimer)
 --- Required resource variables
 local isClient = not IsDuplicityVersion()
 local currentResourceName = GetCurrentResourceName()
+local INT32_MAX, INT64_MAX = 2147483648, 4294967296
 
 --- Cahce FiveM globals
 local exports = assert(exports)
@@ -220,8 +221,8 @@ end
 function corev:maxInt32(value)
     local input = self:toInt(value)
 
-    if (input >= 2147483648) then
-        return input & 0xFFFFFFFF
+    if (input >= INT32_MAX) then
+        return input & (INT64_MAX - 1)
     end
 
     return input
@@ -393,7 +394,7 @@ function corev:hashString(name)
     hash = hash + (hash << 15)
     hash = self:maxInt32(hash)
 
-    return floor(((hash + 2^31) % 2^32 - 2^31))
+    return floor(((hash + INT32_MAX) % INT64_MAX - INT32_MAX))
 end
 
 --- Checks if a string ends with given word
