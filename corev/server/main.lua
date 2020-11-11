@@ -8,5 +8,3 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
-local assert = assert
-local corev = assert(corev)
