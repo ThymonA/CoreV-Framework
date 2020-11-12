@@ -25,8 +25,20 @@ url 'https://git.arens.io/ThymonA/corev-framework/'
 --- Load client files
 ---
 files {
+    'html/*.html',
+    'html/assets/css/*.css',
+    'html/assets/js/*.js',
+    'html/assets/images/*.png',
+    'html/assets/images/*.jpg',
+    'html/assets/images/*.jpeg',
+    'html/assets/images/*.gif',
     'translations/*.json'
 }
+
+---
+--- Main .html file
+---
+ui_page 'html/menuv.html'
 
 ---
 --- Register server scripts

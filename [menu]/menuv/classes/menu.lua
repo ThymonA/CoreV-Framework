@@ -23,10 +23,13 @@ local CreateThread  = assert(Citizen.CreateThread)
 
 --- Cahce FiveM globals
 local GetInvokingResource = assert(GetInvokingResource)
+local NUI = assert(SendNUIMessage)
 
-local function createMenu(resource, name)
+local function createMenu(resource, name, title, subtitle)
     resource = corev:ensure(resource, corev:getCurrentResourceName())
     name = corev:ensure(name, 'unknown')
+    title = corev:ensure(title, 'MenuV')
+    subtitle = corev:ensure(subtitle, '')
 
     if (name == 'unknown') then name = corev:getRandomString() end
 
@@ -39,7 +42,9 @@ local function createMenu(resource, name)
         __resource = resource,
         __open = false,
         events = {},
-        items = {}
+        items = {},
+        title = title,
+        subtitle = subtitle
     }
 
     function menu:addItem(itemType)
@@ -101,13 +106,36 @@ local function createMenu(resource, name)
         local _r = GetInvokingResource()
 
         _r = corev:ensure(_r, corev:getCurrentResourceName())
+
+        if (not self:isOpen()) then return end
+
+        if (_r == corev:getCurrentResourceName()) then
+            NUI({ action = 'close' })
+            self:trigger('close', self)
+        else
+            menus:open(self.__resource, self.__name)
+        end
     end
 
     function menu:open()
         local _r = GetInvokingResource()
 
         _r = corev:ensure(_r, corev:getCurrentResourceName())
+
+        if (self:isOpen()) then return end
+
+        if (_r == corev:getCurrentResourceName()) then
+            NUI({ action = 'open', data = self:getData(), r = self.__resource, n = self.__name })
+            self:trigger('open', self)
+        else
+            menus:open(self.__resource, self.__name)
+        end
     end
+
+    function menu:getData()
+    end
+
+    menu:trigger('created', menu)
 
     return menu
 end

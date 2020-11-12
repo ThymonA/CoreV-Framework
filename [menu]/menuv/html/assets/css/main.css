@@ -5,6 +5,7 @@ body {
     overflow: hidden;
     font-family: 'Ubuntu', sans-serif;
     color: white;
+    background-color: transparent;
 }
 
 .menuv {

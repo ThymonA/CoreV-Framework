@@ -67,6 +67,12 @@ local INT32_MAX, INT64_MAX = 2147483648, 4294967296
 local exports = assert(exports)
 local __exports = assert({})
 
+--- Prevent this file from executing from wrong side
+if (not isClient) then
+    error('You are trying to load a client file which is only allowed on the client side')
+    return
+end
+
 --- Prevent loading from crashing
 local function try(func, catch_func)
     if (type(func) ~= 'function') then return end
@@ -98,8 +104,11 @@ end
 
 --- Load those exports
 local __loadExports = {
-    [1] = { r = 'cvf_config', f = '__c' },
-    [2] = { r = 'cvf_translations', f = '__t' }
+    [1] = { r = 'cvf_config', f = '__c', s = false },
+    [2] = { r = 'cvf_translations', f = '__t', s = false },
+    [3] = { r = 'menuv', f = '__open', s = false },
+    [4] = { r = 'menuv', f = '__close', s = false },
+    [5] = { r = 'menuv', f = '__create', s = false }
 }
 
 --- Store global exports as local variable
@@ -118,13 +127,40 @@ for index, _le in pairs(__loadExports) do
     end)
 end
 
---- Remove table from memory
-__loadExports = nil
+_AEH('onResourceStart', function(resourceName)
+    for index, _le in pairs(__loadExports) do
+        if (resourceName == _le.r) then
+            if (_le.s) then
+                try(function()
+                    if (currentResourceName ~= _le.r) then
+                        __exports[index] = { self = assert(exports[_le.r]), func = nil }
+                        __exports[index].func = assert(__exports[index].self[_le.f])
+                    else
+                        __exports[index] = { self = nil, func = __global[_le.f] or __environment[_le.f] or function() return nil end }
+                    end
+                end, function()
+                    __exports[index] = { self = nil, func = function() end }
 
-if (not isClient) then
-    error('You are trying to load a client file which is only allowed on the client side')
-    return
-end
+                    load_export(_le, index)
+                end)
+
+                __loadExports[index].s = false
+            end
+
+            return
+        end
+    end
+end)
+
+_AEH('onResourceStop', function(resourceName)
+    for index, _le in pairs(__loadExports) do
+        if (resourceName == _le.r) then
+            __loadExports[index].s = true
+            __exports[index].self = nil
+            __exports[index].func = function() error(('Resource %s has been stopped'):format(resourceName)) end
+        end
+    end
+end)
 
 --- Modify global variable
 global = setmetatable({}, {
@@ -174,6 +210,7 @@ local corev = class "corev"
 --- Set default values for `corev` class
 corev:set('callback', class "corev-callback")
 corev:set('streaming', class "corev-streaming")
+corev:set('menu', class "corev-menu")
 
 --- Set default values for `corev-callback` class
 corev.callback:set('requestId', 1)
@@ -525,6 +562,41 @@ function corev.streaming:requestTextureAsync(textureDictionary, cb)
     repeat Wait(0) until HasStreamedTextureDictLoaded(textureDictionary) == true
 
     cb()
+end
+
+--- Open a menu based on given `name` and `resource`
+--- @param resource string (optional) Name of resource where menu is created
+--- @param name string Name of menu
+function corev.menu:open(...)
+    if (__exports[3].self == nil) then
+        return __exports[3].func(...)
+    else
+        return __exports[3].func(__exports[3].self, ...)
+    end
+end
+
+--- Close a menu based on given `name` and `resource`
+--- @param resource string (optional) Name of resource where menu is created
+--- @param name string Name of menu
+function corev.menu:close(...)
+    if (__exports[4].self == nil) then
+        return __exports[4].func(...)
+    else
+        return __exports[4].func(__exports[4].self, ...)
+    end
+end
+
+--- Close a menu based on given `name` and `resource`
+--- @param name string Name of menu
+--- @param title string Title of menu
+--- @param subtitle string Subtitle of menu
+--- @return menu Created `menu` class
+function corev.menu:create(name, title, subtitle)
+    if (__exports[5].self == nil) then
+        return __exports[5].func(name, title, subtitle)
+    else
+        return __exports[5].func(__exports[5].self, name, title, subtitle)
+    end
 end
 
 --- Results from server callback

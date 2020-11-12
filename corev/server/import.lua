@@ -69,6 +69,12 @@ local INT32_MAX, INT64_MAX = 2147483648, 4294967296
 local exports = assert(exports)
 local __exports = assert({})
 
+--- Prevent this file from executing from wrong side
+if (not isServer) then
+    error('You are trying to load a server file which is only allowed on the server side')
+    return
+end
+
 --- Prevent loading from crashing
 local function try(func, catch_func)
     if (type(func) ~= 'function') then return end
@@ -100,21 +106,21 @@ end
 
 --- Load those exports
 local __loadExports = {
-    [1] = { r = 'cvf_config', f = '__c' },
-    [2] = { r = 'cvf_translations', f = '__t' },
-    [3] = { r = 'mysql-async', f = 'is_ready'},
-    [4] = { r = 'mysql-async', f = 'mysql_insert' },
-    [5] = { r = 'mysql-async', f = 'mysql_fetch_scalar' },
-    [6] = { r = 'mysql-async', f = 'mysql_fetch_all' },
-    [7] = { r = 'mysql-async', f = 'mysql_execute' },
-    [8] = { r = 'cvf_jobs', f = '__a' },
-    [9] = { r = 'cvf_jobs', f = '__l' },
-    [10] = { r = 'cvf_events', f = '__add' },
-    [11] = { r = 'cvf_events', f = '__del' },
-    [12] = { r = 'cvf_identifier', f = '__g' },
-    [13] = { r = 'cvf_player', f = '__g' },
-    [14] = { r = 'cvf_commands', f = '__rc' },
-    [15] = { r = 'cvf_commands', f = '__rp' }
+    [1] = { r = 'cvf_config', f = '__c', s = false },
+    [2] = { r = 'cvf_translations', f = '__t', s = false },
+    [3] = { r = 'mysql-async', f = 'is_ready', s = false },
+    [4] = { r = 'mysql-async', f = 'mysql_insert', s = false },
+    [5] = { r = 'mysql-async', f = 'mysql_fetch_scalar', s = false },
+    [6] = { r = 'mysql-async', f = 'mysql_fetch_all', s = false },
+    [7] = { r = 'mysql-async', f = 'mysql_execute', s = false },
+    [8] = { r = 'cvf_jobs', f = '__a', s = false },
+    [9] = { r = 'cvf_jobs', f = '__l', s = false },
+    [10] = { r = 'cvf_events', f = '__add', s = false },
+    [11] = { r = 'cvf_events', f = '__del', s = false },
+    [12] = { r = 'cvf_identifier', f = '__g', s = false },
+    [13] = { r = 'cvf_player', f = '__g', s = false },
+    [14] = { r = 'cvf_commands', f = '__rc', s = false },
+    [15] = { r = 'cvf_commands', f = '__rp', s = false }
 }
 
 --- Store global exports as local variable
@@ -133,13 +139,40 @@ for index, _le in pairs(__loadExports) do
     end)
 end
 
---- Remove table from memory
-__loadExports = nil
+_AEH('onResourceStart', function(resourceName)
+    for index, _le in pairs(__loadExports) do
+        if (resourceName == _le.r) then
+            if (_le.s) then
+                try(function()
+                    if (currentResourceName ~= _le.r) then
+                        __exports[index] = { self = assert(exports[_le.r]), func = nil }
+                        __exports[index].func = assert(__exports[index].self[_le.f])
+                    else
+                        __exports[index] = { self = nil, func = __global[_le.f] or __environment[_le.f] or function() return nil end }
+                    end
+                end, function()
+                    __exports[index] = { self = nil, func = function() end }
 
-if (not isServer) then
-    error('You are trying to load a server file which is only allowed on the server side')
-    return
-end
+                    load_export(_le, index)
+                end)
+
+                __loadExports[index].s = false
+            end
+
+            return
+        end
+    end
+end)
+
+_AEH('onResourceStop', function(resourceName)
+    for index, _le in pairs(__loadExports) do
+        if (resourceName == _le.r) then
+            __loadExports[index].s = true
+            __exports[index].self = nil
+            __exports[index].func = function() error(('Resource %s has been stopped'):format(resourceName)) end
+        end
+    end
+end)
 
 --- Modify global variable
 global = setmetatable({}, {
