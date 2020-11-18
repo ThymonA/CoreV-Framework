@@ -25,7 +25,6 @@ url 'https://git.arens.io/ThymonA/corev-framework/'
 --- Load client files
 ---
 files {
-    'vendors/class.lua',
     'translations/*.json'
 }
 
@@ -33,7 +32,8 @@ files {
 --- Register all client files
 ---
 client_scripts {
-    'client/import.lua'
+    'client/import.lua',
+    'client/main.lua'
 }
 
 ---

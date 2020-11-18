@@ -11,8 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_client
+local corev = assert(corev_client)
 local skin_funcs = assert(skin_funcs)
 local loadTattoos = assert(loadTattoos)
 local pairs = assert(pairs)
@@ -38,7 +38,8 @@ local function GetPedHeadOverlayValue(ped, index)
 end
 
 --- Returns a `skin_options` classed based on given `ped`
---- @param ped any Any ped entity
+---@param ped any Any ped entity
+---@return skin_options Skin
 function GeneratePedSkin(ped)
     --- Makes sure that ped exists
     ped = corev:ensure(ped, PlayerPedId())
@@ -49,24 +50,23 @@ function GeneratePedSkin(ped)
     local isMale = pedModel == GetHashKey('mp_m_freemode_01') or IsPedMale(ped)
 
     --- Create a skin_options class
-    local skin_options = class 'skin_options'
+    ---@class skin_options
+    local skin_options = setmetatable({ __class = 'skin_options' }, {})
     local __index = 0
 
     --- Set default values
-    skin_options:set {
-        ped = ped,
-        isMultiplayerPed = isMP,
-        isMale = isMale,
-        isFemale = not isMale,
-        options = {}
-    }
+    skin_options.ped = ped
+    skin_options.isMultiplayerPed = isMP
+    skin_options.isMale = isMale
+    skin_options.isFemale = not isMale
+    skin_options.options = {}
 
     --- Create a skin option
-    --- @param name string Name for option identification
-    --- @param min number Number of minimal results
-    --- @param max number Number of maximum results
-    --- @param value number Current number on ped
-    --- @return skin_option Generated skin option
+    ---@param name string Name for option identification
+    ---@param min number Number of minimal results
+    ---@param max number Number of maximum results
+    ---@param value number Current number on ped
+    ---@return skin_option Generated skin option
     function skin_options:createOptions(name, min, max, value)
         __index = __index + 1
         name = corev:ensure(name, 'unknown')
@@ -77,38 +77,35 @@ function GeneratePedSkin(ped)
         if (name == 'unknown') then return nil end
 
         --- Create a `skin_option` class
-        local skin_option = class 'skin_option'
+        ---@class skin_option
+        local skin_option = setmetatable({ __class = 'skin_option' }, {})
 
         --- Set default value
-        skin_option:set {
-            index = __index,
-            name = name,
-            min = min,
-            max = max,
-            value = value
-        }
+        skin_option.index = __index
+        skin_option.name = name
+        skin_option.min = min
+        skin_option.max = max
+        skin_option.value = value
 
         return skin_option
     end
 
     --- Create a skin category
-    --- @param name string Name of category
+    ---@param name string Name of category
     function skin_options:createCategory(name)
         name = corev:ensure(name, 'unknown')
 
         --- Create a `skin_category` class
-        local skin_category = class 'skin_category'
+        ---@class skin_category
+        local skin_category = setmetatable({ __class = 'skin_category' }, {})
 
-        --- Set default values
-        skin_category:set {
-            name = name,
-            options = {}
-        }
+        skin_category.name = name
+        skin_category.options = {}
 
         --- Add a `skin_option` class to current category
-        --- @param _name string Name for option identification
-        --- @param min number Number of minimal results
-        --- @param max number Number of maximum results
+        ---@param _name string Name for option identification
+        ---@param min number Number of minimal results
+        ---@param max number Number of maximum results
         function skin_category:addOption(_name, min, max, value)
             _name = corev:ensure(_name, 'unknown')
             min = corev:ensure(min, 0)
@@ -135,8 +132,8 @@ function GeneratePedSkin(ped)
     end
 
     --- Returns `skin_option` based on `input`
-    --- @param input any Any input
-    --- @returns skin_option|nil Skin option based on `input`
+    ---@param input any Any input
+    ---@return skin_option|nil Skin option based on `input`
     function skin_options:getOption(input)
         if (input == nil) then return nil end
 
@@ -164,16 +161,16 @@ function GeneratePedSkin(ped)
     end
 
     --- #inheritance
-    skin_options:set('inheritance', skin_options:createCategory('inheritance'))
-
+    skin_options.inheritance = skin_options:createCategory('inheritance')
     skin_options.inheritance:addOption('father', 0, 46, 0)
     skin_options.inheritance:addOption('mother', 0, 46, 0)
     skin_options.inheritance:addOption('shapeMix', 0, 10, 0)
     skin_options.inheritance:addOption('skinMix', 0, 10, 0)
+
     --- #inheritance
 
     --- #appearance
-    skin_options:set('appearance', {
+    skin_options.appearance = {
         hair = skin_options:createCategory('hair'),
         blemishes = skin_options:createCategory('blemishes'),
         beard = skin_options:createCategory('beard'),
@@ -189,7 +186,7 @@ function GeneratePedSkin(ped)
         body_blemishes = skin_options:createCategory('body_blemishes'),
         add_body_blemishes = skin_options:createCategory('add_body_blemishes'),
         eyes = skin_options:createCategory('eyes')
-    })
+    }
 
     local numberOfColors = GetNumHairColors()
 
@@ -245,7 +242,7 @@ function GeneratePedSkin(ped)
     --- #appearance
 
     --- #clothing
-    skin_options:set('clothing', {
+    skin_options.clothing = {
         mask = skin_options:createCategory('mask'),
         upper_body = skin_options:createCategory('upper_body'),
         lower_body = skin_options:createCategory('lower_body'),
@@ -256,7 +253,7 @@ function GeneratePedSkin(ped)
         body_armor = skin_options:createCategory('body_armor'),
         badge = skin_options:createCategory('badge'),
         overlay = skin_options:createCategory('overlay')
-    })
+    }
 
     --- Clothing cached values
     local cachedValues = {
@@ -305,13 +302,13 @@ function GeneratePedSkin(ped)
     --- #clothing
 
     --- #props
-    skin_options:set('props', {
+    skin_options.props = {
         hats = skin_options:createCategory('hats'),
         glasses = skin_options:createCategory('glasses'),
         misc = skin_options:createCategory('misc'),
         watches = skin_options:createCategory('watches'),
         bracelets = skin_options:createCategory('bracelets')
-    })
+    }
 
     --- Clothing cached values
     local cachedPropsValues = {
@@ -381,9 +378,9 @@ function GeneratePedSkin(ped)
     end
 
     --- Returns if key matches pattern
-    --- @param key string Given input key
-    --- @param pattern string Pattern to check for
-    --- @return boolean `true` if matches, otherwise `false`
+    ---@param key string Given input key
+    ---@param pattern string Pattern to check for
+    ---@return boolean `true` if matches, otherwise `false`
     function skin_options:keyMatch(key, pattern)
         if (type(pattern) == 'table') then
             for _, ptrn in pairs(pattern) do
@@ -399,9 +396,9 @@ function GeneratePedSkin(ped)
     end
 
     --- Returns if key matches pattern
-    --- @param key string Given input key
-    --- @param pattern string Pattern to check for
-    --- @return string|nul Results from match
+    ---@param key string Given input key
+    ---@param pattern string Pattern to check for
+    ---@return string|nil Results from match
     function skin_options:getKey(key, pattern)
         if (type(pattern) == 'table') then
             for inx, ptrn in pairs(pattern) do
@@ -568,3 +565,5 @@ function GeneratePedSkin(ped)
 
     return skin_options
 end
+
+_G.GeneratePedSkin = GeneratePedSkin

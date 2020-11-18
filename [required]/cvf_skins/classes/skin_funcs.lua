@@ -11,8 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_client
+local corev = assert(corev_client)
 local getTattooData = assert(getTattooData)
 local pairs = assert(pairs)
 local upper = assert(string.upper)
@@ -31,12 +31,13 @@ local ClearPedDecorations = assert(ClearPedDecorations)
 local AddPedDecorationFromHashes = assert(AddPedDecorationFromHashes)
 
 --- Create `skin_funcs` class
-local skin_funcs = class "skin_funcs"
+---@class skin_funcs
+local skin_funcs = setmetatable({ __class = 'skin_funcs' }, {})
 
 --- Checks if `input` exsists in `list`
---- @param input number Any number
---- @param list number[] List of numbers
---- @return boolean `true` if `input` has been found, otherwise `false`
+---@param input number Any number
+---@param list number[] List of numbers
+---@return boolean `true` if `input` has been found, otherwise `false`
 function skin_funcs:any(input, list)
     input = corev:ensure(input, -1)
     list = corev:ensure(list, {})
@@ -51,7 +52,7 @@ function skin_funcs:any(input, list)
 end
 
 --- Update category `inheritance` based on given `skin_options`
---- @param skin_options skin_options Skin options
+---@param skin_options skin_options Skin options
 function skin_funcs:updateInheritance(skin_options)
     local _father = (skin_options:getOption('inheritance.father') or {}).value or 0
     local _mother = (skin_options:getOption('inheritance.mother') or {}).value or 0
@@ -64,7 +65,7 @@ function skin_funcs:updateInheritance(skin_options)
 end
 
 --- Update category `inheritance` based on given `skin_options`
---- @param skin_options skin_options Skin options
+---@param skin_options skin_options Skin options
 function skin_funcs:updateAppearanceHair(skin_options)
     local _style = (skin_options:getOption('hair.style') or {}).value or 0
     local _color = (skin_options:getOption('hair.color') or {}).value or 0
@@ -75,7 +76,7 @@ function skin_funcs:updateAppearanceHair(skin_options)
 end
 
 --- Update category `appearance` based on given `skin_options`
---- @param skin_options skin_options Skin options
+---@param skin_options skin_options Skin options
 function skin_funcs:updateAppearance(skin_options, key, index)
     key = corev:ensure(key, 'unknown')
     index = corev:ensure(index, -1)
@@ -100,7 +101,7 @@ function skin_funcs:updateAppearance(skin_options, key, index)
 end
 
 --- Update category `clothing` based on given `skin_options`
---- @param skin_options skin_options Skin options
+---@param skin_options skin_options Skin options
 function skin_funcs:updateClothing(skin_options, key, index)
     key = corev:ensure(key, 'unknown')
     index = corev:ensure(index, -1)
@@ -123,7 +124,7 @@ function skin_funcs:updateClothing(skin_options, key, index)
 end
 
 --- Update category `props` based on given `skin_options`
---- @param skin_options skin_options Skin options
+---@param skin_options skin_options Skin options
 function skin_funcs:updateProp(skin_options, key, index)
     key = corev:ensure(key, 'unknown')
     index = corev:ensure(index, -1)
@@ -150,7 +151,7 @@ function skin_funcs:updateProp(skin_options, key, index)
 end
 
 --- Update category `tattoo` based on given `skin_options`
---- @param skin_options skin_options Skin options
+---@param skin_options skin_options Skin options
 function skin_funcs:updateTattoos(skin_options)
     local tattooData = getTattooData(skin_options.isMale and 'male' or 'female')
 
@@ -175,4 +176,4 @@ function skin_funcs:updateTattoos(skin_options)
 end
 
 --- Register `skin_funcs` as global library
-global.skin_funcs = skin_funcs
+_G.skin_funcs = skin_funcs

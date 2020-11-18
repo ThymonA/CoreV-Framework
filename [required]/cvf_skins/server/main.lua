@@ -11,17 +11,18 @@
 
 --- Cache global variables
 local assert = assert
-local corev = assert(corev)
-local class = assert(class)
+---@type corev_server
+local corev = assert(corev_server)
 
 --- Mark this resource as `database` migration dependent resource
 corev.db:migrationDependent()
 
 --- Create a `skins` class
-local skins = class "skins"
+---@class skins
+local skins = setmetatable({ __class = 'skins' }, {})
 
 --- Set default values
-skins:set('players', {})
+skins.players = {}
 
 --- Register callback for loading database skin
 corev.callback:register('load', function(vPlayer, cb)

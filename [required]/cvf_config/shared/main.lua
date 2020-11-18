@@ -16,8 +16,8 @@ local pairs = assert(pairs)
 local tostring = assert(tostring)
 local xpcall = assert(xpcall)
 local load = assert(load)
-local traceback = assert(traceback or debug.traceback)
-local pack = assert(pack or table.pack)
+local traceback = assert(debug.traceback)
+local pack = assert(table.pack)
 local lower = assert(string.lower)
 local isClient = not IsDuplicityVersion()
 local GetHashKey = assert(GetHashKey)
@@ -66,8 +66,8 @@ local function merge_tables(...)
 end
 
 --- This function results a config table or value from stored configuration variable
---- @param cacheKey number Cached key from `GetHashKey`
---- @return any|nil results from stored configuration variable
+---@param cacheKey number Cached key from `GetHashKey`
+---@return any|nil results from stored configuration variable
 local function getConfigurationFromCache(cacheKey, ...)
     local arguments = pack(...)
 
@@ -93,8 +93,8 @@ local function getConfigurationFromCache(cacheKey, ...)
 end
 
 --- Load configuration by name
---- @param name string Name of configuration
---- @param cacheKey number Cached key from `GetHashKey`
+---@param name string Name of configuration
+---@param cacheKey number Cached key from `GetHashKey`
 local function loadConfigurationVariable(name, cacheKey)
     if (configuration[cacheKey] ~= nil) then
         return
@@ -135,10 +135,10 @@ local function loadConfigurationVariable(name, cacheKey)
 end
 
 --- Load or return cached configuration based on name
---- @param name string Name of configuration to load
---- @params ... string[] Filer results by key
---- @return any|nil Returns `any` data from cached configuration or `nil` if not found
-function getConfiguration(name, ...)
+---@param name string Name of configuration to load
+---@params ... string[] Filer results by key
+---@return any|nil Returns `any` data from cached configuration or `nil` if not found
+local function getConfiguration(name, ...)
     name = name or 'core'
 
     if (type(name) ~= 'string') then name = tostring(name) end

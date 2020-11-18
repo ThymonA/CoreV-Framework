@@ -11,8 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_server
+local corev = assert(corev_server)
 local ipairs = assert(ipairs)
 local pairs = assert(pairs)
 local insert = assert(table.insert)
@@ -20,22 +20,42 @@ local lower = assert(string.lower)
 local error = assert(error)
 
 --- Create a `jobs` class
-local jobs = class "jobs"
+---@class jobs
+local jobs = setmetatable({ __class = 'jobs' }, {})
 
---- Set default values
-jobs:set {
-    jobs = {},
-    defaultJob = {
-        job_id = nil,
-        grade = nil
-    }
+jobs.jobs = {}
+jobs.defaultJob = {
+    job_id = nil,
+    grade = nil
 }
 
+--- Create a new `job` class
+---@param id number|nil Job ID
+---@param name string Name of Job
+---@param label string Label of Job
+---@param grades table Grades of Job
+---@return job New `job` class
+local function createJobClass(id, name, label, grades)
+    --- Create a `job` class
+    ---@class job
+    local job = setmetatable({ __class = 'job' }, {})
+
+    job.id = id
+    ---@type string
+    job.name = name
+    ---@type string
+    job.label = label
+    ---@type table
+    job.grades = grades
+
+    return job
+end
+
 --- Creates a job object based on given `name` and `grades`
---- @param name string Name of job, example: unemployed, police etc. (lowercase)
---- @param label string Label of job, this will be displayed as name of given job
---- @param grades table List of grades as table, every grade needs to be a table as well
---- @return job|nil Returns a `job` class if found or created, otherwise `nil`
+---@param name string Name of job, example: unemployed, police etc. (lowercase)
+---@param label string Label of job, this will be displayed as name of given job
+---@param grades table List of grades as table, every grade needs to be a table as well
+---@return job|nil Returns a `job` class if found or created, otherwise `nil`
 local function createJobObject(name, label, grades)
     name = corev:ensure(name, 'unknown')
     label = corev:ensure(label, 'Unknown')
@@ -55,15 +75,7 @@ local function createJobObject(name, label, grades)
     end
 
     --- Create a `job` class
-    local job = class "job"
-
-    --- Set default values
-    job:set {
-        id = nil,
-        name = name,
-        label = label,
-        grades = {}
-    }
+    local job = createJobClass(nil, name, label, {})
 
     local existingId = corev.db:fetchScalar('SELECT `id` FROM `jobs` WHERE `name` = @name LIMIT 1', {
         ['@name'] = job.name
@@ -82,15 +94,13 @@ local function createJobObject(name, label, grades)
         for index, grade in ipairs(grades) do
             if (corev:typeof(grade) == 'table') then
                 --- Create a `job-grade` class
-                local jobGrade = class "job-grade"
+                ---@class job_grade
+                local jobGrade = setmetatable({ __class = 'job_grade' }, {})
 
-                --- Set default values
-                jobGrade:set {
-                    job_id = job.id,
-                    grade = corev:ensure(index, 1) - 1,
-                    name = lower(corev:ensure(grade.name, 'unknown')),
-                    label = corev:ensure(grade.label, 'Unknown')
-                }
+                jobGrade.job_id = job.id
+                jobGrade.grade = corev:ensure(index, 1) - 1
+                jobGrade.name = lower(corev:ensure(grade.name, 'unknown'))
+                jobGrade.label = corev:ensure(grade.label, 'Unknown')
 
                 job.grades[jobGrade.grade] = jobGrade
             end
@@ -214,8 +224,8 @@ local function createJobObject(name, label, grades)
 end
 
 --- Returns `job` bases on given `name`
---- @param input string|number Name of job or ID of job
---- @return job|nil Returns a `job` class or nil
+---@param input string|number Name of job or ID of job
+---@return job|nil Returns a `job` class or nil
 local function getCacheJob(input)
     input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
 
@@ -242,8 +252,8 @@ local function getCacheJob(input)
 end
 
 --- Returns `job` bases on given `name`
---- @param input string|number Name of job or ID of job
---- @return job|nil Returns a `job` class or nil
+---@param input string|number Name of job or ID of job
+---@return job|nil Returns a `job` class or nil
 local function getJob(input)
     input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
 
@@ -268,15 +278,7 @@ local function getJob(input)
     if (#dbJob == 0) then return nil end
 
     --- Create a `job` class
-    local job = class "job"
-
-    --- Set default values
-    job:set {
-        id = dbJob[1].id,
-        name = dbJob[1].name,
-        label = dbJob[1].label,
-        grades = {}
-    }
+    local job = createJobClass(dbJob[1].id, dbJob[1].name, dbJob[1].label, {})
 
     local dbGrades = corev.db:fetchAll('SELECT * FROM `job_grades` WHERE `job_id` = @id ORDER BY `grade` ASC', {
         ['@id'] = job.id
@@ -288,15 +290,13 @@ local function getJob(input)
 
     for _, dbGrade in pairs(dbGrades) do
         --- Create a `grade` class
-        local grade = class 'grade'
+        ---@class grade
+        local grade = setmetatable({ __class = 'grade' }, {})
 
-        --- Set default values
-        grade:set {
-            job_id = dbGrade.job_id,
-            grade = corev:ensure(dbGrade.grade, 0),
-            name = dbGrade.name,
-            label = dbGrade.label
-        }
+        grade.job_id = dbGrade.job_id
+        grade.grade = corev:ensure(dbGrade.grade, 0)
+        grade.name = dbGrade.name
+        grade.label = dbGrade.label
 
         job.grades[grade.grade] = grade
     end
@@ -305,5 +305,5 @@ local function getJob(input)
 end
 
 --- Register `createJobObject` as global function
-global.createJobObject = createJobObject
-global.getJob = getJob
+_G.createJobObject = createJobObject
+_G.getJob = getJob

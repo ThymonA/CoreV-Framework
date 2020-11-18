@@ -11,24 +11,22 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_server
+local corev = assert(corev_server)
 local lower = assert(string.lower)
 local CreateThread = assert(Citizen.CreateThread)
 
 --- Create a players class
-local players = class 'players'
+---@class players
+local players = setmetatable({ __class = 'players' }, {})
 
---- Set default values
-players:set {
-    players = {},
-    sources = {}
-}
+players.players = {}
+players.sources = {}
 
 --- Load a `job` class for given job
---- @param input string|number Name or ID of job
---- @param grade number Grade of given job
---- @return job|nil Generated `job` class or `nil`
+---@param input string|number Name or ID of job
+---@param grade number Grade of given job
+---@return job|nil Generated `job` class or `nil`
 function players:getJobObject(input, grade)
     input = corev:typeof(input) == 'number' and input or corev:ensure(input, 'unknown')
     grade = corev:ensure(grade, 0)
@@ -37,39 +35,37 @@ function players:getJobObject(input, grade)
 
     if (_job == nil) then return nil end
 
-    --- Create a `job` class
-    local job = class 'job'
+    --- Create a `player_job` class
+    ---@class player_job
+    local job = setmetatable({ __class = 'player_job' }, {})
 
     --- Set default values
-    job:set {
-        id = corev:ensure(_job.id, 0),
-        name = corev:ensure(_job.name, 'unknown'),
-        label = corev:ensure(_job.label, 'Unknown'),
-        grades = corev:ensure(_job.grades, {}),
-        grade = nil
-    }
+    job.id = corev:ensure(_job.id, 0)
+    job.name = corev:ensure(_job.name, 'unknown')
+    job.label = corev:ensure(_job.label, 'Unknown')
+    job.grades = corev:ensure(_job.grades, {})
+    job.grade = nil
 
     local _grade = job.grades[grade] or nil
 
     if (_grade == nil) then return job end
 
-    --- Create a `grade` class
-    local gradeObj = class 'grade'
+    --- Create a `player_grade` class
+    ---@class player_grade
+    local gradeObj = setmetatable({ __class = 'player_grade' }, {})
 
     --- Set default values
-    gradeObj:set {
-        grade = _grade.grade,
-        name = _grade.name,
-        label = _grade.label
-    }
+    gradeObj.grade = _grade.grade
+    gradeObj.name = _grade.name
+    gradeObj.label = _grade.label
 
-    job:set('grade', gradeObj)
+    job.grade = gradeObj
 
     return job
 end
 
 --- Create a `vPlayer` class
---- @param input string|number Player identifier or Player source
+---@param input string|number Player identifier or Player source
 local function createPlayer(input)
     local player = corev:getPlayerIdentifiers(input)
 
@@ -84,7 +80,8 @@ local function createPlayer(input)
     end
 
     --- Create a `vPlayer` class
-    local vPlayer = class 'vPlayer'
+    ---@class vPlayer
+    local vPlayer = setmetatable({ __class = 'vPlayer' }, {})
 
     local dbPlayer = corev.db:fetchAll('SELECT * FROM `players` WHERE `identifier` = @identifier LIMIT 1', {
         ['@identifier'] = player.identifier
@@ -113,16 +110,14 @@ local function createPlayer(input)
     local playerGroup = corev:ensure(dbPlayer[1].group, 'user')
 
     --- Set default values
-    vPlayer:set {
-        id = dbPlayer[1].id,
-        source = player.source or nil,
-        name = player.name,
-        group = playerGroup,
-        identifier = player.identifier,
-        identifiers = player.identifiers,
-        job = players:getJobObject(dbPlayer[1].job, dbPlayer[1].grade),
-        job2 = players:getJobObject(dbPlayer[1].job2, dbPlayer[1].grade2)
-    }
+    vPlayer.id = dbPlayer[1].id
+    vPlayer.source = player.source or nil
+    vPlayer.name = player.name
+    vPlayer.group = playerGroup
+    vPlayer.identifier = player.identifier
+    vPlayer.identifiers = player.identifiers
+    vPlayer.job = players:getJobObject(dbPlayer[1].job, dbPlayer[1].grade)
+    vPlayer.job2 = players:getJobObject(dbPlayer[1].job2, dbPlayer[1].grade2)
 
     --- This function will returns vPlayer primary identifier
     function vPlayer:getIdentifier()
@@ -144,5 +139,5 @@ CreateThread(function()
 end)
 
 --- Register `createPlayer` as global function and `players` as global variable
-global.players = players
-global.createPlayer = createPlayer
+_G.players = players
+_G.createPlayer = createPlayer

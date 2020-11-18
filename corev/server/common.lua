@@ -11,7 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local corev = assert(corev)
+---@type corev_server
+local corev = assert(corev_server)
 local print = assert(print)
 
 --- This event will be trigger when a player is connecting

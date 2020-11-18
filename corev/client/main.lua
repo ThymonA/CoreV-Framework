@@ -8,8 +8,8 @@
 -- Version: 1.0.0
 -- Description: Custom FiveM Framework
 ----------------------- [ CoreV ] -----------------------
+local assert = assert
 
 --- Cache global variables
-local assert = assert
----@type corev_server
-local corev = assert(corev_server)
+---@type corev_client
+local corev = assert(corev_client)

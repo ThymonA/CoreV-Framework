@@ -11,7 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local corev = assert(corev)
+---@type corev_client
+local corev = assert(corev_client)
 local GeneratePedSkin = assert(GeneratePedSkin)
 local CreateThread = assert(Citizen.CreateThread)
 local Wait = assert(Citizen.Wait)
@@ -74,6 +75,7 @@ CreateThread(function()
 
             SetPedDefaultComponentVariation(ped)
 
+            --- @type skin_options
             local skin = GeneratePedSkin(ped)
             local skin_info = decode(result_data or '{}')
 

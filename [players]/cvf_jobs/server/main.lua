@@ -11,7 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local corev = assert(corev)
+---@type corev_server
+local corev = assert(corev_server)
 local createJobObject = assert(createJobObject)
 local getJob = assert(getJob)
 local lower = assert(string.lower)
@@ -45,11 +46,11 @@ corev.db:dbReady(function()
 end)
 
 --- Creates a job object based on given `name` and `grades`
---- @param name string Name of job, example: unemployed, police etc. (lowercase)
---- @param label string Label of job, this will be displayed as name of given job
---- @param grades table List of grades as table, every grade needs to be a table as well
---- @return job|nil Returns a `job` class if found or created, otherwise `nil`
-function addAJob(name, label, grades)
+---@param name string Name of job, example: unemployed, police etc. (lowercase)
+---@param label string Label of job, this will be displayed as name of given job
+---@param grades table List of grades as table, every grade needs to be a table as well
+---@return job|nil Returns a `job` class if found or created, otherwise `nil`
+local function addAJob(name, label, grades)
     name = corev:ensure(name, 'unknown')
     label = corev:ensure(label, 'Unknown')
     grades = corev:ensure(grades, {})

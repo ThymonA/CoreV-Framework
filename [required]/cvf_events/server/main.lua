@@ -11,9 +11,9 @@
 
 --- Cache global variables
 local assert = assert
-local corev = assert(corev)
-local class = assert(class)
-local pack = assert(pack or table.pack)
+---@type corev_server
+local corev = assert(corev_server)
+local pack = assert(table.pack)
 local insert = assert(table.insert)
 local remove = assert(table.remove)
 local ipairs = assert(ipairs)
@@ -35,19 +35,18 @@ local _AEH = assert(AddEventHandler)
 local exports = assert(exports)
 
 --- Create a `events` class
-local events = class "events"
+---@class events
+local events = setmetatable({ __class = 'events' }, {})
 
 --- Set default values
-events:set {
-    events = {},
-    resourceName = corev:getCurrentResourceName()
-}
+events.events = {}
+events.resourceName = corev:getCurrentResourceName()
 
 --- Register a function as on event trigger
---- @param resource string Name of resource where event came from
---- @param event string Name of event
---- @param name table|string Name or Names of entities, categories etc.
---- @param func function Function to execute on event trigger
+---@param resource string Name of resource where event came from
+---@param event string Name of event
+---@param name table|string Name or Names of entities, categories etc.
+---@param func function Function to execute on event trigger
 function events:onEvent(resource, event, name, func)
     resource = corev:ensure(resource, self.resourceName)
     event = corev:ensure(event, 'unknown')
@@ -137,8 +136,8 @@ function events:filterArguments(...)
 end
 
 --- Register a new on event
---- @param resource string Name of resource where event came from
---- @param event string Name of event
+---@param resource string Name of resource where event came from
+---@param event string Name of event
 function events:registerOnEvents(resource, event, ...)
     resource = corev:ensure(resource, self.resourceName)
     event = corev:ensure(event, 'unknown')
@@ -153,8 +152,8 @@ function events:registerOnEvents(resource, event, ...)
 end
 
 --- Unregister a on event
---- @param resource string Name of resource where event came from
---- @param event string Name of event
+---@param resource string Name of resource where event came from
+---@param event string Name of event
 function events:removeEvents(resource, event, ...)
     resource = corev:ensure(resource, self.resourceName)
     event = corev:ensure(event, 'unknown')
@@ -202,8 +201,8 @@ function events:removeEvents(resource, event, ...)
 end
 
 --- This function will return player's identifiers as table
---- @param playerId number Source or Player ID to get identifiers for
---- @return table Founded identifiers for player
+---@param source number Source or Player ID to get identifiers for
+---@return table Founded identifiers for player
 function events:getIdentifiersBySource(source)
     source = corev:ensure(source, -1)
 
@@ -245,10 +244,10 @@ function events:getIdentifiersBySource(source)
 end
 
 --- Generates adaptive card json based on given `title`, `description` and `banner`
---- @param title string|nil Title under banner
---- @param description string|nil Description under title
---- @param banner string|nil Banner Banner used in card (URL)
---- @return string Generated card as json
+---@param title string|nil Title under banner
+---@param description string|nil Description under title
+---@param banner string|nil Banner Banner used in card (URL)
+---@return string Generated card as json
 function events:generateCard(title, description, banner)
     local cfgBanner = corev:ensure(corev:cfg('events', 'bannerUrl'), 'https://i.imgur.com/3XeDqC0.png')
     local serverName = corev:ensure(corev:cfg('core', 'serverName'), 'CoreV Framework')
@@ -275,19 +274,18 @@ function events:generateCard(title, description, banner)
 end
 
 --- This function will generate a `presentCard` class
---- @param deferrals deferrals Deferrals from `playerConnecting` event
---- @return presentCard Generated `presentCard` class
+---@param deferrals any Deferrals from `playerConnecting` event
+---@return presentCard Generated `presentCard` class
 function events:getPresentCard(deferrals)
     --- Create a `presentCard` class
-    local presentCard = class "presentCard"
+    ---@class presentCard
+    local presentCard = setmetatable({ __class = 'presentCard' }, {})
 
     --- Set default values presentCard
-    presentCard:set {
-        title = nil,
-        description = nil,
-        banner = nil,
-        deferrals = deferrals
-    }
+    presentCard.title = nil
+    presentCard.description = nil
+    presentCard.banner = nil
+    presentCard.deferrals = deferrals
 
     function presentCard:update()
         local cardJson = events:generateCard(self.title, self.description, self.banner)
@@ -366,15 +364,7 @@ _AEH('playerConnecting', function(name, _, deferrals)
     identifierType = lower(identifierType)
 
     --- Create a `player` class
-    local player = class "player"
-
-    --- Set default values
-    player:set {
-        source = source,
-        name = name,
-        identifiers = pIdentifiers,
-        identifier = pIdentifiers[identifierType] or nil
-    }
+    local player = corev.classes:createPlayerClass(source, name, pIdentifiers, pIdentifiers[identifierType] or nil)
 
     for _, trigger in pairs(triggers) do
         local continue, canConnect, rejectMessage = false, false, nil
@@ -426,15 +416,7 @@ _AEH('playerDropped', function(reason)
     identifierType = lower(identifierType)
 
     --- Create a `player` class
-    local player = class "player"
-
-    --- Set default values
-    player:set {
-        source = source,
-        name = GetPlayerName(source),
-        identifiers = pIdentifiers,
-        identifier = pIdentifiers[identifierType] or nil
-    }
+    local player = corev.classes:createPlayerClass(source, GetPlayerName(source), pIdentifiers, pIdentifiers[identifierType] or nil)
 
     for _, trigger in pairs(triggers) do
         local func = corev:ensure(trigger.func, function(_, done, _) done() end)
@@ -470,8 +452,8 @@ _AEH('onResourceStop', function(name)
 end)
 
 --- Register a new on event
---- @param event string Name of event
-function registerEvent(event, ...)
+---@param event string Name of event
+local function registerEvent(event, ...)
     local _r = GetInvokingResource()
     local resource = corev:ensure(_r, events.resourceName)
 
@@ -479,8 +461,8 @@ function registerEvent(event, ...)
 end
 
 --- Unregister a on event
---- @param event string Name of event
-function removeEvent(event, ...)
+---@param event string Name of event
+local function removeEvent(event, ...)
     local _r = GetInvokingResource()
     local resource = corev:ensure(_r, events.resourceName)
 

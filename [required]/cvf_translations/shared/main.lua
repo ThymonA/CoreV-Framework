@@ -11,13 +11,13 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_client|corev_server
+local corev = assert(corev_client or corev_server)
 local pairs = assert(pairs)
 local insert = assert(table.insert)
 local decode = assert(json.decode)
 local sub = assert(string.sub)
-local pack = assert(pack or table.pack)
+local pack = assert(table.pack)
 
 --- Cahce FiveM globals
 local exports = assert(exports)
@@ -29,19 +29,18 @@ local GetNumResourceMetadata = assert(GetNumResourceMetadata)
 local GetResourceMetadata = assert(GetResourceMetadata)
 
 --- Create translation class
-local translations = class "translations"
+---@class translations
+local translations = setmetatable({ __class = 'translations' }, {})
 
 --- Set default values
-translations:set {
-    translations = {}
-}
+translations.translations = {}
 
 --- Add a translation to CoreV's framework
---- @param language string Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
---- @param module string Register translation for a module, example: core
---- @param key string Key of translation
---- @param value string Translated value
---- @param override boolean Override if translation already exists
+---@param language string Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
+---@param module string Register translation for a module, example: core
+---@param key string Key of translation
+---@param value string Translated value
+---@param override boolean Override if translation already exists
 function translations:addTranslation(language, module, key, value, override)
     language = corev:ensure(language, 'unknown')
     module = corev:ensure(module, 'unknown')
@@ -69,10 +68,10 @@ function translations:addTranslation(language, module, key, value, override)
 end
 
 --- Returns a translation from current framework
---- @param language string Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
---- @param module string Register translation for a module, example: core
---- @param key string Key of translation
---- @return string Translation or 'MISSING TRANSLATION'
+---@param language string Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
+---@param module string Register translation for a module, example: core
+---@param key string Key of translation
+---@return string Translation or 'MISSING TRANSLATION'
 function translations:getTranslation(language, module, key)
     language = corev:ensure(language, 'unknown')
     module = corev:ensure(module, 'unknown')
@@ -155,10 +154,10 @@ for i = 0, GetNumResources(), 1 do
 end
 
 --- Returns translation key founded or 'MISSING TRANSLATION'
---- @param language string? (optional) Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
---- @param module string? (optional) Register translation for a module, example: core
---- @param key string Key of translation
---- @returns string Translation or 'MISSING TRANSLATION'
+---@params language string? (optional) Needs to be a two letter identifier, example: EN, DE, NL, BE, FR etc.
+---@params module string? (optional) Register translation for a module, example: core
+---@params key string Key of translation
+---@return string Translation or 'MISSING TRANSLATION'
 local function getTranslationKey(...)
     local __module = GetInvokingResource()
 

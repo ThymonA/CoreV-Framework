@@ -11,7 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local corev = assert(corev)
+---@type corev_client
+local corev = assert(corev_client)
 local load = assert(load)
 local xpcall = assert(xpcall)
 local pairs = assert(pairs)
@@ -21,8 +22,8 @@ local LoadResourceFile = assert(LoadResourceFile)
 local GetCurrentResourceName = assert(GetCurrentResourceName)
 
 --- Load tattoo configuration based on given `type`
---- @param type string Two options: `male` or `female`
---- @return table|nil Tattoo configuraiton or nil
+---@param type string Two options: `male` or `female`
+---@return table|nil Tattoo configuraiton or nil
 local function loadConfigurationFile(type)
     type = corev:ensure(type, 'unknown')
 
@@ -44,15 +45,15 @@ local function loadConfigurationFile(type)
     return {}
 end
 
-function getTattooData(type)
+local function getTattooData(type)
     type = corev:ensure(type, 'unknown')
 
     return loadConfigurationFile(type)
 end
 
 --- Load tattoo information into skin
---- @param skin_options skin_options Skin option to add information in
-function loadTattoos(skin_options)
+---@param skin_options skin_options Skin option to add information in
+local function loadTattoos(skin_options)
     local tattooInformation = {}
 
     if (skin_options.isMale) then
@@ -61,7 +62,7 @@ function loadTattoos(skin_options)
         tattooInformation = loadConfigurationFile('female')
     end
 
-    skin_options:set('tattoos', {
+    skin_options.tattoos = {
         tattoo_torso = skin_options:createCategory('tattoo_torso'),
         tattoo_head = skin_options:createCategory('tattoo_head'),
         tattoo_left_arm = skin_options:createCategory('tattoo_left_arm'),
@@ -69,7 +70,7 @@ function loadTattoos(skin_options)
         tattoo_left_leg = skin_options:createCategory('tattoo_left_leg'),
         tattoo_right_leg = skin_options:createCategory('tattoo_right_leg'),
         tattoo_badges = skin_options:createCategory('tattoo_badges')
-    })
+    }
 
     for categoryType, categoryInfo in pairs(tattooInformation) do
         local categoryName = ('tattoo_%s'):format(lower(categoryType))
@@ -85,5 +86,5 @@ function loadTattoos(skin_options)
 end
 
 --- Register `loadTattoos` and `getTattooData` as global function
-global.loadTattoos = loadTattoos
-global.getTattooData = getTattooData
+_G.loadTattoos = loadTattoos
+_G.getTattooData = getTattooData

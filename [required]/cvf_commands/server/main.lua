@@ -11,12 +11,12 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_server
+local corev = assert(corev_server)
 local pairs = assert(pairs)
 local print = assert(print)
 local xpcall = assert(xpcall)
-local unpack = assert(unpack or table.unpack)
+local unpack = assert(table.unpack)
 local insert = assert(table.insert)
 local lower = assert(string.lower)
 local traceback = assert(debug.traceback)
@@ -28,19 +28,18 @@ local ExecuteCommand = assert(ExecuteCommand)
 local exports = assert(exports)
 
 --- Create a `commands` class
-local commands = class 'commands'
+---@class commands
+local commands = setmetatable({ __class = 'commands' }, {})
 
 --- Set default values
-commands:set {
-    commands = {},
-    parsers = {},
-    players = {}
-}
+commands.commands = {}
+commands.parsers = {}
+commands.players = {}
 
 --- Execute function based on used `command`
---- @param source number Player source
---- @param rawArguments table Arguments given
---- @param raw string Raw command
+---@param source number Player source
+---@param rawArguments table Arguments given
+---@param raw string Raw command
 local function __executeCommand(source, rawArguments, raw)
     raw = corev:ensure(raw, 'unknown')
 
@@ -79,10 +78,10 @@ local function __executeCommand(source, rawArguments, raw)
 end
 
 --- Register a command
---- @param resource string Name of resource where command is from
---- @param name string|table Name of command to execute
---- @param groups string|table Group(s) allowed to execute this command
---- @param callback function Execute this function when player is allowed
+---@param resource string Name of resource where command is from
+---@param name string|table Name of command to execute
+---@param groups string|table Group(s) allowed to execute this command
+---@param callback function Execute this function when player is allowed
 function commands:register(resource, name, groups, callback)
     if (corev:typeof(name) == 'tables') then
         for _, _name in pairs(name) do
@@ -108,15 +107,14 @@ function commands:register(resource, name, groups, callback)
     end
 
     --- Create a `command` class
-    local command = class 'command'
+    ---@class command
+    local command = setmetatable({ __class = 'command' }, {})
 
     --- Set default information
-    command:set {
-        resource = resource,
-        name = name,
-        groups = groups,
-        func = callback
-    }
+    command.resource = resource
+    command.name = name
+    command.groups = groups
+    command.func = callback
 
     self.commands[key] = command
 
@@ -136,9 +134,9 @@ function commands:register(resource, name, groups, callback)
 end
 
 --- Create a parser for generated command
---- @param resource string Name of resource where command is from
---- @param name string Name of command
---- @param parseInfo table Information about parser
+---@param resource string Name of resource where command is from
+---@param name string Name of command
+---@param parseInfo table Information about parser
 function commands:parser(resource, name, parseInfo)
     resource = corev:ensure(resource, corev:getCurrentResourceName())
     name = corev:ensure(name, 'unknown')
@@ -151,14 +149,13 @@ function commands:parser(resource, name, parseInfo)
     if (self.commands[key] == nil or self.commands[key].resource ~= resource) then return end
 
     --- Create a `parser` class
-    local parser = class 'parser'
+    ---@class parser
+    local parser = setmetatable({ __class = 'parser' }, {})
 
     --- Set default value
-    parser:set {
-        name = name,
-        resource = resource,
-        parameters = {}
-    }
+    parser.name = name
+    parser.resource = resource
+    parser.parameters = {}
 
     for _, info in pairs(parseInfo) do
         local type = corev:ensure(info.type, 'any')
@@ -183,10 +180,10 @@ function commands:parser(resource, name, parseInfo)
 end
 
 --- Register a command
---- @param name string|table Name of command to execute
---- @param groups string|table Group(s) allowed to execute this command
---- @param callback function Execute this function when player is allowed
-function registerCommand(name, groups, callback)
+---@param name string|table Name of command to execute
+---@param groups string|table Group(s) allowed to execute this command
+---@param callback function Execute this function when player is allowed
+local function registerCommand(name, groups, callback)
     local _r = GetInvokingResource()
     local resource = corev:ensure(_r, corev:getCurrentResourceName())
 
@@ -194,9 +191,9 @@ function registerCommand(name, groups, callback)
 end
 
 --- Create a parser for generated command
---- @param name string Name of command
---- @param parseInfo table Information about parser
-function registerParser(name, parseInfo)
+---@param name string Name of command
+---@param parseInfo table Information about parser
+local function registerParser(name, parseInfo)
     local _r = GetInvokingResource()
     local resource = corev:ensure(_r, corev:getCurrentResourceName())
 

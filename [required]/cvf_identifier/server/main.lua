@@ -11,8 +11,8 @@
 
 --- Cache global variables
 local assert = assert
-local class = assert(class)
-local corev = assert(corev)
+---@type corev_server
+local corev = assert(corev_server)
 local lower = assert(string.lower)
 local match = assert(string.match)
 local sub = assert(string.sub)
@@ -23,44 +23,35 @@ local exports = assert(exports)
 corev.db:migrationDependent()
 
 --- Create a `identifiers` class
-local identifiers = class 'identifiers'
+---@class identifiers
+local identifiers = setmetatable({ __class = 'identifiers' }, {})
 
 --- Set default values
-identifiers:set('players', {})
+identifiers.players = {}
 
 --- Generates a `player` class for console, with source '0'
---- @return player Generated `player` class for console
+---@return player Generated `player` class for console
 function identifiers:createConsole()
     --- Create a new `player` class
-    local player = class 'player'
-
-    --- Set default values
-    player:set {
-        source = 0,
-        name = 'Console',
-        identifier = 'console',
-        identifiers = {
-            steam = 'console',
-            license = 'console',
-            xbl = 'console',
-            live = 'console',
-            discord = 'console',
-            fivem = 'console',
-            ip = '127.0.0.1'
-        }
-    }
-
-    return player
+    return corev.classes:createPlayerClass(0, 'Console', {
+        steam = 'console',
+        license = 'console',
+        xbl = 'console',
+        live = 'console',
+        discord = 'console',
+        fivem = 'console',
+        ip = '127.0.0.1'
+    }, 'console')
 end
 
 --- Add console as player
 identifiers.players['console'] = identifiers:createConsole()
 
 --- Validate given identifier
---- @param identifier string Identifier to check on
---- @return string Identifier without `steam:`, `license:` etc.
---- @return string Identifier Type: `steam`, `license` etc.
---- @return boolean `true` if identifier is a primary identifier, otherwise `false`
+---@param identifier string Identifier to check on
+---@return string Identifier without `steam:`, `license:` etc.
+---@return string Identifier Type: `steam`, `license` etc.
+---@return boolean `true` if identifier is a primary identifier, otherwise `false`
 function identifiers:getIdentifierInfo(identifier)
     identifier = corev:ensure(identifier, 'unknown')
 
@@ -101,9 +92,9 @@ function identifiers:getIdentifierInfo(identifier)
 end
 
 --- Will load all players identifiers based on given rawInput, returns live information or cached database information
---- @param rawInput string|number Identifier like `steam:...`, `license:...` etc.
---- @return player|nil A generated `player` class or nil if identifier can't be found
-function getPlayerIdentifiers(rawInput)
+---@param rawInput string|number Identifier like `steam:...`, `license:...` etc.
+---@return player|nil A generated `player` class or nil if identifier can't be found
+local function getPlayerIdentifiers(rawInput)
     if (corev:typeof(rawInput) == 'number') then
         for _, player in pairs(identifiers.players) do
             if (corev:ensure(player.source, -2) == rawInput) then
@@ -139,23 +130,16 @@ function getPlayerIdentifiers(rawInput)
 
     if (#latestIdentifiers > 0) then
         --- Create a new `player` class
-        local player = class 'player'
-
-        --- Set default values
-        player:set {
-            source = nil,
-            name = corev:ensure(latestIdentifiers[1].name, 'Unknown'),
-            identifiers = {
-                steam = latestIdentifiers[1].steam,
-                license = latestIdentifiers[1].license,
-                xbl = latestIdentifiers[1].xbl,
-                live = latestIdentifiers[1].live,
-                discord = latestIdentifiers[1].discord,
-                fivem = latestIdentifiers[1].fivem,
-                ip = latestIdentifiers[1].ip
-            },
-            identifier = (latestIdentifiers[1] or {})[primaryIdentifierType] or nil
-        }
+        local player = corev.classes:createPlayerClass(nil, corev:ensure(latestIdentifiers[1].name, 'Unknown'),
+        {
+            steam = latestIdentifiers[1].steam,
+            license = latestIdentifiers[1].license,
+            xbl = latestIdentifiers[1].xbl,
+            live = latestIdentifiers[1].live,
+            discord = latestIdentifiers[1].discord,
+            fivem = latestIdentifiers[1].fivem,
+            ip = latestIdentifiers[1].ip
+        }, (latestIdentifiers[1] or {})[primaryIdentifierType] or nil)
 
         if (player.identifier == nil) then return player end
 
@@ -192,15 +176,7 @@ corev.events:onPlayerConnect(function(player, done)
     end
 
     --- Create a new `player` class
-    local vPlayer = class 'player'
-
-    --- Set default values
-    vPlayer:set {
-        source = player.source,
-        name = player.name,
-        identifiers = player.identifiers,
-        identifier = player.identifier
-    }
+    local vPlayer = corev.classes:createPlayerClass(player.source, player.name, player.identifiers, player.identifier)
 
     --- Save player for later access
     identifiers.players[vPlayer.identifier] = vPlayer
