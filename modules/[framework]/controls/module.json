@@ -1,9 +1,0 @@
-{
-    "fx_version": "adamant",
-    "game": [ "gta5" ],
-    "description": "CoreV controls module",
-    "client_scripts": [
-        "client/main.lua"
-    ],
-    "module": "controls"
-}

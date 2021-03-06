@@ -1,0 +1,23 @@
+{
+    "language": "nl",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "check_identifiers": "[%s] Wij zijn uw identifiers aan het laden...",
+        "identifiers_not_found": "Wij konden uw identiteit niet vaststellen, probeer a.u.b. opnieuw te joinen",
+        "steam_not_found": "U moet uw Steam client open hebben om met deze server te kunnen verbinden",
+        "license_not_found": "U moet een geldige GTA5 licentie hebben om met deze server te kunnen verbinden",
+        "xbl_not_found": "U moet uw XBOX Live account gekoppeld hebben om met deze server te kunnen verbinden",
+        "live_not_found": "U moet uw Microsoft account gekoppeld hebben om met deze server te kunnen verbinden",
+        "discord_not_found": "U moet uw Discord account gekoppeld hebben aan FiveM om met deze server te kunnen verbinden",
+        "fivem_not_found": "U moet uw FiveM Forum account gekoppeld hebben, maak een account op https://forum.cfx.re/ en koppel deze aan FiveM",
+        "ip_not_found": "Wij moeten uw IP kunnen traceren om u toe te laten op de server"
+    }
+}

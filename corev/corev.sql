@@ -1,0 +1,12 @@
+CREATE DATABASE `corev` /*!40100 COLLATE 'utf8_general_ci' */;
+
+USE `corev`;
+
+CREATE TABLE `migrations` (
+	`id` INT NOT NULL AUTO_INCREMENT,
+   	`date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	`resource` VARCHAR(100) NOT NULL,
+   	`name` VARCHAR(100) NOT NULL,
+
+	PRIMARY KEY (`id`)
+);

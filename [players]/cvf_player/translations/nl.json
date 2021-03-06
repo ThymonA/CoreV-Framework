@@ -1,0 +1,18 @@
+{
+    "language": "nl",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "connect_title": "Inladen van account",
+        "connect_description": "We zijn bezig met het inladen van je account...",
+        "default_job_not_found": "Wij konden geen standaard baan vinden, neem contact op met de server eigenaren",
+        "player_created": "^2[^7%s^2] ^7Account voor ^2\"^7%s^2\" ^7is aangemaakt^2!^7"
+    }
+}

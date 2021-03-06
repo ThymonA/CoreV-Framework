@@ -1,0 +1,15 @@
+{
+    "language": "en",
+    "translators": [
+        {
+            "name": "ThymonA",
+            "emails": ["contact@arens.io", "contact@thymonarens.nl", "me@tigodev.com"],
+            "github": "https://github.com/ThymonA",
+            "gitlab": "https://git.arens.io/ThymonA/",
+            "website": "https://git.arens.io/ThymonA/"
+        }
+    ],
+    "translations": {
+        "command_exsits": "^8[^7CoreV^8] ^7Command ^8'^7%s^8' ^7already exists and will now be ^8overridden^7"
+    }
+}
